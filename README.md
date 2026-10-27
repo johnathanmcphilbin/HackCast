@@ -40,7 +40,7 @@ The payload is `{ name, email, slack?, building?, source, submittedAt }`. A succ
 
 ## Editing content
 
-- **Copy** (steps, episode segments, FAQ answers): `src/lib/content.ts`. FAQ answers for unfinalised rules are placeholders; update them as rules are confirmed.
+- **Copy** (steps, hour rates, episode segments, FAQ answers): `src/lib/content.ts`. FAQ answers for unfinalised rules say so; update them as rules are confirmed.
 - **Shop prizes**: add items to `shopPrizes` in `src/lib/content.ts` (put images in `static/`). Empty slots show as "prize photo coming soon".
 - **Episode player**: set `latestEpisodeEmbed` in `src/lib/site.ts` to a YouTube/Spotify embed URL.
 - **Colours and fonts**: `@theme` block in `src/routes/layout.css`.
@@ -51,7 +51,7 @@ The payload is `{ name, email, slack?, building?, source, submittedAt }`. A succ
 - `static/brand/hackcast-logo.svg`: vector version of the same artwork.
 - `static/og.png`, `static/icon-512.png`, `static/apple-touch-icon.png`: social card and icons.
 
-Headings and body use Phantom Sans, Hack Club's typeface, loaded from Hack Club's asset CDN. Handwritten notes use Permanent Marker and tape-deck labels use Space Mono (both from Google Fonts).
+Headings and body use Phantom Sans, Hack Club's typeface, loaded from Hack Club's asset CDN. Indexes, cue marks and the player status use Space Mono.
 
 ## Deploying
 
