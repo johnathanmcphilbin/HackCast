@@ -139,20 +139,6 @@
 	fieldset:disabled {
 		opacity: 1;
 	}
-	.on-paper input:disabled,
-	.on-paper textarea:disabled {
-		opacity: 1;
-		color: var(--color-charcoal);
-		-webkit-text-fill-color: var(--color-charcoal);
-		background-color: #e4dfd6;
-		border-color: #5c5862;
-		cursor: not-allowed;
-		caret-color: transparent;
-	}
-	.on-paper input:disabled::placeholder,
-	.on-paper textarea:disabled::placeholder {
-		color: transparent;
-	}
 
 	.label {
 		@apply font-mono text-sm font-bold tracking-[0.08em] uppercase;
@@ -173,4 +159,20 @@
 	.btn:active {
 		transform: none;
 	}
+}
+
+/* Unlayered so these beat Tailwind's bg-white utility on disabled fields. */
+.on-paper input:disabled,
+.on-paper textarea:disabled {
+	opacity: 1;
+	color: var(--color-charcoal);
+	-webkit-text-fill-color: var(--color-charcoal);
+	background-color: #e4dfd6;
+	border-color: #5c5862;
+	cursor: not-allowed;
+	caret-color: transparent;
+}
+.on-paper input:disabled::placeholder,
+.on-paper textarea:disabled::placeholder {
+	color: transparent;
 }
