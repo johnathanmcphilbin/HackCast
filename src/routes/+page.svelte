@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
 	import Mixer from '#lib/components/Mixer.svelte';
-	import Turntable from '#lib/components/Turntable.svelte';
+	import Sleeve from '#lib/components/Sleeve.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 	import { JOIN_HREF } from '#lib/site.ts';
 </script>
@@ -12,14 +12,19 @@
 	<section class="hero">
 		<div class="hero-copy">
 			<h1>HACKCAST</h1>
+			<p class="tagline">{home.tagline}</p>
 			<p class="lede">{home.lede}</p>
 			<p class="cta-row">
 				<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
 			</p>
 		</div>
 		<div class="hero-visual">
-			<Turntable />
+			<Sleeve />
 		</div>
+		<figure class="polaroid">
+			<img src="/photos/hackclubbers.webp" alt="Hack Clubbers building together" width="400" height="250" />
+			<figcaption>Hack Clubbers, building</figcaption>
+		</figure>
 	</section>
 
 	<section class="band" id="how">
@@ -27,8 +32,6 @@
 			<div class="how-copy">
 				<p class="kicker">how it works</p>
 				<h2>Build. Log hours. <span class="r">Ship it.</span></h2>
-				<p>{home.howIntro}</p>
-				<p>{home.who}</p>
 				<ol class="steps">
 					{#each steps as step (step.n)}
 						<li>
@@ -74,9 +77,7 @@
 		<div class="show-inner">
 			<p class="kicker">the show</p>
 			<h2>{home.showTitle}</h2>
-			{#each home.show as paragraph, i (i)}
-				<p>{paragraph}</p>
-			{/each}
+			<p>{home.show}</p>
 			{#if published.tracklist}
 				<ol class="tracklist">
 					{#each episodes as episode (episode.id)}
@@ -112,32 +113,76 @@
 	.how,
 	.show-inner,
 	.finale {
-		width: min(1120px, calc(100% - 2.4rem));
+		width: min(1120px, calc(100% - 3rem));
 		margin-inline: auto;
 	}
 	.hero {
 		display: grid;
-		grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.85fr);
-		gap: 1.5rem 2rem;
+		grid-template-columns: minmax(0, 0.82fr) minmax(300px, 1.18fr);
+		grid-template-areas: 'copy art' 'photo art';
+		gap: 0.6rem 1.5rem;
 		align-items: center;
 		min-height: calc(100vh - 6.5rem);
-		padding: 1.5rem 0 2.5rem;
+		padding: 1.2rem 0 2.2rem;
+	}
+	.hero-copy {
+		grid-area: copy;
+	}
+	.hero-visual {
+		grid-area: art;
+		max-width: none;
+		margin-inline: 0;
+	}
+	.polaroid {
+		grid-area: photo;
+		justify-self: start;
+		width: min(250px, 100%);
+		margin: 0.4rem 0 0.2rem;
+		padding: 0.65rem 0.65rem 0.4rem;
+		background: var(--paper);
+		color: var(--ink);
+		border: 3px solid var(--shadow);
+		box-shadow: 8px 8px 0 var(--shadow);
+		transform: rotate(-2.5deg);
+	}
+	.polaroid img {
+		display: block;
+		width: 100%;
+		height: 148px;
+		object-fit: cover;
+		border: 3px solid var(--shadow);
+	}
+	.polaroid figcaption {
+		margin: 0.4rem 0 0.15rem;
+		text-align: center;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: var(--ink);
 	}
 	h1 {
 		margin: 0;
-		font-family: Bungee, sans-serif;
-		font-size: clamp(3.4rem, 8vw, 6.4rem);
+		padding-left: 0.04em;
+		font-family: 'Rammetto One', sans-serif;
+		font-size: clamp(2.15rem, 4.6vw, 4.05rem);
 		font-weight: 400;
-		line-height: 0.9;
-		letter-spacing: 0.01em;
+		line-height: 0.92;
+		color: var(--cream);
+	}
+	.tagline {
+		margin: 0.85rem 0 0;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.95rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
 		color: var(--cream);
 	}
 	.lede {
-		margin: 1rem 0 0;
-		max-width: 18ch;
-		font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+		margin: 0.7rem 0 0;
+		max-width: 16ch;
+		font-size: clamp(1.35rem, 2.3vw, 1.75rem);
 		font-weight: 800;
-		line-height: 1.25;
+		line-height: 1.2;
 		color: var(--cream);
 	}
 	.cta-row {
@@ -152,20 +197,16 @@
 		transform: translate(2px, 2px);
 		box-shadow: 3px 3px 0 var(--shadow);
 	}
-	.hero-visual {
-		max-width: 460px;
-		margin-inline: auto;
-	}
 	.band {
 		background: #152033;
 		border-block: 3px solid var(--shadow);
 	}
 	.how {
 		display: grid;
-		grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.9fr);
-		gap: 2rem 2.5rem;
+		grid-template-columns: minmax(0, 0.78fr) minmax(280px, 1.22fr);
+		gap: 1.5rem 2rem;
 		align-items: center;
-		padding: 4.2rem 0;
+		padding: 3.2rem 0;
 	}
 	.kicker {
 		margin: 0 0 0.7rem;
@@ -280,11 +321,16 @@
 			min-height: 0;
 		}
 		.hero {
+			grid-template-areas: 'copy' 'art' 'photo';
+		}
+		.hero {
 			padding-top: 0.6rem;
 		}
 		.hero-visual {
-			max-width: 320px;
-			order: 2;
+			max-width: 100%;
+		}
+		.polaroid {
+			width: min(240px, 78%);
 		}
 		.lede {
 			max-width: 16ch;

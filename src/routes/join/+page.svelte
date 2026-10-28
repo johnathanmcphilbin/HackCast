@@ -43,11 +43,11 @@
 				</h1>
 				<p class="body cream" style="width:720px;margin-top:18px">
 					{#if succeeded}
-						your slip is in the tray. now go build something, and get ready to log those hours.
+						You're on the list. Go build.
 					{:else if errors.email}
-						something in the form needs fixing. check the field marked in red and try again.
+						Fix the red field and try again.
 					{:else}
-						sign up and we'll send you everything you need to start building and logging hours. the form isn't connected yet, so check back soon!
+						The form opens soon.
 					{/if}
 				</p>
 			</div>
@@ -59,9 +59,7 @@
 						{#if succeeded && form && 'name' in form}
 							<div style="text-align:center;padding:20px 8px 10px">
 								<p class="disp" style="font-size:40px;margin:0">welcome aboard, {form.name}</p>
-								<p style="font-size:22px;font-weight:600;line-height:1.4">
-									your signup is in. keep an eye on your inbox for next steps, and start thinking about what you'll build.
-								</p>
+								<p style="font-size:22px;font-weight:600;line-height:1.4">You're on the list. Go build.</p>
 								<p class="disp" style="display:inline-block;border:5px solid #be1e3a;color:#be1e3a;font-size:36px;padding:6px 18px;transform:rotate(-6deg)">
 									RECEIVED
 								</p>
@@ -126,11 +124,11 @@
 	<p class="station-sign">the booth · join</p>
 	{#if succeeded && form && 'name' in form}
 		<h1>you're <span class="r">on the list.</span></h1>
-		<p>welcome aboard, {form.name}. your signup is in.</p>
+		<p>You're on the list, {form.name}.</p>
 		<p><a href="/">← back to hackcast</a></p>
 	{:else}
 		<h1>signups <span class="r">opening soon.</span></h1>
-		<p>sign up and we'll send you everything you need to start building and logging hours.</p>
+		<p>The form opens soon.</p>
 		<div class="slip">
 			<div class="slip-paper">
 				<p class="mono">HACKCAST SIGNUP SLIP</p>
