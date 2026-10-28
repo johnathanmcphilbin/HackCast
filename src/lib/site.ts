@@ -14,9 +14,10 @@ export const site = {
 export const JOIN_HREF = '/join';
 
 export const navLinks = [
-	{ href: '/#how-it-works', label: 'How it works' },
-	{ href: '/#rewards', label: 'Rewards' },
-	{ href: '/faq', label: 'FAQ' }
+	{ href: '/#how', label: 'how it works' },
+	{ href: '/#rewards', label: 'rewards' },
+	{ href: '/#show', label: 'the show' },
+	{ href: '/faq', label: 'faq' }
 ] as const;
 
 /**

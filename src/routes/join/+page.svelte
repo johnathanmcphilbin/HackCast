@@ -1,186 +1,155 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { dev } from '$app/env';
-	import { joinPerks } from '#lib/content.ts';
+	import closed from '#lib/boards/join-closed.svg?raw';
+	import errored from '#lib/boards/join-error.svg?raw';
+	import ok from '#lib/boards/join-success.svg?raw';
 	import Seo from '#lib/components/Seo.svelte';
-	import DisplayHeading from '#lib/components/DisplayHeading.svelte';
-	import Frame from '#lib/components/Frame.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
 	let submitting = $state(false);
+	let w = $state(1280);
 
 	const values = $derived(form && 'values' in form ? form.values : undefined);
-	const errors: Record<string, string | undefined> = $derived(
-		form && 'errors' in form && form.errors ? form.errors : {}
+	const errors = $derived(
+		(form && 'errors' in form && form.errors ? form.errors : {}) as Record<string, string | undefined>
 	);
-	const message = $derived(form && 'message' in form ? form.message : null);
-	const succeeded = $derived(form && 'success' in form && form.success);
+	const succeeded = $derived(Boolean(form && 'success' in form && form.success));
+	const art = $derived(succeeded ? ok : errors.email ? errored : closed);
+
+	const field =
+		'display:block;width:100%;margin-top:6px;border:3px solid #0c1422;background:#fffaf0;color:#17171d;padding:12px 14px;font-size:21px;font-weight:600;border-radius:6px;font-family:Figtree,sans-serif';
 </script>
 
-<Seo
-	title="Join Hackcast"
-	description="Sign up for Hackcast. Build projects, earn shop credit for approved hours, and spend hours on the weekly show."
-/>
+<Seo title="Join Hackcast" description="Sign up for Hackcast. The form says when signups are still opening." />
 
-<div class="page">
-	{#if succeeded && form && 'name' in form}
-		<Frame>
-			<div class="success">
-			<span class="tag tag-acid">Transmission received</span>
-			<DisplayHeading
-				as="h1"
-				size="lg"
-				lines={[
-					{ text: 'Welcome' },
-					{ parts: [{ text: 'aboard, ' }, { text: `${form.name}.`, accent: true }] }
-				]}
-			/>
-			<span class="rule" aria-hidden="true"></span>
-			<p class="confirm">You're on the list. We'll email you everything you need to start building and logging hours.</p>
-			<a class="btn-hit btn-secondary" href="/faq">
-				<span class="btn-face">Read the FAQ <span aria-hidden="true">→</span></span>
-			</a>
-			</div>
-		</Frame>
-	{:else}
-		<p class="kicker slash">// Join</p>
-		<div class="grid">
-			<div class="pitch">
-				<DisplayHeading
-					as="h1"
-					size="xl"
-					lines={[{ text: 'Get on' }, { text: 'the' }, { text: 'show.', accent: true }]}
-				/>
-				<p class="lede">Sign up and we'll send you everything you need to start building and logging hours.</p>
-				<span class="ticks" aria-hidden="true"><i></i><i></i><i></i></span>
-				<ol>
-					{#each joinPerks as perk (perk.n)}
-						<li>
-							<span>{perk.n}</span>
-							{perk.text}
-						</li>
-					{/each}
-				</ol>
+<div class="desk">
+	<section class="board" bind:clientWidth={w} style:height="{w ? (1080 * w) / 1920 : 720}px">
+		<div class="canvas" style:transform="scale({w / 1920})">
+			{@html art}
+			<div class="abs" style="left:96px;top:150px;width:860px">
+				<p class="mono" style="background:#6b3f24;display:inline-block;color:#f6e6cf;border:3px solid #0c1422;box-shadow:6px 6px 0 #0c1422;padding:10px 16px;font-family:Bungee,sans-serif">
+					the booth · join
+				</p>
+				<h1 class="h2" style="margin-top:28px">
+					{#if succeeded}
+						you're<br /><span class="r">on the list.</span>
+					{:else if errors.email}
+						hmm, that <span class="r">clipped.</span>
+					{:else}
+						signups <span class="r">opening soon.</span>
+					{/if}
+				</h1>
+				<p class="body cream" style="width:720px;margin-top:18px">
+					{#if succeeded}
+						your slip is in the tray. now go build something, and get ready to log those hours.
+					{:else if errors.email}
+						something in the form needs fixing. check the field marked in red and try again.
+					{:else}
+						sign up and we'll send you everything you need to start building and logging hours. the form isn't connected yet, so check back soon!
+					{/if}
+				</p>
 			</div>
 
-			<div class="art" aria-hidden="true">
-				<img src="/brand/skyline.png" alt="" width="1920" height="1080" />
-			</div>
-
-			<div class="form-col">
-				{#if !data.signupsOpen}
-					<div class="banner" role="note">
-						<span class="tag tag-acid">Status: not open yet</span>
-						<p>Signups aren't open yet. The form below is a preview.</p>
-						{#if dev}
-							<p class="dev">
-								Dev: set <code>SIGNUP_WEBHOOK_URL</code> in <code>.env</code> to enable this form. See
-								<code>.env.example</code>.
+			<div class="abs" style="left:1040px;top:120px;width:760px">
+				<div style="background:#a87958;border:3px solid #0c1422;box-shadow:12px 12px 0 #0c1422;border-radius:16px;padding:46px 22px 22px;position:relative">
+					<div style="position:absolute;left:50%;top:-16px;width:180px;margin-left:-90px;height:36px;background:#c9b8a3;border:3px solid #0c1422;border-radius:8px"></div>
+					<div class="paper" style="box-shadow:none;padding:22px 26px">
+						{#if succeeded && form && 'name' in form}
+							<div style="text-align:center;padding:20px 8px 10px">
+								<p class="disp" style="font-size:40px;margin:0">welcome aboard, {form.name}</p>
+								<p style="font-size:22px;font-weight:600;line-height:1.4">
+									your signup is in. keep an eye on your inbox for next steps, and start thinking about what you'll build.
+								</p>
+								<p class="disp" style="display:inline-block;border:5px solid #be1e3a;color:#be1e3a;font-size:36px;padding:6px 18px;transform:rotate(-6deg)">
+									RECEIVED
+								</p>
+								<p><a href="/" style="color:#17171d;font-weight:800">← back to hackcast</a></p>
+							</div>
+						{:else}
+							<p class="mono" style="display:flex;justify-content:space-between;font-size:18px">
+								<span>HACKCAST SIGNUP SLIP</span><span>№ ______ · Hack Club</span>
 							</p>
+							<hr style="border:0;border-top:3px solid #0c1422;margin:10px 0 16px" />
+							<form
+								method="POST"
+								use:enhance={() => {
+									submitting = true;
+									return async ({ update }) => {
+										await update({ reset: false });
+										submitting = false;
+									};
+								}}
+								novalidate
+							>
+								<fieldset disabled={!data.signupsOpen || submitting} style="border:0;padding:0;margin:0">
+									<label for="name" style="font-weight:800;font-size:20px;color:#17171d">your name</label>
+									<input id="name" name="name" class="jfield" style={field} autocomplete="name" required value={values?.name ?? ''} aria-invalid={errors.name ? 'true' : undefined} />
+									{#if errors.name}<p class="jerr">{errors.name}</p>{/if}
+
+									<label for="email" style="font-weight:800;font-size:20px;color:#17171d">email</label>
+									<input id="email" name="email" type="email" class="jfield" style={field} style:border-color={errors.email ? '#be1e3a' : undefined} style:border-width={errors.email ? '5px' : undefined} autocomplete="email" required value={values?.email ?? ''} placeholder="you@example.com" aria-invalid={errors.email ? 'true' : undefined} aria-describedby={errors.email ? 'email-error' : undefined} />
+									{#if errors.email}<p id="email-error" class="jerr">✕ {errors.email}</p>{/if}
+
+									<label for="slack" style="font-weight:800;font-size:20px;color:#17171d">Hack Club Slack handle <span style="font-weight:600">(optional)</span></label>
+									<input id="slack" name="slack" class="jfield" style={field} value={values?.slack ?? ''} placeholder="@orpheus" />
+
+									<label for="building" style="font-weight:800;font-size:20px;color:#17171d">what do you want to build? <span style="font-weight:600">(optional)</span></label>
+									<input id="building" name="building" class="jfield" style={field} value={values?.building ?? ''} placeholder="a game, a robot, a website for my band…" />
+
+									<div style="position:absolute;left:-9999px" aria-hidden="true">
+										<label>Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+									</div>
+
+									{#if !data.signupsOpen}
+										<button type="submit" disabled class="wait">signups opening soon</button>
+									{:else}
+										<button class="redbtn" type="submit" disabled={submitting} style="margin-top:8px;cursor:pointer">
+											{submitting ? 'sending…' : 'join hackcast →'}
+										</button>
+									{/if}
+									{#if dev && !data.signupsOpen}
+										<p class="mono" style="color:#17171d;font-size:14px;margin-top:10px">dev: set SIGNUP_WEBHOOK_URL to open this form.</p>
+									{/if}
+								</fieldset>
+							</form>
 						{/if}
 					</div>
-				{/if}
+				</div>
+			</div>
+		</div>
+	</section>
+</div>
 
-				<form
-					method="POST"
-					class="slip"
-					use:enhance={() => {
-						submitting = true;
-						return async ({ update }) => {
-							await update({ reset: false });
-							submitting = false;
-						};
-					}}
-					novalidate
-				>
-					<div class="slip-head">
-						<p class="kicker">Hackcast signup slip // Form-01</p>
-						<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
-					</div>
-
-					{#if message}
-						<p class="banner-msg" role="alert">{message}</p>
-					{/if}
-
-					<fieldset disabled={!data.signupsOpen || submitting}>
-						<legend class="sr-only">Your details</legend>
-
-						<div>
-							<label class="field-label" for="name">Your name</label>
-							<input
-								id="name"
-								name="name"
-								class="field"
-								autocomplete="name"
-								required
-								value={values?.name ?? ''}
-								aria-invalid={errors.name ? 'true' : undefined}
-								aria-describedby={errors.name ? 'name-error' : undefined}
-							/>
-							{#if errors.name}<p id="name-error" class="field-error">{errors.name}</p>{/if}
-						</div>
-
-						<div>
-							<label class="field-label" for="email">Email</label>
-							<input
-								id="email"
-								name="email"
-								type="email"
-								class="field"
-								autocomplete="email"
-								required
-								value={values?.email ?? ''}
-								aria-invalid={errors.email ? 'true' : undefined}
-								aria-describedby={errors.email ? 'email-error' : undefined}
-							/>
-							{#if errors.email}<p id="email-error" class="field-error">{errors.email}</p>{/if}
-						</div>
-
-						<div>
-							<label class="field-label" for="slack">Hack Club Slack handle (optional)</label>
-							<input
-								id="slack"
-								name="slack"
-								class="field"
-								placeholder="@orpheus"
-								value={values?.slack ?? ''}
-								aria-invalid={errors.slack ? 'true' : undefined}
-								aria-describedby={errors.slack ? 'slack-error' : undefined}
-							/>
-							{#if errors.slack}<p id="slack-error" class="field-error">{errors.slack}</p>{/if}
-						</div>
-
-						<div>
-							<label class="field-label" for="building">What do you want to build? (optional)</label>
-							<textarea
-								id="building"
-								name="building"
-								class="field"
-								rows="3"
-								placeholder="a game, a robot, a website for my band…"
-								aria-invalid={errors.building ? 'true' : undefined}
-								aria-describedby={errors.building ? 'building-error' : undefined}
-								>{values?.building ?? ''}</textarea
-							>
-							{#if errors.building}<p id="building-error" class="field-error">{errors.building}</p>{/if}
-						</div>
-
-						<div class="hp" aria-hidden="true">
-							<label>Website <input name="website" tabindex="-1" autocomplete="off" /></label>
-						</div>
-
+<div class="phone">
+	<p class="station-sign">the booth · join</p>
+	{#if succeeded && form && 'name' in form}
+		<h1>you're <span class="r">on the list.</span></h1>
+		<p>welcome aboard, {form.name}. your signup is in.</p>
+		<p><a href="/">← back to hackcast</a></p>
+	{:else}
+		<h1>signups <span class="r">opening soon.</span></h1>
+		<p>sign up and we'll send you everything you need to start building and logging hours.</p>
+		<div class="slip">
+			<div class="slip-paper">
+				<p class="mono">HACKCAST SIGNUP SLIP</p>
+				<form method="POST" use:enhance novalidate>
+					<fieldset disabled={!data.signupsOpen || submitting} style="border:0;padding:0">
+						<label for="m-name">your name</label>
+						<input id="m-name" name="name" class="field" value={values?.name ?? ''} />
+						<label for="m-email">email</label>
+						<input id="m-email" name="email" class="field" type="email" value={values?.email ?? ''} placeholder="you@example.com" aria-invalid={errors.email ? 'true' : undefined} />
+						{#if errors.email}<p class="err">✕ {errors.email}</p>{/if}
+						<label for="m-slack">Slack handle (optional)</label>
+						<input id="m-slack" name="slack" class="field" value={values?.slack ?? ''} placeholder="@orpheus" />
+						<label for="m-building">what will you build? (optional)</label>
+						<input id="m-building" name="building" class="field" value={values?.building ?? ''} placeholder="a game, a robot…" />
+						<div style="position:absolute;left:-9999px" aria-hidden="true"><input name="website" tabindex="-1" /></div>
 						{#if !data.signupsOpen}
-							<button class="btn-hit block" type="submit" disabled>
-								<span class="btn-face">Signups opening soon</span>
-							</button>
+							<button class="ghost" type="submit" disabled>signups opening soon</button>
 						{:else}
-							<button class="btn-hit btn-primary block" type="submit" disabled={submitting}>
-								<span class="btn-face">
-									{submitting ? 'Sending…' : 'Join Hackcast'}
-									{#if !submitting}<span aria-hidden="true">→</span>{/if}
-								</span>
-							</button>
+							<button class="redbtn" type="submit">join hackcast →</button>
 						{/if}
 					</fieldset>
 				</form>
@@ -190,201 +159,33 @@
 </div>
 
 <style>
-	.page {
-		padding: 1.5rem var(--gutter) 3rem;
+	.jfield::placeholder {
+		color: #17171d;
+		opacity: 1;
 	}
-	.slash {
-		margin-bottom: 0.8rem;
+	.jfield:disabled {
+		background: #eadbc0;
+		color: #17171d;
+		opacity: 1;
 	}
-	.grid {
-		display: grid;
-		gap: 1.5rem;
+	.jerr {
+		margin: 6px 0 0;
+		color: #be1e3a;
+		font-weight: 800;
+		font-size: 20px;
 	}
-	.pitch {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 1rem;
+	.wait {
+		display: inline-block;
+		margin-top: 8px;
+		padding: 12px 22px;
+		border: 3px dashed #0c1422;
+		background: #eadbc0;
+		color: #17171d;
+		font-family: 'Archivo Black', sans-serif;
+		font-size: 26px;
+		cursor: not-allowed;
 	}
-	.ticks {
-		display: flex;
-		gap: 6px;
-		width: 7rem;
-	}
-	.ticks i {
-		display: block;
-		width: 1.4rem;
-		height: 4px;
-		transform: skewX(-24deg);
-		background: var(--cyan);
-	}
-	.ticks i:nth-child(2) {
-		background: var(--mag);
-	}
-	ol {
-		margin: 0;
-		padding: 0;
-		list-style: none;
-		width: min(100%, 28rem);
-	}
-	li {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 0.75rem;
-		align-items: baseline;
-		padding: 0.7rem 0;
-		border-top: 1px solid var(--line);
-		color: #fff;
-		font-size: 1.05rem;
-	}
-	li span {
-		color: var(--cyan);
-		font-family: 'Tektur', sans-serif;
-		font-weight: 700;
-	}
-	.art {
-		display: none;
-	}
-	.banner {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.65rem 0.9rem;
-		align-items: center;
-		margin-bottom: 0.9rem;
-		padding: 0.65rem 0.75rem;
-		border: 1px solid var(--line);
-	}
-	.banner p {
-		margin: 0;
-		color: #fff;
-		font-size: 1rem;
-	}
-	.dev {
-		flex-basis: 100%;
-		color: var(--cyan);
-		font-family: 'Space Mono', monospace;
-		font-size: 0.75rem;
-		letter-spacing: 0.04em;
-		line-height: 1.45;
-	}
-	.dev code {
-		color: #fff;
-	}
-	.slip {
-		padding: 1rem 1rem 1.15rem;
-		border: 1px solid var(--line);
-		background: color-mix(in srgb, var(--panel) 75%, transparent);
-	}
-	.slip-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		margin-bottom: 1rem;
-	}
-	.eq {
-		display: flex;
-		gap: 3px;
-	}
-	.eq i {
-		width: 10px;
-		height: 6px;
-		background: var(--cyan);
-	}
-	fieldset {
-		display: grid;
-		gap: 1rem;
-		margin: 0;
-		padding: 0;
-		border: 0;
-	}
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
-	}
-	.hp {
-		position: absolute;
-		left: -9999px;
-		height: 0;
-		overflow: hidden;
-	}
-	.banner-msg {
-		margin: 0 0 0.8rem;
-		padding: 0.7rem 0.8rem;
-		border: 1.5px solid var(--mag);
-		color: #fff;
-		font-weight: 600;
-	}
-	.success {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 1rem;
-		max-width: 920px;
-		margin: 1rem auto 2rem;
-		padding: 1.5rem 1.25rem 1.75rem;
-	}
-	.rule {
-		display: block;
-		width: 6rem;
-		height: 3px;
-		background: var(--acid);
-	}
-	.confirm {
-		max-width: 42ch;
-		margin: 0;
-		color: #fff;
-		font-family: 'Space Mono', monospace;
-		font-size: 0.85rem;
-		letter-spacing: 0.06em;
-		line-height: 1.55;
-		text-transform: uppercase;
-	}
-	@media (min-width: 980px) {
-		.grid {
-			grid-template-columns: minmax(0, 1fr) 120px minmax(320px, 1.05fr);
-			gap: 1.25rem;
-			align-items: start;
-		}
-		.art {
-			display: block;
-			position: relative;
-			align-self: stretch;
-			min-height: 420px;
-			overflow: hidden;
-		}
-		.art img {
-			position: absolute;
-			inset: 0;
-			width: 100%;
-			height: 100%;
-			max-width: none;
-			object-fit: cover;
-			object-position: 68% center;
-		}
-		.art::before,
-		.art::after {
-			content: '';
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			z-index: 1;
-			width: 5px;
-		}
-		.art::before {
-			left: 0;
-			background: var(--mag);
-		}
-		.art::after {
-			right: 0;
-			background: var(--cyan);
-		}
+	h1 {
+		font-weight: 400;
 	}
 </style>

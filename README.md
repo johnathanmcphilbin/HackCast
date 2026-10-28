@@ -41,20 +41,15 @@ The payload is `{ name, email, slack?, building?, source, submittedAt }`. A succ
 
 ## Editing content
 
-- **Copy** (steps, episode segments, FAQ answers): `src/lib/content.ts`. FAQ answers for unfinalised rules are placeholders; update them as rules are confirmed.
-- **Shop prizes**: add items to `shopPrizes` in `src/lib/content.ts` (put images in `static/`). Empty slots show as "prize photo coming soon".
-- **Episode player**: set `latestEpisodeEmbed` in `src/lib/site.ts` to a YouTube/Spotify embed URL.
-- **Colours and fonts**: `src/routes/layout.css`. Void `#0B0B12`, panel `#15151F`, line `#2A2A3A`. Magenta `#FF2E88` is the call-to-action fill (text on it is `#0B0B12`). Cyan `#2DE2E6` is for labels, links and HUD corners. Acid `#D4FF3A` is for status tags only. No grey text.
-- **Placeholder numbers**: hour tiers, prize-wheel entries and the episode runtime live in `src/lib/content.ts`. They are not confirmed.
+- **Copy and hour tiers**: `src/lib/content.ts`. The tiers are still TBC.
+- **Colours**: page background is midnight blue `#1b2a41` (not the brown in the v3 mockups — changed by request). Cream panels, Hack Club red `#ec3750`, warm wood only on signs and small machine accents. Text is cream, ink, white, or red on a solid fill. No grey text.
+- **Fonts**: Bungee, Archivo Black, Space Mono, Figtree, self-hosted in `static/fonts`.
 
 ## Brand assets
 
-- `static/brand/wm-nav.png`, `static/brand/wm-big.png`: wordmarks. Headings on the site are live Tektur text, not the heading PNGs.
-- `static/brand/skyline.png`: original neon skyline. Do not replace it with third-party key art.
-- `static/brand/hackcast-logo.svg` and `src/lib/assets/hackcast-logo.png`: the original microphone logo.
-- `static/fonts/OFL.txt`: SIL Open Font License for Tektur, Chakra Petch, Space Grotesk and Space Mono.
-
-Display headings use Tektur 900, skewed −12°. Smaller headings and buttons use Chakra Petch. Body is Space Grotesk. Labels are Space Mono.
+- `static/brand/flag.svg`: Hack Club flag.
+- `static/photos/hackclubbers.webp`: homepage photo from hackclub.com.
+- Station artwork is the original hand-drawn vinyl SVG (turntables, press, mixer, VU meters).
 
 ## Deploying
 
