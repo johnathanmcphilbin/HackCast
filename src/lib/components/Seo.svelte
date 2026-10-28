@@ -24,7 +24,7 @@
 	<meta property="og:image" content={image} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
-	<meta property="og:image:alt" content="Hackcast logo next to the words: Build stuff. Get rewarded. Run the show." />
+	<meta property="og:image:alt" content="Hackcast. Build stuff, log hours, get on a teen podcast." />
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={title} />

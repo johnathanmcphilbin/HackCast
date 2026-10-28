@@ -218,25 +218,16 @@ img {
 	box-decoration-break: clone;
 }
 
-.canvas .spin {
+.spin {
 	transform-box: view-box;
 	animation: platter 1.8s linear infinite;
 }
-.canvas .tonearm {
-	transform-box: view-box;
-	animation: armdrop 1.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-.canvas .vu-needle {
+.vu-needle {
 	transform-box: view-box;
 	animation: needle 0.85s ease-in-out infinite alternate;
 }
-.canvas .lead {
-	stroke-dasharray: 1;
-	stroke-dashoffset: 1;
-	transition: stroke-dashoffset 1.1s ease;
-}
-.board.drawn .lead {
-	stroke-dashoffset: 0;
+.onair-lit {
+	animation: onair 1.1s steps(2, end) infinite;
 }
 
 .site-foot {
@@ -275,14 +266,6 @@ img {
 @keyframes platter {
 	to {
 		transform: rotate(360deg);
-	}
-}
-@keyframes armdrop {
-	from {
-		transform: rotate(-28deg);
-	}
-	to {
-		transform: rotate(0deg);
 	}
 }
 @keyframes needle {
@@ -521,15 +504,9 @@ img {
 	html {
 		scroll-behavior: auto;
 	}
-	.canvas .spin,
-	.canvas .tonearm,
-	.canvas .vu-needle,
+	.spin,
+	.vu-needle,
 	.onair-lit {
 		animation: none !important;
-	}
-	.canvas .lead,
-	.board.drawn .lead {
-		stroke-dashoffset: 0;
-		transition: none;
 	}
 }
