@@ -3,8 +3,7 @@
 	import Hero from '#lib/components/sections/Hero.svelte';
 	import HowItWorks from '#lib/components/sections/HowItWorks.svelte';
 	import Rewards from '#lib/components/sections/Rewards.svelte';
-	import About from '#lib/components/sections/About.svelte';
-	import CommunityQuestions from '#lib/components/sections/CommunityQuestions.svelte';
+	import Show from '#lib/components/sections/Show.svelte';
 	import Faq from '#lib/components/sections/Faq.svelte';
 	import FinalCta from '#lib/components/sections/FinalCta.svelte';
 </script>
@@ -14,7 +13,6 @@
 <Hero />
 <HowItWorks />
 <Rewards />
-<About />
-<CommunityQuestions />
+<Show />
 <Faq />
 <FinalCta />

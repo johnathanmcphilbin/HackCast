@@ -4,7 +4,7 @@ export const site = {
 	name: 'Hackcast',
 	tagline: 'Build stuff. Get rewarded. Run the show.',
 	description:
-		'Hackcast is a weekly podcast powered by the things you build. Make projects, earn rewards, submit questions, and help decide what happens on the show. A Hack Club You Ship, We Ship programme.',
+		'Hackcast is a weekly podcast by teenagers and a Hack Club You Ship, We Ship programme. Build a project, log your hours, and spend the approved ones on shop credit or on the show.',
 	ogImage: '/og.png',
 	hackClubUrl: 'https://hackclub.com',
 	hackClubFlag: 'https://assets.hackclub.com/flag-orpheus-top.svg'
@@ -14,8 +14,8 @@ export const site = {
 export const JOIN_HREF = '/join';
 
 export const navLinks = [
-	{ href: '/#how-it-works', label: 'How It Works' },
-	{ href: '/#rewards', label: 'Rewards' },
+	{ href: '/#how-it-works', label: 'How it works' },
+	{ href: '/#show', label: 'The show' },
 	{ href: '/faq', label: 'FAQ' }
 ] as const;
 

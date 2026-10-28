@@ -70,4 +70,11 @@
 	.scribble-outline {
 		mask-image: var(--outline);
 	}
+	@media (prefers-reduced-motion: reduce) {
+		.scribble,
+		.scribble-outline,
+		span {
+			transform: none !important;
+		}
+	}
 </style>

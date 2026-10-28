@@ -1,13 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 @import 'tailwindcss';
 
-/* Phantom Sans is Hack Club's house typeface (served from Hack Club's asset CDN). */
+/* Phantom Sans is Hack Club's house typeface, served from their CDN. */
 @font-face {
 	font-family: 'Phantom Sans';
 	src:
 		url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Regular.woff2') format('woff2'),
 		url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Regular.woff') format('woff');
-	font-weight: normal;
+	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
 }
@@ -16,7 +16,7 @@
 	src:
 		url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Italic.woff2') format('woff2'),
 		url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Italic.woff') format('woff');
-	font-weight: normal;
+	font-weight: 400;
 	font-style: italic;
 	font-display: swap;
 }
@@ -25,27 +25,33 @@
 	src:
 		url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Bold.woff2') format('woff2'),
 		url('https://assets.hackclub.com/fonts/Phantom_Sans_0.7/Bold.woff') format('woff');
-	font-weight: bold;
+	font-weight: 700;
 	font-style: normal;
 	font-display: swap;
 }
 
+/*
+ * Charcoal field, cream type. Pink is for actions and the show's cue marks.
+ * Teal is for indexes and status. The illustrated wordmark and join button
+ * are the handmade pieces — don't add a second handwriting style on top.
+ * Cream "paper" is reserved for the rate card and the signup form.
+ */
 @theme {
 	--color-charcoal: #252329;
 	--color-charcoal-2: #343138;
 	--color-pink: #f34d91;
 	--color-teal: #43c8b4;
 	--color-cream: #f5f1e9;
+	--color-danger: #b0175a;
 
 	--font-sans: 'Phantom Sans', ui-sans-serif, system-ui, sans-serif;
-	--font-marker: 'Permanent Marker', 'Comic Sans MS', cursive;
 	--font-mono: 'Space Mono', ui-monospace, monospace;
 
 	--animate-blink: blink 1.6s steps(1) infinite;
 
 	@keyframes blink {
 		50% {
-			opacity: 0.25;
+			opacity: 0.35;
 		}
 	}
 }
@@ -53,52 +59,89 @@
 @layer base {
 	html {
 		scroll-behavior: smooth;
-		scroll-padding-top: 5rem;
+		scroll-padding-top: 6.5rem;
+		color-scheme: dark;
 	}
 	body {
-		@apply bg-charcoal font-sans text-cream antialiased;
+		@apply bg-charcoal font-sans text-base text-cream antialiased;
+		line-height: 1.5;
 	}
 	::selection {
-		@apply bg-pink text-charcoal;
+		background: var(--color-pink);
+		color: var(--color-charcoal);
 	}
 	:focus-visible {
-		@apply outline-3 outline-offset-4 outline-teal;
+		outline: 3px solid var(--color-cream);
+		outline-offset: 3px;
+	}
+	.on-paper {
+		color-scheme: light;
+		color: var(--color-charcoal);
+	}
+	.on-paper :focus-visible {
+		outline-color: var(--color-charcoal);
 	}
 }
 
 @layer components {
-	/* Chunky button with a solid offset shadow that "presses" on click. */
+	.wrap {
+		width: 100%;
+		max-width: 72rem;
+		margin-inline: auto;
+		padding-inline: 1.25rem;
+	}
+	@media (min-width: 40rem) {
+		.wrap {
+			padding-inline: 2rem;
+		}
+	}
+
+	/* Flat pink button with a hard offset, same idea as the hand-drawn join button. */
 	.btn {
-		@apply inline-flex items-center gap-2 border-3 border-charcoal bg-pink px-6 py-3 text-lg font-bold text-charcoal no-underline transition-transform duration-100;
-		box-shadow: 5px 5px 0 var(--color-cream);
+		@apply inline-flex min-h-11 items-center justify-center gap-2 border-2 border-charcoal bg-pink font-bold text-charcoal no-underline;
+		box-shadow: 4px 4px 0 var(--color-cream);
 	}
 	.btn:hover {
-		transform: translate(-2px, -2px);
-		box-shadow: 7px 7px 0 var(--color-cream);
-	}
-	.btn:active {
-		transform: translate(5px, 5px);
-		box-shadow: 0 0 0 var(--color-cream);
-	}
-	.btn-dark {
-		@apply bg-charcoal text-cream;
+		transform: translate(-1px, -1px);
 		box-shadow: 5px 5px 0 var(--color-cream);
 	}
+	.btn:active {
+		transform: translate(3px, 3px);
+		box-shadow: 0 0 0 transparent;
+	}
+	.on-paper .btn {
+		box-shadow: 4px 4px 0 var(--color-charcoal);
+	}
+	.on-paper .btn:hover {
+		box-shadow: 5px 5px 0 var(--color-charcoal);
+	}
+	.btn:disabled {
+		opacity: 1;
+		color: var(--color-charcoal);
+		-webkit-text-fill-color: var(--color-charcoal);
+		cursor: wait;
+	}
+	.btn-closed,
+	.btn-closed:disabled,
+	.btn-closed:hover,
+	.btn-closed:active,
+	.on-paper .btn-closed,
+	.on-paper .btn-closed:hover,
+	.on-paper .btn-closed:active {
+		background: transparent;
+		color: var(--color-charcoal);
+		-webkit-text-fill-color: var(--color-charcoal);
+		box-shadow: none;
+		transform: none;
+		cursor: not-allowed;
+		opacity: 1;
+	}
+	fieldset:disabled {
+		opacity: 1;
+	}
 
-	/* Little monospace label, like a tape-deck readout. */
 	.label {
-		@apply font-mono text-xs font-bold tracking-[0.2em] uppercase;
-	}
-
-	/* Hollow, outlined display numbers. */
-	.outline-text {
-		-webkit-text-fill-color: transparent;
-		-webkit-text-stroke: 2px currentColor;
-	}
-
-	/* A strip of masking tape. */
-	.tape {
-		@apply absolute h-6 w-24 bg-cream/80;
+		@apply font-mono text-sm font-bold tracking-[0.08em] uppercase;
 	}
 }
 
@@ -112,4 +155,24 @@
 		animation: none !important;
 		transition: none !important;
 	}
+	.btn:hover,
+	.btn:active {
+		transform: none;
+	}
+}
+
+/* Unlayered so these beat Tailwind's bg-white utility on disabled fields. */
+.on-paper input:disabled,
+.on-paper textarea:disabled {
+	opacity: 1;
+	color: var(--color-charcoal);
+	-webkit-text-fill-color: var(--color-charcoal);
+	background-color: #e4dfd6;
+	border-color: #5c5862;
+	cursor: not-allowed;
+	caret-color: transparent;
+}
+.on-paper input:disabled::placeholder,
+.on-paper textarea:disabled::placeholder {
+	color: transparent;
 }

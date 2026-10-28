@@ -1,19 +1,14 @@
 <script lang="ts">
 	import { faqs } from '#lib/content.ts';
-	import SectionHeading from '../SectionHeading.svelte';
 	import FaqList from '../FaqList.svelte';
 </script>
 
-<section id="faq" class="mx-auto max-w-6xl px-4 py-20 sm:px-6 md:py-28" aria-labelledby="faq-title">
-	<div class="grid gap-12 lg:grid-cols-[1fr_2fr]">
-		<div>
-			<SectionHeading id="faq-title">
-				Questions?<br /><span class="text-pink">Answers.</span>
-			</SectionHeading>
-			<p class="mt-6 max-w-xs font-marker text-lg -rotate-1 text-teal">
-				some rules are still being finalised. we'll update these before launch!
-			</p>
+<section id="faq" class="border-t border-cream/20" aria-labelledby="faq-title">
+	<div class="wrap py-16 md:py-24">
+		<h2 id="faq-title" class="text-3xl font-bold tracking-tight md:text-4xl">FAQ</h2>
+		<p class="mt-3 max-w-xl text-lg">Some answers aren’t final. The ones that aren’t say so.</p>
+		<div class="mt-8 max-w-3xl">
+			<FaqList items={faqs} />
 		</div>
-		<FaqList items={faqs} />
 	</div>
 </section>

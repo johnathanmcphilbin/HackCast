@@ -1,54 +1,48 @@
 <script lang="ts">
+	import { site } from '#lib/site.ts';
 	import Logo from '../Logo.svelte';
 	import ScribbleButton from '../ScribbleButton.svelte';
-	import Doodle from '../Doodle.svelte';
-	import LevelMeter from '../LevelMeter.svelte';
 	import runTheShow from '#lib/assets/run-the-show.svg';
+
+	const facts = ['25–40 min', 'Every week', 'Teen hosts'];
 </script>
 
-<section class="relative flex min-h-[calc(100svh-5.25rem)] items-center overflow-hidden" aria-labelledby="hero-title">
-	<div
-		class="mx-auto grid w-full max-w-6xl items-center gap-y-6 px-4 py-6 sm:gap-y-10 sm:px-6 sm:py-12 lg:grid-cols-[1.45fr_1fr] lg:gap-x-10"
-	>
-		<!-- Logo + stickers. First on mobile so the brand lands immediately. -->
-		<div class="relative mx-auto mt-6 mb-6 w-full max-w-[16rem] sm:mb-8 sm:max-w-md lg:order-2 lg:my-0 lg:max-w-none">
-			<Logo class="relative z-10 mx-auto w-[80%] rotate-3 transition-transform duration-300 hover:rotate-0" />
+<section class="wrap py-10 sm:py-14 lg:py-16" aria-labelledby="hero-title">
+	<div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:gap-12">
+		<div class="w-full max-w-[36rem]">
+			<p class="flex items-center gap-3">
+				<img src={site.hackClubFlag} alt="" width="112" height="63" class="w-11" />
+				<span class="label text-teal">A Hack Club YSWS</span>
+			</p>
 
-			<div class="absolute -top-9 -left-3 z-20 -rotate-[8deg]">
-				<ScribbleButton shape="banner" color="teal" size="sm" href="#rewards" label="Shop rewards" arrow="↓" class="sm:!text-lg" />
-			</div>
-			<div class="absolute right-0 -bottom-12 z-20 rotate-[6deg]">
-				<ScribbleButton shape="banner" color="pink" size="sm" href="#about" label="New ep. every week" arrow="↓" class="!px-12 sm:!px-14 sm:!text-lg" />
-			</div>
-			<Doodle kind="star" class="absolute top-[-6%] right-[6%] w-12 rotate-12 text-pink sm:w-16" />
-			<Doodle kind="sparkle" class="absolute bottom-[8%] left-[4%] w-7 text-teal" />
-
-			<LevelMeter class="relative z-0 mx-auto -mt-4 w-[86%]" />
-		</div>
-
-		<div class="lg:order-1">
-			<h1 id="hero-title">
-				<span class="sr-only">Build stuff. Get rewarded. Run the show.</span>
+			<h1 id="hero-title" class="mt-5">
 				<img
 					src={runTheShow}
-					alt=""
-					width="180"
-					height="121"
-					class="-ml-2 block h-auto w-[min(100%,15.5rem)] -rotate-2 sm:w-[min(100%,34rem)]"
+					alt="Run the show"
+					width="720"
+					height="485"
+					class="h-auto w-full"
 				/>
 			</h1>
 
-			<p class="mt-6 max-w-xl text-lg leading-snug text-cream/90 sm:mt-8 sm:text-2xl">
-				Hackcast is a weekly podcast powered by the things you build. Make projects, earn rewards,
-				submit questions, and help decide what happens on the show.
+			<p class="mt-5 max-w-xl text-xl leading-snug">
+				A weekly podcast by teenagers. Build a project, log your hours, and spend the ones that get approved.
 			</p>
 
-			<div class="relative mt-6 flex flex-wrap items-center gap-x-8 gap-y-2 sm:mt-10">
-				<ScribbleButton class="-ml-3" />
-				<a href="#how-it-works" class="font-bold text-cream/80 underline decoration-teal decoration-2 underline-offset-4 hover:text-cream">
-					How does it work?
+			<div class="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
+				<ScribbleButton />
+				<a href="#rewards" class="py-2 font-bold underline decoration-2 underline-offset-4 hover:text-pink">
+					What the hours get you
 				</a>
 			</div>
 		</div>
+
+		<Logo class="hidden w-48 shrink-0 lg:block xl:w-56" decorative />
 	</div>
+
+	<ul class="mt-12 flex flex-wrap gap-x-8 gap-y-2 border-t border-cream/20 pt-4 font-mono text-sm font-bold">
+		{#each facts as fact (fact)}
+			<li>{fact}</li>
+		{/each}
+	</ul>
 </section>
