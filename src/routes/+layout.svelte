@@ -10,7 +10,7 @@
 <svelte:head>
 	<link rel="icon" type="image/png" href="/icon-512.png" />
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-	<meta name="theme-color" content="#252329" />
+	<meta name="theme-color" content="#0B0B12" />
 </svelte:head>
 
 <Nav />

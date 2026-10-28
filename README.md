@@ -43,15 +43,17 @@ The payload is `{ name, email, slack?, building?, source, submittedAt }`. A succ
 - **Copy** (steps, episode segments, FAQ answers): `src/lib/content.ts`. FAQ answers for unfinalised rules are placeholders; update them as rules are confirmed.
 - **Shop prizes**: add items to `shopPrizes` in `src/lib/content.ts` (put images in `static/`). Empty slots show as "prize photo coming soon".
 - **Episode player**: set `latestEpisodeEmbed` in `src/lib/site.ts` to a YouTube/Spotify embed URL.
-- **Colours and fonts**: `@theme` block in `src/routes/layout.css`.
+- **Colours and fonts**: `src/routes/layout.css`. Void `#0B0B12`, panel `#15151F`, line `#2A2A3A`. Magenta `#FF2E88` is the call-to-action fill (text on it is `#0B0B12`). Cyan `#2DE2E6` is for labels, links and HUD corners. Acid `#D4FF3A` is for status tags only. No grey text.
+- **Placeholder numbers**: hour tiers, prize-wheel entries and the episode runtime live in `src/lib/content.ts`. They are not confirmed.
 
 ## Brand assets
 
-- `src/lib/assets/hackcast-logo.png`: the logo used on the site, rendered from the supplied `Hack Cast.pdf`.
-- `static/brand/hackcast-logo.svg`: vector version of the same artwork.
-- `static/og.png`, `static/icon-512.png`, `static/apple-touch-icon.png`: social card and icons.
+- `static/brand/wm-nav.png`, `static/brand/wm-big.png`: wordmarks. Headings on the site are live Tektur text, not the heading PNGs.
+- `static/brand/skyline.png`: original neon skyline. Do not replace it with third-party key art.
+- `static/brand/hackcast-logo.svg` and `src/lib/assets/hackcast-logo.png`: the original microphone logo.
+- `static/fonts/OFL.txt`: SIL Open Font License for Tektur, Chakra Petch, Space Grotesk and Space Mono.
 
-Headings and body use Phantom Sans, Hack Club's typeface, loaded from Hack Club's asset CDN. Handwritten notes use Permanent Marker and tape-deck labels use Space Mono (both from Google Fonts).
+Display headings use Tektur 900, skewed −12°. Smaller headings and buttons use Chakra Petch. Body is Space Grotesk. Labels are Space Mono.
 
 ## Deploying
 

@@ -1,63 +1,117 @@
 <script lang="ts">
-	import { segments, topics } from '#lib/content.ts';
+	import { segments, showBlurb } from '#lib/content.ts';
 	import { latestEpisodeEmbed } from '#lib/site.ts';
-	import SectionHeading from '../SectionHeading.svelte';
+	import DisplayHeading from '../DisplayHeading.svelte';
 	import EpisodePlayer from '../EpisodePlayer.svelte';
-	import Doodle from '../Doodle.svelte';
+	import Frame from '../Frame.svelte';
 </script>
 
-<section id="about" class="mx-auto max-w-6xl px-4 py-20 sm:px-6 md:py-28" aria-labelledby="about-title">
-	<SectionHeading id="about-title">
-		Teenagers. Microphones.<br /><span class="text-pink">Opinions.</span>
-	</SectionHeading>
-
-	<div class="mt-12 grid gap-14 lg:grid-cols-2 lg:gap-12">
-		<div>
-			<p class="text-xl leading-relaxed sm:text-2xl">
-				Hackcast is a weekly podcast featuring teenagers talking about
-				{#each topics as topic, i (topic)}<span class="font-bold {i % 2 ? 'text-teal' : 'text-pink'}"
-						>{topic}</span
-					>{i < topics.length - 2 ? ', ' : i === topics.length - 2 ? ' and ' : '.'}{/each}
-			</p>
-
-			<dl class="mt-8 flex flex-wrap gap-3 font-mono text-sm font-bold uppercase">
-				<div class="flex gap-2 border-3 border-cream px-3 py-2">
-					<dt class="text-cream/60">Runtime</dt>
-					<dd>25–40 min</dd>
-				</div>
-				<div class="flex gap-2 border-3 border-cream px-3 py-2">
-					<dt class="text-cream/60">Schedule</dt>
-					<dd>Weekly</dd>
-				</div>
-				<div class="flex gap-2 border-3 border-cream px-3 py-2">
-					<dt class="text-cream/60">Hosts</dt>
-					<dd>Teenagers</dd>
-				</div>
-			</dl>
-
-			<div class="mt-12">
-				<EpisodePlayer embedUrl={latestEpisodeEmbed} />
+<section id="show" class="section" aria-labelledby="show-title">
+	<div class="wrap">
+		<div class="split">
+			<div class="title">
+				<DisplayHeading
+					id="show-title"
+					lines={[
+						{ text: 'Teens.' },
+						{ text: 'Microphones.' },
+						{ text: 'Opinions.', accent: true }
+					]}
+				/>
+				<span class="rule" aria-hidden="true"></span>
+				<p>{showBlurb}</p>
 			</div>
+			<Frame>
+				<div class="order">
+				<p class="kicker">Running order</p>
+				<ol>
+					{#each segments as seg (seg.cue)}
+						<li>
+							<span>{seg.cue}</span>
+							<strong>{seg.title}</strong>
+						</li>
+					{/each}
+				</ol>
+				</div>
+			</Frame>
 		</div>
-
-		<!-- The running order, like a cue sheet taped to the desk -->
-		<div class="relative">
-			<h3 class="flex items-center gap-3 text-3xl font-bold">
-				Every episode
-				<Doodle kind="arrow-down" class="h-12 text-teal" />
-			</h3>
-			<ol class="relative mt-6 border-l-3 border-pink pl-8">
-				{#each segments as seg (seg.cue)}
-					<li class="relative pb-8 last:pb-0">
-						<span
-							class="absolute top-0 -left-[3.15rem] grid size-9 place-items-center border-3 border-pink bg-charcoal font-mono font-bold text-pink"
-							aria-hidden="true">{seg.cue}</span
-						>
-						<h4 class="text-2xl font-bold">{seg.title}</h4>
-						<p class="mt-1 text-lg text-cream/80">{seg.body}</p>
-					</li>
-				{/each}
-			</ol>
+		<div class="player">
+			<EpisodePlayer embedUrl={latestEpisodeEmbed} />
 		</div>
 	</div>
 </section>
+
+<style>
+	.split {
+		display: grid;
+		gap: 1.25rem;
+	}
+	.title {
+		padding: 0.25rem 0 0.5rem;
+	}
+	.rule {
+		display: block;
+		width: 4.5rem;
+		height: 4px;
+		margin: 1.1rem 0 0.9rem;
+		background: var(--mag);
+	}
+	p {
+		max-width: 42ch;
+		margin: 0;
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.78rem;
+		letter-spacing: 0.08em;
+		line-height: 1.55;
+		text-transform: uppercase;
+	}
+	.order {
+		padding: 0.85rem 1rem 0.4rem;
+	}
+	ol {
+		margin: 0.35rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		display: grid;
+		grid-template-columns: 2rem 1fr;
+		gap: 0.75rem;
+		align-items: baseline;
+		padding: 0.7rem 0;
+		border-top: 1px solid var(--line);
+	}
+	li span {
+		color: var(--cyan);
+		font-family: 'Tektur', sans-serif;
+		font-size: 1.45rem;
+		font-weight: 700;
+		line-height: 1;
+	}
+	li strong {
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.78rem;
+		font-weight: 400;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.player {
+		margin-top: 1.25rem;
+	}
+	@media (min-width: 900px) {
+		.split {
+			grid-template-columns: 1.05fr 0.95fr;
+			gap: 1.5rem;
+			align-items: stretch;
+		}
+		.title {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			padding-right: 1rem;
+			border-right: 4px solid var(--cyan);
+		}
+	}
+</style>

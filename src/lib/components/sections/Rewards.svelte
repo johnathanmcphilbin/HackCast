@@ -1,102 +1,224 @@
 <script lang="ts">
-	import { shopPrizes } from '#lib/content.ts';
-	import SectionHeading from '../SectionHeading.svelte';
-	import Sticker from '../Sticker.svelte';
-	import Doodle from '../Doodle.svelte';
+	import { hourTiers, shopLine, shopPrizes, shopSlotCount } from '#lib/content.ts';
+	import DisplayHeading from '../DisplayHeading.svelte';
+	import Frame from '../Frame.svelte';
+	import PrizeWheel from '../PrizeWheel.svelte';
 
-	const SLOTS = 4;
 	const shelf = $derived(
-		Array.from({ length: Math.max(SLOTS, shopPrizes.length) }, (_, i) => shopPrizes[i] ?? null)
+		Array.from({ length: Math.max(shopSlotCount, shopPrizes.length) }, (_, i) => shopPrizes[i] ?? null)
 	);
-	const shelfTilts = [-3, 2, -1, 4];
 </script>
 
-<section id="rewards" class="relative bg-charcoal-2" aria-labelledby="rewards-title">
-	<!-- Zig-zag "torn ticket" top edge -->
-	<svg class="absolute -top-[15px] left-0 h-4 w-full text-charcoal-2" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true">
-		<path d="M0 4 L2 0 L4 4 L6 0 L8 4 L10 0 L12 4 L14 0 L16 4 L18 0 L20 4 L22 0 L24 4 L26 0 L28 4 L30 0 L32 4 L34 0 L36 4 L38 0 L40 4 L42 0 L44 4 L46 0 L48 4 L50 0 L52 4 L54 0 L56 4 L58 0 L60 4 L62 0 L64 4 L66 0 L68 4 L70 0 L72 4 L74 0 L76 4 L78 0 L80 4 L82 0 L84 4 L86 0 L88 4 L90 0 L92 4 L94 0 L96 4 L98 0 L100 4 Z" fill="currentColor" />
-	</svg>
-
-	<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 md:py-28">
-		<SectionHeading id="rewards-title">
-			What you <span class="text-pink">get.</span>
-		</SectionHeading>
-
-		<div class="mt-14 grid gap-12 lg:grid-cols-12 lg:gap-8">
-			<!-- Shop rewards: the headline reward -->
-			<div class="relative lg:col-span-7">
-				<p class="leading-[0.85] font-bold tracking-tighter">
-					<span class="block text-[clamp(4.5rem,15vw,9rem)]">Hours</span>
-					<span class="my-2 block -rotate-3 pl-[0.2em] font-marker text-[clamp(1.75rem,5vw,3rem)] font-normal tracking-normal text-teal">
-						turn into
-					</span>
-					<span class="block text-[clamp(4.5rem,15vw,9rem)] text-pink">prizes.</span>
-				</p>
-				<p class="mt-8 max-w-md text-xl sm:text-2xl">
-					Every approved hour you spend building earns shop credit to spend in the Hackcast shop.
-				</p>
+<section id="rewards" class="section" aria-labelledby="rewards-title">
+	<div class="wrap">
+		<div class="top">
+			<div class="title">
+				<DisplayHeading
+					id="rewards-title"
+					lines={[{ text: 'Hours in.' }, { text: 'Prizes out.', accent: true }]}
+				/>
+				<p class="shop-line">{shopLine}</p>
+				<div class="hatch" aria-hidden="true"></div>
 			</div>
 
-			<div class="flex flex-col gap-12 lg:col-span-5">
-				<!-- Every 5 hours: punch card -->
-				<div>
-					<h3 class="text-4xl font-bold">Every <span class="text-teal">5 hours</span></h3>
-					<ol class="mt-5 flex gap-2" aria-label="Punch card: five approved hours">
-						{#each [1, 2, 3, 4, 5] as hour (hour)}
-							<li
-								class="grid size-12 place-items-center border-3 font-mono font-bold sm:size-14 {hour === 5
-									? 'border-pink bg-pink text-charcoal'
-									: 'border-cream/40 text-cream/60'}"
-							>
-								{#if hour === 5}
-									<Doodle kind="star" class="w-9 text-cream" />
-									<span class="sr-only">Hour 5: unlocked</span>
-								{:else}
-									{hour}h
-								{/if}
-							</li>
-						{/each}
-					</ol>
-					<p class="mt-5 text-lg sm:text-xl">
-						Unlock the ability to submit a question for the podcast <strong class="text-teal">and</strong> earn an
-						entry into the weekly prize wheel.
-					</p>
+			<Frame>
+				<div class="rates">
+				<p class="kicker head">Spend hours on the show</p>
+				<ul>
+					{#each hourTiers as tier (tier.id)}
+						<li>
+							<span class="hours">{tier.label}</span>
+							{#if tier.id === 'guest'}
+								<span class="tag tag-acid-line">{tier.action}</span>
+							{:else}
+								<span class="action">{tier.action}</span>
+							{/if}
+						</li>
+					{/each}
+				</ul>
 				</div>
-
-				<!-- Top builder of the week -->
-				<div class="relative border-3 border-pink p-6 pt-8">
-					<Sticker color="pink" tilt={-4} class="absolute -top-5 left-4 text-base">#1 this week</Sticker>
-					<h3 class="text-4xl font-bold">Top builder of the week</h3>
-					<p class="mt-3 text-lg sm:text-xl">
-						Whoever ships the most approved hours that week gets to <strong class="text-pink">choose a topic</strong> or
-						<strong class="text-pink">nominate a guest</strong> for a future Hackcast episode.
-					</p>
-				</div>
-			</div>
+			</Frame>
 		</div>
 
-		<!-- Prize shelf: physical shop prizes go here once announced -->
-		<div class="mt-24">
-			<div class="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-				<h3 class="text-3xl font-bold">On the shop shelf</h3>
-				<p class="font-marker text-lg text-teal">(the good stuff, announced soon)</p>
-			</div>
-			<ul class="mt-8 grid grid-cols-2 gap-6 md:grid-cols-4">
+		<div class="band" aria-hidden="true"><i></i><i></i></div>
+
+		<div class="shelf">
+			<p class="kicker">On the shop shelf — announced soon</p>
+			<ul>
 				{#each shelf as prize, i (i)}
-					<li class="relative bg-cream p-3 pb-10 text-charcoal" style:rotate="{shelfTilts[i % 4]}deg">
-						<span class="tape -top-3 left-1/2 -translate-x-1/2 rotate-2" aria-hidden="true"></span>
+					<li class="frame frame-mag">
+						<span class="frame-c tl" aria-hidden="true"></span>
+						<span class="frame-c tr" aria-hidden="true"></span>
+						<span class="frame-c bl" aria-hidden="true"></span>
+						<span class="frame-c br" aria-hidden="true"></span>
 						{#if prize}
-							<img src={prize.image} alt={prize.alt} class="aspect-square w-full object-cover" />
-							<p class="absolute bottom-2 left-3 font-marker">{prize.name}</p>
+							<img src={prize.image} alt={prize.alt} />
+							<span class="name">{prize.name}</span>
 						{:else}
-							<div class="grid aspect-square place-items-center border-3 border-dashed border-charcoal/40 text-center font-mono text-xs font-bold text-charcoal/60 uppercase">
-								Prize photo<br />coming soon
-							</div>
-							<p class="absolute bottom-2 left-3 font-marker text-charcoal/70">???</p>
+							<span class="tba">Prize [TBA]</span>
 						{/if}
 					</li>
 				{/each}
 			</ul>
 		</div>
+
+		<Frame>
+			<div class="wheel-row">
+			<div>
+				<p class="kicker">Prize wheel</p>
+				<p class="wheel-note">Spun on the show. Prizes land when the shop does.</p>
+			</div>
+			<PrizeWheel />
+			</div>
+		</Frame>
 	</div>
 </section>
+
+<style>
+	.top {
+		display: grid;
+		gap: 1.5rem;
+	}
+	.title {
+		position: relative;
+		overflow: hidden;
+		padding-bottom: 0.5rem;
+	}
+	.hatch {
+		display: none;
+		position: absolute;
+		top: 8%;
+		right: 0;
+		width: 34%;
+		height: 78%;
+		background: repeating-linear-gradient(-72deg, transparent 0 14px, #ff2e88 14px 22px);
+		opacity: 0.9;
+		pointer-events: none;
+	}
+	.title :global(.display) {
+		position: relative;
+		z-index: 1;
+	}
+	.shop-line {
+		position: relative;
+		z-index: 1;
+		max-width: 28ch;
+		margin: 1rem 0 0;
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.75rem;
+		letter-spacing: 0.1em;
+		line-height: 1.5;
+		text-transform: uppercase;
+	}
+	.rates {
+		padding: 0.9rem 1rem 0.3rem;
+	}
+	.head {
+		margin-bottom: 0.35rem;
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.rates li {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: 0.75rem 1.25rem;
+		align-items: center;
+		padding: 0.85rem 0;
+		border-top: 1px solid var(--line);
+	}
+	.hours {
+		color: var(--cyan);
+		font-family: 'Tektur', sans-serif;
+		font-size: clamp(1.15rem, 2vw, 1.55rem);
+		white-space: nowrap;
+		font-weight: 700;
+		letter-spacing: 0.03em;
+		line-height: 1;
+		text-transform: uppercase;
+	}
+	.action {
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.78rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.band {
+		display: flex;
+		gap: 8px;
+		height: 8px;
+		margin: 1.4rem 0 1.5rem;
+		transform: skewX(-18deg);
+	}
+	.band i:first-child {
+		flex: 1.4;
+		background: var(--mag);
+	}
+	.band i:last-child {
+		flex: 0.5;
+		background: var(--cyan);
+	}
+	.shelf > ul {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.8rem;
+		margin-top: 0.8rem;
+	}
+	.shelf li {
+		display: grid;
+		min-height: 130px;
+		place-items: center;
+		padding: 0.8rem;
+		background: var(--void);
+	}
+	.shelf img {
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+	}
+	.tba,
+	.name {
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.75rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+	.wheel-row {
+		display: grid;
+		gap: 1.25rem;
+		margin-top: 1.75rem;
+		padding: 1.25rem;
+	}
+	.wheel-note {
+		max-width: 36ch;
+		margin: 0.45rem 0 0;
+		color: #fff;
+	}
+	@media (min-width: 800px) {
+		.shelf > ul {
+			grid-template-columns: repeat(4, 1fr);
+		}
+		.shelf li {
+			min-height: 160px;
+		}
+	}
+	@media (min-width: 900px) {
+		.hatch {
+			display: block;
+		}
+		.top {
+			grid-template-columns: 1.05fr 0.95fr;
+			gap: 1.75rem;
+			align-items: center;
+		}
+		.wheel-row {
+			grid-template-columns: 1fr auto;
+			align-items: center;
+		}
+	}
+</style>

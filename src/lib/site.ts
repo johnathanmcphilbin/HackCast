@@ -4,7 +4,7 @@ export const site = {
 	name: 'Hackcast',
 	tagline: 'Build stuff. Get rewarded. Run the show.',
 	description:
-		'Hackcast is a weekly podcast powered by the things you build. Make projects, earn rewards, submit questions, and help decide what happens on the show. A Hack Club You Ship, We Ship programme.',
+		'Hackcast is a weekly podcast by teenagers in Hack Club. Build a project, log your hours, and spend them on shop prizes and time on the show.',
 	ogImage: '/og.png',
 	hackClubUrl: 'https://hackclub.com',
 	hackClubFlag: 'https://assets.hackclub.com/flag-orpheus-top.svg'
@@ -14,7 +14,7 @@ export const site = {
 export const JOIN_HREF = '/join';
 
 export const navLinks = [
-	{ href: '/#how-it-works', label: 'How It Works' },
+	{ href: '/#how-it-works', label: 'How it works' },
 	{ href: '/#rewards', label: 'Rewards' },
 	{ href: '/faq', label: 'FAQ' }
 ] as const;
@@ -28,6 +28,6 @@ export const plannedRoutes = ['/dashboard', '/shop', '/leaderboard'] as const;
 
 /**
  * Embed URL for the latest episode (e.g. a YouTube or Spotify embed link).
- * Leave as null until the first episode is out; the player shows a placeholder.
+ * Leave as null until the first episode is out; the player shows standby.
  */
 export const latestEpisodeEmbed: string | null = null;

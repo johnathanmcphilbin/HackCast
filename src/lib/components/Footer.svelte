@@ -1,35 +1,80 @@
 <script lang="ts">
 	import { navLinks, site, JOIN_HREF } from '#lib/site.ts';
-	import Logo from './Logo.svelte';
+	import logo from '#lib/assets/hackcast-logo.png';
+
+	const links = [...navLinks, { href: JOIN_HREF, label: 'Join' }];
 </script>
 
-<footer class="border-t-3 border-pink bg-charcoal">
-	<div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[auto_1fr_auto] md:items-center">
-		<Logo class="w-28 -rotate-6" decorative />
-
-		<div>
-			<p class="text-xl font-bold">
-				Hackcast is a <a href={site.hackClubUrl} class="text-pink underline decoration-2 underline-offset-4">Hack Club</a>
-				You Ship, We Ship programme.
-			</p>
-			<p class="mt-2 text-cream/70">
-				Made by teenagers, for teenagers. Hack Club is a 501(c)(3) nonprofit.
-			</p>
-		</div>
-
-		<ul class="flex flex-wrap gap-x-5 gap-y-2 font-mono text-sm font-bold uppercase">
-			{#each navLinks as link (link.href)}
-				<li><a href={link.href} class="hover:text-pink">{link.label}</a></li>
+<footer class="foot">
+	<div class="inner">
+		<img src={logo} alt="" width="120" height="108" class="mark" />
+		<p>
+			Hackcast is a <a href={site.hackClubUrl}>Hack Club</a> You Ship, We Ship programme. Made by teenagers, for teenagers.
+			Hack Club is a 501(c)(3) nonprofit.
+		</p>
+		<ul>
+			{#each links as link (link.href)}
+				<li><a href={link.href}>{link.label}</a></li>
 			{/each}
-			<li><a href={JOIN_HREF} class="text-pink hover:underline">Join</a></li>
 		</ul>
 	</div>
-
-	<a
-		href={site.hackClubUrl}
-		class="group flex items-center justify-center gap-3 border-t-3 border-charcoal-2 py-4"
-	>
-		<img src={site.hackClubFlag} alt="" width="112" height="63" class="w-16 transition-transform group-hover:-rotate-6" />
-		<span class="label text-cream/80 group-hover:text-cream">A Hack Club project</span>
-	</a>
 </footer>
+
+<style>
+	.foot {
+		padding: 0 var(--gutter) 1.5rem;
+	}
+	.inner {
+		display: grid;
+		gap: 1rem;
+		align-items: center;
+		padding: 1.1rem 1rem;
+		border: 1px solid var(--line);
+	}
+	.mark {
+		width: 52px;
+		height: auto;
+	}
+	p {
+		margin: 0;
+		max-width: 46ch;
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.72rem;
+		line-height: 1.55;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	a {
+		color: var(--cyan);
+		text-decoration-thickness: 1px;
+		text-underline-offset: 3px;
+	}
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem 0.9rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	ul a {
+		color: var(--cyan);
+		font-family: 'Space Mono', monospace;
+		font-size: 0.75rem;
+		letter-spacing: 0.12em;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+	ul a:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	@media (min-width: 800px) {
+		.inner {
+			grid-template-columns: auto 1fr auto;
+			gap: 1.25rem;
+			padding: 1rem 1.25rem;
+		}
+	}
+</style>

@@ -1,76 +1,208 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { navLinks, site } from '#lib/site.ts';
-	import Logo from './Logo.svelte';
-	import ScribbleButton from './ScribbleButton.svelte';
+	import { navLinks, site, JOIN_HREF } from '#lib/site.ts';
 
 	let open = $state(false);
+	let active = $state('');
 
-	// Close the mobile menu whenever the route or hash changes.
 	$effect(() => {
 		page.url.href;
 		open = false;
 	});
+
+	$effect(() => {
+		if (page.url.pathname !== '/') {
+			active = '';
+			return;
+		}
+		const ids = ['how-it-works', 'rewards'];
+		const nodes = ids
+			.map((id) => document.getElementById(id))
+			.filter((node): node is HTMLElement => Boolean(node));
+		if (!nodes.length) return;
+		const seen = new IntersectionObserver(
+			(entries) => {
+				const hit = entries
+					.filter((entry) => entry.isIntersecting)
+					.sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+				if (hit) active = hit.target.id;
+			},
+			{ rootMargin: '-45% 0px -45% 0px', threshold: [0.1, 0.3, 0.6] }
+		);
+		for (const node of nodes) seen.observe(node);
+		return () => seen.disconnect();
+	});
+
+	function current(href: string) {
+		if (href === '/faq') return page.url.pathname === '/faq';
+		if (href.startsWith('/#')) return page.url.pathname === '/' && active === href.slice(2);
+		return false;
+	}
 </script>
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (open = false)} />
 
-<header class="sticky top-0 z-40 border-b-3 border-pink bg-charcoal">
-	<a
-		href="#main"
-		class="sr-only bg-teal px-4 py-2 font-bold text-charcoal focus:not-sr-only focus:absolute focus:top-2 focus:left-2"
-	>
-		Skip to content
-	</a>
-	<nav aria-label="Main" class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2 sm:px-6">
-		<a href={site.hackClubUrl} class="hidden shrink-0 self-start lg:block" aria-label="Hack Club">
-			<img src={site.hackClubFlag} alt="" width="112" height="63" class="w-24" />
-		</a>
-		<a href="/" class="shrink-0 transition-transform hover:-rotate-3" aria-label="Hackcast home">
-			<Logo class="w-16 sm:w-[4.5rem]" decorative />
-		</a>
+<a class="skip" href="#main">Skip to content</a>
 
-		<ul class="ml-auto hidden items-center gap-1 md:flex">
+<header class="bar">
+	<a href="/" class="brand" aria-label="{site.name} home">
+		<img src="/brand/wm-nav.png" alt="" width="612" height="103" />
+	</a>
+
+	<nav aria-label="Main" class="links">
+		<ul>
 			{#each navLinks as link (link.href)}
 				<li>
-					<a
-						href={link.href}
-						class="px-3 py-2 text-lg font-bold decoration-pink decoration-wavy decoration-2 underline-offset-6 hover:text-pink hover:underline"
-					>
-						{link.label}
-					</a>
+					<a href={link.href} aria-current={current(link.href) ? 'page' : undefined}>{link.label}</a>
 				</li>
 			{/each}
-			<li class="ml-2"><ScribbleButton size="sm" /></li>
 		</ul>
+	</nav>
 
+	<div class="end">
+		<a class="btn-hit btn-primary nav-join" href={JOIN_HREF} aria-current={page.url.pathname === '/join' ? 'page' : undefined}>
+			<span class="btn-face">Join <span aria-hidden="true">→</span></span>
+		</a>
 		<button
 			type="button"
-			class="ml-auto border-3 border-cream px-3 py-1 font-mono text-sm font-bold uppercase md:hidden"
+			class="menu"
 			aria-expanded={open}
 			aria-controls="mobile-menu"
 			onclick={() => (open = !open)}
 		>
 			{open ? 'Close' : 'Menu'}
 		</button>
-	</nav>
-
-	{#if open}
-		<div id="mobile-menu" class="border-t-3 border-charcoal-2 bg-charcoal px-4 pt-2 pb-6 md:hidden">
-			<ul class="flex flex-col">
-				{#each navLinks as link (link.href)}
-					<li>
-						<a
-							href={link.href}
-							class="block border-b-2 border-dashed border-charcoal-2 py-3 text-2xl font-bold hover:text-pink"
-							onclick={() => (open = false)}
-						>
-							{link.label}
-						</a>
-					</li>
-				{/each}
-			</ul>
-			<ScribbleButton class="mt-6 -ml-2" />
-		</div>
-	{/if}
+	</div>
 </header>
+
+{#if open}
+	<div id="mobile-menu" class="sheet">
+		<ul>
+			{#each navLinks as link (link.href)}
+				<li>
+					<a href={link.href} onclick={() => (open = false)}>{link.label}</a>
+				</li>
+			{/each}
+		</ul>
+	</div>
+{/if}
+
+<style>
+	.bar {
+		position: sticky;
+		top: 0;
+		z-index: 40;
+		display: flex;
+		align-items: stretch;
+		margin: 0.75rem var(--gutter) 0;
+		border: 1px solid var(--line);
+		background: var(--void);
+	}
+	.brand {
+		display: flex;
+		align-items: center;
+		padding: 0.7rem 0.9rem;
+		border-right: 1px solid var(--line);
+	}
+	.brand img {
+		display: block;
+		width: auto;
+		height: 22px;
+	}
+	.links {
+		display: none;
+		flex: 1;
+		align-items: center;
+	}
+	.links ul {
+		display: flex;
+		gap: 0.25rem 1.35rem;
+		margin: 0;
+		padding: 0 1.1rem;
+		list-style: none;
+	}
+	.links a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.75rem;
+		letter-spacing: 0.12em;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+	.links a:hover,
+	.links a[aria-current='page'] {
+		color: var(--cyan);
+	}
+	.links a[aria-current='page'] {
+		box-shadow: inset 0 -2px 0 var(--cyan);
+	}
+	.end {
+		display: flex;
+		align-items: center;
+		margin-left: auto;
+		border-left: 1px solid var(--line);
+	}
+	.nav-join .btn-face {
+		min-height: 36px;
+		padding: 0.45rem 0.75rem;
+		font-size: 0.85rem;
+	}
+	.nav-join {
+		margin: 0.45rem 0.55rem;
+	}
+	.menu {
+		min-width: 44px;
+		min-height: 44px;
+		margin-right: 0.35rem;
+		padding: 0 0.7rem;
+		border: 0;
+		background: transparent;
+		color: var(--cyan);
+		font-family: 'Space Mono', monospace;
+		font-size: 0.75rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	.sheet {
+		margin: 0 var(--gutter);
+		border: 1px solid var(--line);
+		border-top: 0;
+		background: var(--void);
+	}
+	.sheet ul {
+		margin: 0;
+		padding: 0.25rem 0.2rem 0.6rem;
+		list-style: none;
+	}
+	.sheet a {
+		display: flex;
+		align-items: center;
+		min-height: 48px;
+		padding: 0 0.8rem;
+		border-bottom: 1px solid var(--line);
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.85rem;
+		letter-spacing: 0.12em;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+	.sheet a:hover {
+		color: var(--cyan);
+	}
+	@media (min-width: 800px) {
+		.links {
+			display: flex;
+		}
+		.menu {
+			display: none;
+		}
+		.brand img {
+			height: 26px;
+		}
+	}
+</style>
