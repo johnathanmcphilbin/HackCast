@@ -24,5 +24,10 @@ export const GET: RequestHandler = ({ url, cookies, locals }) => {
 		maxAge: 600
 	});
 
-	redirect(302, authorizeUrl({ clientId: client.id, redirectUri, txn }));
+	// Kit 3's redirect() refuses external URLs. A raw 302 still gets the cookies
+	// from cookies.set() merged onto this response.
+	return new Response(null, {
+		status: 302,
+		headers: { Location: authorizeUrl({ clientId: client.id, redirectUri, txn }) }
+	});
 };

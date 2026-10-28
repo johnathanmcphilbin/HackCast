@@ -27,7 +27,7 @@
 			<Sleeve />
 		</div>
 		<figure class="polaroid">
-			<img src="/photos/hackclubbers.webp" alt="Hack Clubbers building together" width="400" height="250" />
+			<img src="/photos/hackclubbers.jpg" alt="Hack Clubbers building together" width="400" height="250" />
 			<figcaption>Hack Clubbers, building</figcaption>
 		</figure>
 	</section>

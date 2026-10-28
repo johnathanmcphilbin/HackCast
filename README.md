@@ -45,7 +45,7 @@ Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, an
 ## Brand assets
 
 - `static/brand/flag.svg`: Hack Club flag.
-- `static/photos/hackclubbers.webp`: homepage photo from hackclub.com.
+- `static/photos/hackclubbers.jpg`: homepage photo from hackclub.com.
 - Station artwork is the original hand-drawn vinyl SVG (turntables, press, mixer, VU meters).
 
 ## Deploying
