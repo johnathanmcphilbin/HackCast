@@ -10,7 +10,8 @@ Built with SvelteKit, TypeScript and Tailwind CSS.
 npm install
 npm run dev        # http://localhost:5173
 npm run check      # type-check
-npm run build
+npm run build      # writes a Node server to build/
+npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 ```
 
 ## Routes
@@ -55,4 +56,4 @@ Headings and body use Phantom Sans, Hack Club's typeface, loaded from Hack Club'
 
 ## Deploying
 
-`adapter-auto` is installed. Swap it in `vite.config.ts` for your host's adapter (e.g. `@sveltejs/adapter-vercel` or `adapter-node`) and set the env vars above there.
+The app uses `@sveltejs/adapter-node`. `npm run build` writes a Node server to `build/`. Start it with `npm start` (`node build`). It listens on `PORT` (default `3000`) and `HOST` (default `0.0.0.0`), which is what Hack Club Orchard expects. Set `SIGNUP_WEBHOOK_URL` (and `SIGNUP_WEBHOOK_SECRET`, if you use one) in that environment. Node 20 or newer.
