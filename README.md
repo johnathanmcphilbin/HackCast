@@ -19,25 +19,22 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | Route   | What it is |
 | ------- | ---------- |
 | `/`     | Landing page |
-| `/join` | Signup form (closed until the signup backend is connected, see below) |
+| `/auth/login` | Starts Hack Club Auth. Falls back to `/join` when auth is not configured. |
+| `/join` | "Opening soon", or "you're on the list" after a Hack Club Auth RSVP |
 | `/faq`  | Dedicated FAQ page |
+| `/admin/rsvps` | RSVP list for Slack IDs in `ADMIN_SLACK_IDS`, plus a CSV download |
 
 `/dashboard`, `/shop` and `/leaderboard` are planned but not built. They're listed in `src/lib/site.ts` (`plannedRoutes`). Add each one as `src/routes/<name>/+page.svelte`; the shared nav and footer come from `src/routes/+layout.svelte`.
 
-## Connecting signups
+## RSVPs
 
-There is no signup backend yet. **The form is disabled and says so** until one is configured. It never shows a fake "you're in" screen.
+Join buttons go to `/auth/login`, which redirects to Hack Club Auth (OIDC authorization code + PKCE). The callback is `/auth/callback`. After that, `/join` shows "you're on the list".
 
-All signup I/O lives in `src/lib/server/signup.ts`. By default it POSTs each signup as JSON to a webhook:
+Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, and `PUBLIC_BASE_URL` (or `HCA_REDIRECT_URI`) are set, `/auth/login` sends people to the existing "signups opening soon" slip. The rest of the site still renders.
 
-```sh
-cp .env.example .env
-# then set:
-SIGNUP_WEBHOOK_URL=https://...      # Airtable automation, Zapier, your own API, etc.
-SIGNUP_WEBHOOK_SECRET=...           # optional, sent as "Authorization: Bearer <secret>"
-```
+`HCA_REDIRECT_URI` defaults to `${PUBLIC_BASE_URL}/auth/callback`. Register that exact URL on the Hack Club Auth app. See `.env.example`.
 
-The payload is `{ name, email, slack?, building?, source, submittedAt }`. A success screen only appears after the webhook returns 2xx. If you move to a real auth provider (e.g. Hack Club login), replace `submitSignup` and `signupsOpen` in that file and leave the page alone.
+`GET /api/rsvps/count` returns `{ "count": N }`. The landing and the success state hide the number when it is 0 or Postgres is unreachable. The count is cached for 30 seconds.
 
 ## Editing content
 
@@ -53,4 +50,4 @@ The payload is `{ name, email, slack?, building?, source, submittedAt }`. A succ
 
 ## Deploying
 
-The app uses `@sveltejs/adapter-node`. `npm run build` writes a Node server to `build/`. Start it with `npm start` (`node build`). It listens on `PORT` (default `3000`) and `HOST` (default `0.0.0.0`), which is what Hack Club Orchard expects. Set `SIGNUP_WEBHOOK_URL` (and `SIGNUP_WEBHOOK_SECRET`, if you use one) in that environment. Node 20 or newer.
+The app uses `@sveltejs/adapter-node`. `npm run build` writes a Node server to `build/`. Start it with `npm start` (`node build`). It listens on `PORT` (default `3000`) and `HOST` (default `0.0.0.0`), which is what Hack Club Orchard expects. Set the variables in `.env.example` in that environment. Node 20 or newer. Private env vars are read when the server starts, not baked in at build time.

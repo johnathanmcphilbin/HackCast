@@ -4,19 +4,18 @@
 	import closed from '#lib/boards/join-closed.svg?raw';
 	import errored from '#lib/boards/join-error.svg?raw';
 	import ok from '#lib/boards/join-success.svg?raw';
+	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
-	let submitting = $state(false);
+	let saving = $state(false);
 	let w = $state(1280);
 
-	const values = $derived(form && 'values' in form ? form.values : undefined);
-	const errors = $derived(
-		(form && 'errors' in form && form.errors ? form.errors : {}) as Record<string, string | undefined>
-	);
-	const succeeded = $derived(Boolean(form && 'success' in form && form.success));
-	const art = $derived(succeeded ? ok : errors.email ? errored : closed);
+	const mode = $derived(data.mode);
+	const onList = $derived(mode === 'in' || mode === 'held');
+	const art = $derived(onList ? ok : mode === 'auth-error' ? errored : closed);
+	const questionError = $derived(form && 'questionError' in form ? form.questionError : '');
 
 	const field =
 		'display:block;width:100%;margin-top:6px;border:3px solid #0c1422;background:#fffaf0;color:#17171d;padding:12px 14px;font-size:21px;font-weight:600;border-radius:6px;font-family:Figtree,sans-serif';
@@ -33,82 +32,82 @@
 					the booth · join
 				</p>
 				<h1 class="h2" style="margin-top:28px">
-					{#if succeeded}
+					{#if mode === 'in'}
 						you're<br /><span class="r">on the list.</span>
-					{:else if errors.email}
+					{:else if mode === 'held'}
+						saved.<br /><span class="r">not eligible yet.</span>
+					{:else if mode === 'auth-error'}
 						hmm, that <span class="r">clipped.</span>
 					{:else}
 						signups <span class="r">opening soon.</span>
 					{/if}
 				</h1>
-				<p class="body cream" style="width:720px;margin-top:18px">
-					{#if succeeded}
-						You're on the list. Go build.
-					{:else if errors.email}
-						Fix the red field and try again.
-					{:else}
-						The form opens soon.
-					{/if}
-				</p>
+				<p class="body cream" style="width:720px;margin-top:18px">{data.note}</p>
+				{#if data.count}<p class="mono" style="color:#f6e6cf">{rsvpCountLabel(data.count)}</p>{/if}
 			</div>
 
 			<div class="abs" style="left:1040px;top:120px;width:760px">
 				<div style="background:#a87958;border:3px solid #0c1422;box-shadow:12px 12px 0 #0c1422;border-radius:16px;padding:46px 22px 22px;position:relative">
 					<div style="position:absolute;left:50%;top:-16px;width:180px;margin-left:-90px;height:36px;background:#c9b8a3;border:3px solid #0c1422;border-radius:8px"></div>
 					<div class="paper" style="box-shadow:none;padding:22px 26px">
-						{#if succeeded && form && 'name' in form}
-							<div style="text-align:center;padding:20px 8px 10px">
-								<p class="disp" style="font-size:40px;margin:0">welcome aboard, {form.name}</p>
-								<p style="font-size:22px;font-weight:600;line-height:1.4">You're on the list. Go build.</p>
-								<p class="disp" style="display:inline-block;border:5px solid #be1e3a;color:#be1e3a;font-size:36px;padding:6px 18px;transform:rotate(-6deg)">
-									RECEIVED
-								</p>
+						{#if onList}
+							<div style="text-align:center;padding:12px 8px 4px">
+								<p class="disp" style="font-size:40px;margin:0">welcome aboard, {data.name}</p>
+								<p style="font-size:22px;font-weight:600;line-height:1.4">{data.note}</p>
+								{#if mode === 'in'}
+									<p class="disp" style="display:inline-block;border:5px solid #be1e3a;color:#be1e3a;font-size:36px;padding:6px 18px;transform:rotate(-6deg)">
+										RECEIVED
+									</p>
+								{/if}
+								<form
+									method="POST"
+									action="?/question"
+									use:enhance={() => {
+										saving = true;
+										return async ({ update }) => {
+											await update();
+											saving = false;
+										};
+									}}
+									style="text-align:left;margin-top:16px"
+								>
+									<label for="question" style="font-weight:800;font-size:20px;color:#17171d">what would you ask on the show?</label>
+									<input id="question" name="question" class="jfield" style={field} maxlength="200" value={data.question ?? ''} />
+									{#if questionError}<p class="jerr">{questionError}</p>{/if}
+									<button class="redbtn" type="submit" disabled={saving} style="margin-top:8px;cursor:pointer">{saving ? 'saving…' : 'save'}</button>
+								</form>
 								<p><a href="/" style="color:#17171d;font-weight:800">← back to hackcast</a></p>
+								<form method="POST" action="/auth/logout"><button class="linkish" type="submit">sign out</button></form>
 							</div>
+						{:else if mode === 'auth-error'}
+							<p style="font-size:22px;font-weight:700">That sign-in didn't land.</p>
+							<p><a class="redbtn" href="/auth/login">try again →</a></p>
 						{:else}
 							<p class="mono" style="display:flex;justify-content:space-between;font-size:18px">
 								<span>HACKCAST SIGNUP SLIP</span><span>№ ______ · Hack Club</span>
 							</p>
 							<hr style="border:0;border-top:3px solid #0c1422;margin:10px 0 16px" />
-							<form
-								method="POST"
-								use:enhance={() => {
-									submitting = true;
-									return async ({ update }) => {
-										await update({ reset: false });
-										submitting = false;
-									};
-								}}
-								novalidate
-							>
-								<fieldset disabled={!data.signupsOpen || submitting} style="border:0;padding:0;margin:0">
+							<form method="POST" novalidate>
+								<fieldset disabled style="border:0;padding:0;margin:0">
 									<label for="name" style="font-weight:800;font-size:20px;color:#17171d">your name</label>
-									<input id="name" name="name" class="jfield" style={field} autocomplete="name" required value={values?.name ?? ''} aria-invalid={errors.name ? 'true' : undefined} />
-									{#if errors.name}<p class="jerr">{errors.name}</p>{/if}
+									<input id="name" name="name" class="jfield" style={field} autocomplete="name" value="" />
 
 									<label for="email" style="font-weight:800;font-size:20px;color:#17171d">email</label>
-									<input id="email" name="email" type="email" class="jfield" style={field} style:border-color={errors.email ? '#be1e3a' : undefined} style:border-width={errors.email ? '5px' : undefined} autocomplete="email" required value={values?.email ?? ''} placeholder="you@example.com" aria-invalid={errors.email ? 'true' : undefined} aria-describedby={errors.email ? 'email-error' : undefined} />
-									{#if errors.email}<p id="email-error" class="jerr">✕ {errors.email}</p>{/if}
+									<input id="email" name="email" type="email" class="jfield" style={field} autocomplete="email" value="" placeholder="you@example.com" />
 
 									<label for="slack" style="font-weight:800;font-size:20px;color:#17171d">Hack Club Slack handle <span style="font-weight:600">(optional)</span></label>
-									<input id="slack" name="slack" class="jfield" style={field} value={values?.slack ?? ''} placeholder="@orpheus" />
+									<input id="slack" name="slack" class="jfield" style={field} value="" placeholder="@orpheus" />
 
 									<label for="building" style="font-weight:800;font-size:20px;color:#17171d">what do you want to build? <span style="font-weight:600">(optional)</span></label>
-									<input id="building" name="building" class="jfield" style={field} value={values?.building ?? ''} placeholder="a game, a robot, a website for my band…" />
+									<input id="building" name="building" class="jfield" style={field} value="" placeholder="a game, a robot, a website for my band…" />
 
 									<div style="position:absolute;left:-9999px" aria-hidden="true">
 										<label>Website <input name="website" tabindex="-1" autocomplete="off" /></label>
 									</div>
 
-									{#if !data.signupsOpen}
-										<button type="submit" disabled class="wait">signups opening soon</button>
-									{:else}
-										<button class="redbtn" type="submit" disabled={submitting} style="margin-top:8px;cursor:pointer">
-											{submitting ? 'sending…' : 'join hackcast →'}
-										</button>
-									{/if}
-									{#if dev && !data.signupsOpen}
-										<p class="mono" style="color:#17171d;font-size:14px;margin-top:10px">dev: set SIGNUP_WEBHOOK_URL to open this form.</p>
+									<button type="submit" disabled class="wait">signups opening soon</button>
+									{#if dev}
+										<p class="mono" style="color:#17171d;font-size:14px;margin-top:10px">dev: set the HCA and database env vars to open sign-in.</p>
 									{/if}
 								</fieldset>
 							</form>
@@ -122,10 +121,22 @@
 
 <div class="phone">
 	<p class="station-sign">the booth · join</p>
-	{#if succeeded && form && 'name' in form}
-		<h1>you're <span class="r">on the list.</span></h1>
-		<p>You're on the list, {form.name}.</p>
+	{#if onList}
+		<h1>{mode === 'in' ? "you're" : 'saved.'} <span class="r">{mode === 'in' ? 'on the list.' : 'not eligible yet.'}</span></h1>
+		<p>welcome aboard, {data.name}. {data.note}</p>
+		{#if data.count}<p class="mono">{rsvpCountLabel(data.count)}</p>{/if}
+		<form method="POST" action="?/question" use:enhance>
+			<label for="m-question">what would you ask on the show?</label>
+			<input id="m-question" name="question" class="field" maxlength="200" value={data.question ?? ''} />
+			{#if questionError}<p class="err">{questionError}</p>{/if}
+			<button class="redbtn" type="submit">save</button>
+		</form>
 		<p><a href="/">← back to hackcast</a></p>
+		<form method="POST" action="/auth/logout"><button class="linkish" type="submit">sign out</button></form>
+	{:else if mode === 'auth-error'}
+		<h1>hmm, that <span class="r">clipped.</span></h1>
+		<p>That sign-in didn't land.</p>
+		<p><a class="redbtn" href="/auth/login">try again →</a></p>
 	{:else}
 		<h1>signups <span class="r">opening soon.</span></h1>
 		<p>The form opens soon.</p>
@@ -133,22 +144,17 @@
 			<div class="slip-paper">
 				<p class="mono">HACKCAST SIGNUP SLIP</p>
 				<form method="POST" use:enhance novalidate>
-					<fieldset disabled={!data.signupsOpen || submitting} style="border:0;padding:0">
+					<fieldset disabled style="border:0;padding:0">
 						<label for="m-name">your name</label>
-						<input id="m-name" name="name" class="field" value={values?.name ?? ''} />
+						<input id="m-name" name="name" class="field" value="" />
 						<label for="m-email">email</label>
-						<input id="m-email" name="email" class="field" type="email" value={values?.email ?? ''} placeholder="you@example.com" aria-invalid={errors.email ? 'true' : undefined} />
-						{#if errors.email}<p class="err">✕ {errors.email}</p>{/if}
+						<input id="m-email" name="email" class="field" type="email" value="" placeholder="you@example.com" />
 						<label for="m-slack">Slack handle (optional)</label>
-						<input id="m-slack" name="slack" class="field" value={values?.slack ?? ''} placeholder="@orpheus" />
+						<input id="m-slack" name="slack" class="field" value="" placeholder="@orpheus" />
 						<label for="m-building">what will you build? (optional)</label>
-						<input id="m-building" name="building" class="field" value={values?.building ?? ''} placeholder="a game, a robot…" />
+						<input id="m-building" name="building" class="field" value="" placeholder="a game, a robot…" />
 						<div style="position:absolute;left:-9999px" aria-hidden="true"><input name="website" tabindex="-1" /></div>
-						{#if !data.signupsOpen}
-							<button class="ghost" type="submit" disabled>signups opening soon</button>
-						{:else}
-							<button class="redbtn" type="submit">join hackcast →</button>
-						{/if}
+						<button class="ghost" type="submit" disabled>signups opening soon</button>
 					</fieldset>
 				</form>
 			</div>
@@ -185,5 +191,15 @@
 	}
 	h1 {
 		font-weight: 400;
+	}
+	.linkish {
+		background: none;
+		border: 0;
+		padding: 0;
+		color: inherit;
+		font: inherit;
+		font-weight: 800;
+		text-decoration: underline;
+		cursor: pointer;
 	}
 </style>

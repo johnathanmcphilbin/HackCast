@@ -1,50 +1,47 @@
-import { fail } from '@sveltejs/kit';
-import { signupsOpen, submitSignup } from '#lib/server/signup.ts';
+import { fail, redirect } from '@sveltejs/kit';
+import { visibleRsvpCount } from '#lib/server/auth-config.ts';
+import { isAuthReady } from '#lib/server/config.ts';
+import { getRsvp, rsvpCount, setRsvpQuestion } from '#lib/server/rsvps.ts';
 import type { Actions, PageServerLoad } from './$types';
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export const load: PageServerLoad = () => ({ signupsOpen: signupsOpen() });
+export const load: PageServerLoad = async ({ locals, url }) => {
+	if (!isAuthReady()) {
+		return { mode: 'closed' as const, name: '', question: null, count: null, note: 'The form opens soon.' };
+	}
+	const count = visibleRsvpCount(await rsvpCount());
+	if (!locals.session) {
+		if (url.searchParams.get('error') === 'auth') {
+			return { mode: 'auth-error' as const, name: '', question: null, count, note: "That sign-in didn't land." };
+		}
+		redirect(303, '/auth/login');
+	}
+	const row = await getRsvp(locals.session.sub);
+	if (!row) redirect(303, '/auth/login');
+	const eligible = row.yswsEligible === true;
+	return {
+		mode: eligible ? ('in' as const) : ('held' as const),
+		name: row.name || locals.session.name,
+		question: row.question,
+		count,
+		note: eligible
+			? "You're on the list. Go build."
+			: row.yswsEligible === false
+				? 'Not YSWS-eligible yet. We kept you on file.'
+				: "Eligibility isn't confirmed yet. We kept you on file."
+	};
+};
 
 export const actions: Actions = {
-	default: async ({ request, fetch }) => {
+	question: async ({ request, locals }) => {
+		if (!isAuthReady() || !locals.session) redirect(303, '/auth/login');
 		const data = await request.formData();
-		const values = {
-			name: String(data.get('name') ?? '').trim(),
-			email: String(data.get('email') ?? '').trim(),
-			slack: String(data.get('slack') ?? '').trim(),
-			building: String(data.get('building') ?? '').trim()
-		};
-
-		// Honeypot: real people never see or fill this field.
-		if (data.get('website')) return fail(400, { values, errors: {}, message: 'Something went wrong.' });
-
-		const errors: Partial<Record<keyof typeof values, string>> = {};
-		if (!values.name) errors.name = 'What should we call you?';
-		if (values.name.length > 100) errors.name = "That's a long name! Keep it under 100 characters.";
-		if (!EMAIL.test(values.email)) errors.email = 'Enter a valid email.';
-		if (values.slack.length > 80) errors.slack = 'Keep this under 80 characters.';
-		if (values.building.length > 1000) errors.building = 'Keep this under 1000 characters.';
-		if (Object.keys(errors).length) return fail(400, { values, errors, message: null });
-
-		const result = await submitSignup(
-			{
-				name: values.name,
-				email: values.email,
-				slack: values.slack || undefined,
-				building: values.building || undefined
-			},
-			fetch
-		);
-
-		if (!result.ok) {
-			const message =
-				result.reason === 'not-configured'
-					? "Signups aren't open yet. Check back soon!"
-					: "We couldn't save your signup just now. Please try again in a minute.";
-			return fail(result.reason === 'not-configured' ? 503 : 502, { values, errors: {}, message });
+		const question = String(data.get('question') ?? '').trim().slice(0, 200);
+		try {
+			await setRsvpQuestion(locals.session.sub, question || null);
+		} catch {
+			console.error('rsvp question failed');
+			return fail(503, { questionError: 'Could not save that. Try again.' });
 		}
-
-		return { success: true as const, name: values.name };
+		return { questionSaved: true };
 	}
 };

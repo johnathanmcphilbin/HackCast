@@ -13,6 +13,7 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"test": "node --experimental-strip-types --test src/lib/server/auth-flow.test.ts",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
@@ -20,6 +21,7 @@
 		"@sveltejs/kit": "^3.0.0",
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
 		"@tailwindcss/vite": "^4.3.0",
+		"@types/node": "^26.6.5",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",
@@ -29,5 +31,9 @@
 	"imports": {
 		"#lib": "./src/lib/index.js",
 		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"jose": "^6.2.13",
+		"postgres": "^3.4.9"
 	}
 }

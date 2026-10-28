@@ -2,8 +2,12 @@
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
 	import Mixer from '#lib/components/Mixer.svelte';
 	import Sleeve from '#lib/components/Sleeve.svelte';
+	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
 	import { JOIN_HREF } from '#lib/site.ts';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
 </script>
 
 <Seo />
@@ -17,6 +21,7 @@
 			<p class="cta-row">
 				<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
 			</p>
+			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
 		</div>
 		<div class="hero-visual">
 			<Sleeve />
@@ -187,6 +192,13 @@
 	}
 	.cta-row {
 		margin: 1.4rem 0 0;
+	}
+	.count {
+		margin: 0.85rem 0 0;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.9rem;
+		font-weight: 700;
+		color: var(--cream);
 	}
 	.cta {
 		font-size: 1.35rem;

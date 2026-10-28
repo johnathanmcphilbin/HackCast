@@ -3,7 +3,9 @@
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			session: { sub: string; name: string; slackId: string | null } | null;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
