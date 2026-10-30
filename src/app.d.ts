@@ -3,7 +3,9 @@
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			session: { sub: string; name: string; slackId: string | null } | null;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
@@ -11,3 +13,12 @@ declare global {
 }
 
 export {};
+
+declare module '*.html?raw' {
+	const content: string;
+	export default content;
+}
+declare module '*.svg?raw' {
+	const content: string;
+	export default content;
+}

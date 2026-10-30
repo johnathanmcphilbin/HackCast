@@ -1,29 +1,35 @@
 <script lang="ts">
+	import p1 from '#lib/boards/faq-p1.html?raw';
+	import p2 from '#lib/boards/faq-p2.html?raw';
 	import { faqs } from '#lib/content.ts';
+	import { JOIN_HREF } from '#lib/site.ts';
+	import Board from '#lib/components/Board.svelte';
 	import Seo from '#lib/components/Seo.svelte';
-	import FaqList from '#lib/components/FaqList.svelte';
-	import JoinButton from '#lib/components/JoinButton.svelte';
-	import Doodle from '#lib/components/Doodle.svelte';
 </script>
 
-<Seo title="FAQ | Hackcast" description="Answers to common questions about Hackcast, the Hack Club You Ship, We Ship podcast programme." />
+<Seo title="FAQ | Hackcast" description="Questions about Hackcast, the Hack Club You Ship, We Ship podcast. Some rules are still being finalised." />
 
-<div class="mx-auto max-w-4xl px-4 py-16 sm:px-6 md:py-24">
-	<h1 class="text-[clamp(3rem,9vw,6rem)] leading-[0.9] font-bold tracking-tight">
-		Frequently asked <span class="relative inline-block text-pink"
-			>questions<Doodle kind="underline" class="absolute -bottom-2 left-0 h-3 w-full text-teal" /></span
-		>
-	</h1>
-	<p class="mt-6 max-w-xl font-marker text-xl -rotate-1 text-cream/80">
-		Some rules are still being finalised. We'll update these answers before launch.
-	</p>
-
-	<div class="mt-12">
-		<FaqList items={faqs} />
-	</div>
-
-	<div class="mt-16 flex flex-wrap items-center gap-6">
-		<p class="text-2xl font-bold">Seen enough?</p>
-		<JoinButton />
-	</div>
+<div class="desk">
+	<Board html={p1} />
+	<Board html={p2} />
 </div>
+
+<div class="phone">
+	<p class="station-sign">the log book · faq</p>
+	<h1>frequently asked <span class="r">questions.</span></h1>
+	<p>Some rules go up before launch.</p>
+	{#each faqs as item, i (item.id)}
+		<details class="card">
+			<summary><span class="mono">CUE CARD · Q{String(i + 1).padStart(2, '0')}</span> {item.q}</summary>
+			<p>{item.a}</p>
+		</details>
+	{/each}
+	<p><a class="redbtn" href={JOIN_HREF}>join hackcast →</a></p>
+</div>
+
+<style>
+	summary {
+		cursor: pointer;
+		font-family: 'Archivo Black', sans-serif;
+	}
+</style>

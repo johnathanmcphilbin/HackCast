@@ -1,94 +1,182 @@
-// Copy for the landing page. Anything marked TBD is waiting on final programme rules.
+// Programme copy. Hour tiers are still TBC — change the labels here.
+// Placeholder blocks stay in this file. `published` decides what the site shows.
 
-export const steps = [
+export const episodeRuntime = {
+	label: '25–40 min',
+	schedule: 'weekly',
+	hosts: '@[host] + @[host]',
+	hostsNote: 'TBC',
+	confirmed: false
+} as const;
+
+/** What approved hours are worth. Not confirmed. */
+export const hourTiers = [
 	{
-		n: '01',
-		title: 'Build',
-		body: 'Make whatever you want. Websites, games, apps, hardware projects, tools or anything else you can imagine.',
-		note: 'literally anything'
+		id: 'question',
+		channel: 'CH 1',
+		label: '5 hrs',
+		title: 'send in a question for the show',
+		detail: '+ one entry into the weekly prize wheel',
+		confirmed: false
 	},
 	{
-		n: '02',
-		title: 'Ship',
-		body: 'Track your time, share your progress and submit your projects.',
-		note: 'show your work!'
+		id: 'topic',
+		channel: 'CH 2',
+		label: '10 hrs',
+		title: 'pick a topic for an episode',
+		detail: 'you choose what we talk about',
+		confirmed: false
 	},
 	{
-		n: '03',
-		title: 'Earn',
-		body: 'Earn shop rewards for every approved hour spent building.',
-		note: 'hours → prizes'
+		id: 'guest',
+		channel: 'CH 3',
+		label: '[TBC] hrs',
+		title: 'guest spot',
+		detail: 'come on hackcast as a guest',
+		confirmed: false
 	},
 	{
-		n: '04',
-		title: 'Run the Show',
-		body: 'Submit questions, enter weekly prize draws and help decide what happens on Hackcast.',
-		note: "you're on air"
+		id: 'shop',
+		channel: 'MASTER',
+		label: 'every hour',
+		title: 'shop credit',
+		detail: 'every approved hour earns credit to spend in the hackcast shop',
+		confirmed: false
 	}
 ] as const;
 
-export const segments = [
-	{ cue: 'A', title: 'Intros & updates', body: "Who's on, what's new, what got shipped this week." },
-	{ cue: 'B', title: 'Main discussion & guests', body: 'The big topic of the week, sometimes with a guest.' },
-	{ cue: 'C', title: 'Meta', body: "What's happening in the Hack Club community right now." },
-	{ cue: 'D', title: 'Games & rapid-fire', body: 'Quick questions, hot takes, no time to think.' },
-	{ cue: 'E', title: 'Your questions', body: 'Questions sent in by people building with Hackcast.' }
+export const prizeWheel = {
+	hoursPerEntry: 5,
+	confirmed: false,
+	blurb:
+		"every 5 approved hours gives you one entry into that week's prize wheel, spun live on the show. what's on the wheel will be announced closer to launch."
+} as const;
+
+export const shop = {
+	confirmed: false,
+	blurb: 'Every approved hour earns shop credit. The shop and its prizes will be announced when they are real.',
+	sleeves: [
+		{ id: 's1', title: '???', note: 'TBC' },
+		{ id: 's2', title: '???', note: 'TBC' },
+		{ id: 's3', title: '???', note: 'TBC' },
+		{ id: 's4', title: '???', note: 'TBC' },
+		{ id: 's5', title: '???', note: 'TBC' },
+		{ id: 's6', title: '???', note: 'TBC' }
+	]
+} as const;
+
+/** EP 01–05. Hidden until titles are real. */
+export const episodes = [
+	{ id: 'EP 01', title: '[episode title TBA]', status: 'coming soon' },
+	{ id: 'EP 02', title: '[episode title TBA]', status: 'coming soon' },
+	{ id: 'EP 03', title: '[episode title TBA]', status: 'coming soon' },
+	{ id: 'EP 04', title: '[episode title TBA]', status: 'coming soon' },
+	{ id: 'EP 05', title: '[episode title TBA]', status: 'coming soon' }
 ] as const;
 
-export const topics = [
-	'technology',
-	'building projects',
-	'Hack Club',
-	'internet culture',
-	'community debates'
+/**
+ * Flip a flag when that block is real. The landing checks these before rendering
+ * hour-tier cards, the prize wheel, shop sleeves, or the episode tracklist.
+ */
+export const published = {
+	hourTiers: false,
+	prizeWheel: false,
+	shop: false,
+	tracklist: false
+} as const;
+
+/**
+ * The hours → question + wheel mechanic. Said once on the landing page.
+ * Hour numbers stay out of the sentence until the question tier is confirmed.
+ * When `published.hourTiers` is on, the tier cards replace this sentence.
+ */
+function hoursToAirtime(): string {
+	for (const tier of hourTiers) {
+		if (tier.confirmed && tier.id === 'question') {
+			return `Every ${tier.label} = a question and a wheel entry.`;
+		}
+	}
+	return 'Approved hours earn a question and a wheel entry.';
+}
+
+export const rewardLine = hoursToAirtime();
+
+export const home = {
+	tagline: 'a podcast built by teens in tech',
+	lede: 'Build stuff, log hours, get on a teen podcast.',
+	showTitle: 'Teenagers. Mics. Opinions.',
+	show: 'A weekly show, 25–40 minutes.',
+	finaleTitle: "You're on air.",
+	finale: 'Log the hours. Get on the show.'
+} as const;
+
+export const steps = [
+	{ n: '01', title: 'build', body: 'Make something you can show.' },
+	{ n: '02', title: 'track', body: 'Log the hours you spend.' },
+	{ n: '03', title: 'ship', body: 'Send it in. Hours count.' }
 ] as const;
 
-export type Faq = { q: string; a: string };
+export type Faq = { id: string; q: string; a: string; tbc?: boolean };
 
 export const faqs: Faq[] = [
 	{
-		q: 'What is Hackcast?',
-		a: 'Hackcast is a weekly, 25–40 minute podcast by teenagers, and a Hack Club You Ship, We Ship programme. You build projects, log your hours, earn shop rewards and get a say in what happens on the show.'
+		id: 'what',
+		q: 'what is hackcast?',
+		a: 'A weekly teen podcast, and a Hack Club YSWS. Build, log hours, get on the show.'
 	},
 	{
-		q: 'Who can participate?',
-		a: 'Hackcast is for teenagers. Full eligibility details will be posted here before launch.'
+		id: 'who',
+		q: 'who can participate?',
+		a: 'Teenagers. Eligibility goes up before launch.'
 	},
 	{
-		q: 'What can I build?',
-		a: 'Pretty much anything: websites, games, apps, hardware, tools, bots, art projects. If you made it, it counts as building.'
+		id: 'build',
+		q: 'what can I build?',
+		a: 'Sites, games, apps, hardware, tools, or art. If you made it, it counts.'
 	},
 	{
-		q: 'How do I track my hours?',
-		a: "We're finalising the time-tracking setup. Exact instructions will be on this page and in your signup email before hours start counting."
+		id: 'hours',
+		q: 'how do I track my hours?',
+		a: 'The tracker is still being finished. Instructions arrive before hours count.',
+		tbc: true
 	},
 	{
-		q: 'What counts as a shipped project?',
-		a: 'The shipping checklist is still being written. It will be posted here before launch.'
+		id: 'shipped',
+		q: 'what counts as a shipped project?',
+		a: 'Still being written. The checklist goes up before launch.',
+		tbc: true
 	},
 	{
-		q: 'Can I work on an existing project?',
-		a: "The rules for existing projects haven't been finalised yet. We'll update this answer before launch."
+		id: 'existing',
+		q: 'can I work on an existing project?',
+		a: 'Not settled yet. The rule goes up before launch.',
+		tbc: true
 	},
 	{
-		q: 'How do I earn shop rewards?',
-		a: 'Every approved hour you spend building earns shop credit. The shop and its prizes will be announced soon.'
+		id: 'shop',
+		q: 'how do I earn shop rewards?',
+		a: shop.confirmed
+			? shop.blurb
+			: 'Not open yet. Credit rules come before anything is for sale.',
+		tbc: !shop.confirmed
 	},
 	{
-		q: 'How does the weekly prize wheel work?',
-		a: "Every 5 approved hours gives you one entry into that week's prize wheel, which is spun on the show. What's on the wheel will be announced closer to launch."
+		id: 'wheel',
+		q: 'how does the weekly prize wheel work?',
+		a: published.prizeWheel
+			? prizeWheel.blurb
+			: 'Spun live on the show. Entries and prizes come before launch.',
+		tbc: !published.prizeWheel
 	},
 	{
-		q: 'How does someone choose a podcast topic or guest?',
-		a: 'Each week, whoever ships the most approved hours gets to choose a topic or nominate a guest for a future episode. We’ll get in touch to plan it with you.'
+		id: 'airtime',
+		q: 'how does someone choose a topic or guest?',
+		a: 'Pitches and guest spots take approved hours. Counts come before launch.',
+		tbc: true
 	},
 	{
-		q: 'When do new episodes come out?',
-		a: 'Every week. The release day will be announced alongside the first episode.'
+		id: 'when',
+		q: 'when do new episodes come out?',
+		a: 'Every week. The day is announced with episode one.'
 	}
 ];
-
-export type ShopPrize = { name: string; image: string; alt: string };
-
-/** Physical shop prizes for the Rewards "shelf". Empty slots render as placeholders until these are filled in. */
-export const shopPrizes: ShopPrize[] = [];
