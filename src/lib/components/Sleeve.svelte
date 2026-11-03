@@ -1,12 +1,14 @@
 <script lang="ts">
 	const grooves = Array.from({ length: 18 }, (_, i) => 92 + i * 7.2);
+	// Die-cut window. A 7" sleeve is 368 units wide; 40 is about a fifth of that.
+	const windowR = 40;
 </script>
 
 <svg class="sleeve-art" viewBox="0 0 720 530" role="img" aria-label="Hackcast 45 RPM record sliding out of its sleeve">
 	<defs>
 		<mask id="sleeve-paper">
 			<rect x="28" y="44" width="368" height="420" fill="#fff" />
-			<circle cx="330" cy="250" r="70" fill="#000" />
+			<circle cx="330" cy="250" r={windowR} fill="#000" />
 		</mask>
 	</defs>
 
@@ -55,7 +57,7 @@
 		<rect x="28" y="386" width="368" height="78" fill="#ec3750" />
 	</g>
 	<rect x="28" y="44" width="368" height="420" fill="none" stroke="#0c1422" stroke-width="3" />
-	<circle cx="330" cy="250" r="70" fill="none" stroke="#0c1422" stroke-width="3" />
+	<circle cx="330" cy="250" r={windowR} fill="none" stroke="#0c1422" stroke-width="3" />
 
 	<text x="212" y="148" text-anchor="middle" fill="#17171d" font-family="Rammetto One, sans-serif" font-size="38">HACKCAST</text>
 	<text x="212" y="434" text-anchor="middle" fill="#fff" font-family="Space Mono, monospace" font-size="18" font-weight="700">45 RPM · VOL. 1</text>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
+	import HackClubSignup from '#lib/components/HackClubSignup.svelte';
 	import Sampler from '#lib/components/Sampler.svelte';
 	import Sleeve from '#lib/components/Sleeve.svelte';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
@@ -22,6 +23,7 @@
 			<p class="cta-row">
 				<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
 			</p>
+			<HackClubSignup />
 			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
 		</div>
 		<div class="hero-visual">
@@ -105,6 +107,7 @@
 		<p class="cta-row">
 			<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
 		</p>
+		<HackClubSignup />
 	</section>
 </div>
 
