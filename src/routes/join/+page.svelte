@@ -18,7 +18,7 @@
 	const questionError = $derived(form && 'questionError' in form ? form.questionError : '');
 
 	const field =
-		'display:block;width:100%;margin-top:6px;border:3px solid #0c1422;background:#fffaf0;color:#17171d;padding:12px 14px;font-size:21px;font-weight:600;border-radius:6px;font-family:Figtree,sans-serif';
+		'display:block;width:100%;margin-top:6px;border:3px solid #17171d;background:#ffffff;color:#17171d;padding:12px 14px;font-size:21px;font-weight:600;border-radius:6px;font-family:Figtree,sans-serif';
 </script>
 
 <Seo title="Join Hackcast" description="Sign up for Hackcast. The form says when signups are still opening." />
@@ -28,7 +28,7 @@
 		<div class="canvas" style:transform="scale({w / 1920})">
 			{@html art}
 			<div class="abs" style="left:96px;top:150px;width:860px">
-				<p class="mono" style="background:#6b3f24;display:inline-block;color:#f6e6cf;border:3px solid #0c1422;box-shadow:6px 6px 0 #0c1422;padding:10px 16px;font-family:Bungee,sans-serif">
+				<p class="mono" style="background:#f34d91;display:inline-block;color:#17171d;border:3px solid #17171d;box-shadow:6px 6px 0 #17171d;padding:10px 16px;font-family:Bungee,sans-serif">
 					the booth · join
 				</p>
 				<h1 class="h2" style="margin-top:28px">
@@ -47,12 +47,12 @@
 			</div>
 
 			<div class="abs" style="left:1040px;top:120px;width:760px">
-				<div style="background:#a87958;border:3px solid #0c1422;box-shadow:12px 12px 0 #0c1422;border-radius:16px;padding:46px 22px 22px;position:relative">
-					<div style="position:absolute;left:50%;top:-16px;width:180px;margin-left:-90px;height:36px;background:#c9b8a3;border:3px solid #0c1422;border-radius:8px"></div>
+				<div style="background:#17171d;border:3px solid #17171d;box-shadow:12px 12px 0 #17171d;border-radius:16px;padding:46px 22px 22px;position:relative">
+					<div style="position:absolute;left:50%;top:-16px;width:180px;margin-left:-90px;height:36px;background:#f34d91;border:3px solid #17171d;border-radius:8px"></div>
 					<div class="paper" style="box-shadow:none;padding:22px 26px">
 						{#if onList}
 							<div style="text-align:center;padding:12px 8px 4px">
-								<p class="disp" style="font-size:40px;margin:0">welcome aboard, {data.name}</p>
+								<p class="disp" style="font-size:40px;margin:0">hey {data.name}</p>
 								<p style="font-size:22px;font-weight:600;line-height:1.4">{data.note}</p>
 								{#if mode === 'in'}
 									<p class="disp" style="display:inline-block;border:5px solid #be1e3a;color:#be1e3a;font-size:36px;padding:6px 18px;transform:rotate(-6deg)">
@@ -86,7 +86,7 @@
 							<p class="mono" style="display:flex;justify-content:space-between;font-size:18px">
 								<span>HACKCAST SIGNUP SLIP</span><span>№ ______ · Hack Club</span>
 							</p>
-							<hr style="border:0;border-top:3px solid #0c1422;margin:10px 0 16px" />
+							<hr style="border:0;border-top:3px solid #17171d;margin:10px 0 16px" />
 							<form method="POST" novalidate>
 								<fieldset disabled style="border:0;padding:0;margin:0">
 									<label for="name" style="font-weight:800;font-size:20px;color:#17171d">your name</label>
@@ -123,7 +123,7 @@
 	<p class="station-sign">the booth · join</p>
 	{#if onList}
 		<h1>{mode === 'in' ? "you're" : 'saved.'} <span class="r">{mode === 'in' ? 'on the list.' : 'not eligible yet.'}</span></h1>
-		<p>welcome aboard, {data.name}. {data.note}</p>
+		<p>hey {data.name}. {data.note}</p>
 		{#if data.count}<p class="mono">{rsvpCountLabel(data.count)}</p>{/if}
 		<form method="POST" action="?/question" use:enhance>
 			<label for="m-question">what would you ask on the show?</label>
@@ -168,7 +168,7 @@
 		opacity: 1;
 	}
 	.jfield:disabled {
-		background: #eadbc0;
+		background: #f6e6cf;
 		color: #17171d;
 		opacity: 1;
 	}
@@ -182,8 +182,8 @@
 		display: inline-block;
 		margin-top: 8px;
 		padding: 12px 22px;
-		border: 3px dashed #0c1422;
-		background: #eadbc0;
+		border: 3px dashed #17171d;
+		background: #f6e6cf;
 		color: #17171d;
 		font-family: 'Archivo Black', sans-serif;
 		font-size: 26px;

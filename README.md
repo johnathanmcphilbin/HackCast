@@ -39,14 +39,15 @@ Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, an
 ## Editing content
 
 - **Copy and hour tiers**: `src/lib/content.ts`. The tiers are still TBC.
-- **Colours**: page background is midnight blue `#1b2a41` (not the brown in the v3 mockups — changed by request). Cream panels, Hack Club red `#ec3750`, warm wood only on signs and small machine accents. Text is cream, ink, white, or red on a solid fill. No grey text.
-- **Fonts**: Bungee, Archivo Black, Space Mono, Figtree, self-hosted in `static/fonts`.
+- **Colours**: midnight `#1b2a41`, cream `#f6e6cf`, Hack Club red `#ec3750`, pink `#f34d91`, teal `#43c8b4`. Ink `#17171d` for strokes and for text on cream. Text is cream on midnight, ink on cream, white on red. No grey text.
+- **Fonts**: Archivo Black and Bungee for headings, Space Mono for labels, Figtree for body. Self-hosted in `static/fonts`.
 
 ## Brand assets
 
+- `static/brand/lockup.svg`: Talk Record lockup for dark backgrounds. `lockup-light.svg` is the cream-background version. `icon.svg` is the mark.
+- `static/icon-16.png`, `icon-32.png`, `icon-48.png`, `icon-64.png`, `apple-touch-icon.png`, `favicon.ico`, and `og.png` are rasterized from the icon.
 - `static/brand/flag.svg`: Hack Club flag.
 - `static/photos/hackclubbers.jpg`: homepage photo from hackclub.com.
-- Station artwork is the original hand-drawn vinyl SVG (turntables, press, mixer, VU meters).
 
 ## Deploying
 

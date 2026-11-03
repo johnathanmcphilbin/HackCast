@@ -122,7 +122,7 @@ export const faqs: Faq[] = [
 	{
 		id: 'what',
 		q: 'what is hackcast?',
-		a: 'A weekly teen podcast, and a Hack Club YSWS. Build, log hours, get on the show.'
+		a: 'A weekly teen podcast. Build, log hours, get on the show.'
 	},
 	{
 		id: 'who',

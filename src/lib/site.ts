@@ -4,7 +4,7 @@ export const site = {
 	name: 'Hackcast',
 	tagline: 'Build stuff, log hours, get on a teen podcast.',
 	description:
-		'Hackcast is a weekly podcast by teenagers in Hack Club. Build a project, log your hours, and spend them on shop prizes and time on the show.',
+		'Hackcast is a weekly podcast by teenagers in Hack Club. Build something, log your hours, get on the show.',
 	ogImage: '/og.png',
 	hackClubUrl: 'https://hackclub.com',
 	hackClubFlag: 'https://assets.hackclub.com/flag-orpheus-top.svg'

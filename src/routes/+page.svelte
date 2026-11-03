@@ -15,7 +15,9 @@
 <div class="home">
 	<section class="hero">
 		<div class="hero-copy">
-			<h1>HACKCAST</h1>
+			<h1>
+				<img src="/brand/lockup.svg" alt="hackcast" width="520" height="180" />
+			</h1>
 			<p class="tagline">{home.tagline}</p>
 			<p class="lede">{home.lede}</p>
 			<p class="cta-row">
@@ -110,7 +112,7 @@
 <style>
 	.home {
 		background-color: var(--bg);
-		background-image: radial-gradient(#314664 1.3px, transparent 1.5px);
+		background-image: radial-gradient(var(--groove) 1.3px, transparent 1.5px);
 		background-size: 28px 28px;
 		color: var(--cream);
 	}
@@ -167,12 +169,11 @@
 	}
 	h1 {
 		margin: 0;
-		padding-left: 0.04em;
-		font-family: 'Rammetto One', sans-serif;
-		font-size: clamp(2.15rem, 4.6vw, 4.05rem);
-		font-weight: 400;
-		line-height: 0.92;
-		color: var(--cream);
+	}
+	h1 img {
+		display: block;
+		width: min(100%, 520px);
+		height: auto;
 	}
 	.tagline {
 		margin: 0.85rem 0 0;

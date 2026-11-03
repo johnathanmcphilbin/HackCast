@@ -7,7 +7,7 @@
 	import Seo from '#lib/components/Seo.svelte';
 </script>
 
-<Seo title="FAQ | Hackcast" description="Questions about Hackcast, the Hack Club You Ship, We Ship podcast. Some rules are still being finalised." />
+<Seo title="FAQ | Hackcast" description="Questions about Hackcast. Some rules are still being finalised." />
 
 <div class="desk">
 	<Board html={p1} />
