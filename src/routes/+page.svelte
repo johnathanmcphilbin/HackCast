@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
 	import HackClubSignup from '#lib/components/HackClubSignup.svelte';
-	import Sampler from '#lib/components/Sampler.svelte';
+	import OnAir from '#lib/components/OnAir.svelte';
 	import Sleeve from '#lib/components/Sleeve.svelte';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
@@ -9,7 +9,6 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-	let hot = $state<string | null>(null);
 </script>
 
 <Seo />
@@ -39,10 +38,13 @@
 	<section class="band" id="how" aria-labelledby="how-title">
 		<h2 id="how-title" class="visually-hidden">how it works</h2>
 		<div class="how">
+			<div class="how-visual">
+				<OnAir />
+			</div>
 			<div class="how-copy">
 				<ol class="steps">
 					{#each steps as step (step.n)}
-						<li id="step-{step.title}" class:is-hot={hot === step.title}>
+						<li id="step-{step.title}">
 							<p class="mono">{step.n}</p>
 							<h3>{step.title}</h3>
 							<p>{step.body}</p>
@@ -75,9 +77,6 @@
 						</ul>
 					</div>
 				{/if}
-			</div>
-			<div class="how-visual">
-				<Sampler onhot={(id) => (hot = id)} />
 			</div>
 		</div>
 	</section>
@@ -242,11 +241,17 @@
 		border-block: 3px solid var(--shadow);
 	}
 	.how {
-		display: grid;
-		grid-template-columns: minmax(0, 0.78fr) minmax(280px, 1.22fr);
-		gap: 1.5rem 2.4rem;
-		align-items: start;
-		padding: 2.4rem 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.6rem;
+		padding: 2.2rem 0 2.6rem;
+	}
+	.how-visual {
+		width: min(100%, 960px);
+	}
+	.how-copy {
+		width: 100%;
 	}
 	.visually-hidden {
 		position: absolute;
@@ -288,6 +293,8 @@
 	}
 	.steps {
 		margin: 0;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
 	}
 	.steps li,
 	.tiers li,
@@ -305,12 +312,6 @@
 		border-radius: 18px;
 		background: var(--bubble);
 		box-shadow: 6px 6px 0 var(--bubble-shadow);
-	}
-	.steps li.is-hot {
-		--bubble: var(--cream);
-		--bubble-shadow: var(--brass);
-		background: var(--cream);
-		box-shadow: 6px 6px 0 var(--brass);
 	}
 	.steps .mono,
 	.tiers .mono,
@@ -368,10 +369,7 @@
 		stroke-linecap: round;
 	}
 	.tail-side {
-		width: 28px;
-		height: 40px;
-		right: -20px;
-		top: 1.15rem;
+		display: none;
 	}
 	.tail-down {
 		display: none;
@@ -455,6 +453,7 @@
 			padding-bottom: 2.6rem;
 		}
 		.steps {
+			grid-template-columns: 1fr;
 			gap: 1.35rem;
 		}
 		.mechanic {
