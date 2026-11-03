@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
 	import HackClubSignup from '#lib/components/HackClubSignup.svelte';
-	import Sampler from '#lib/components/Sampler.svelte';
+	import OnAir from '#lib/components/OnAir.svelte';
 	import Sleeve from '#lib/components/Sleeve.svelte';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
@@ -9,7 +9,6 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-	let hot = $state<string | null>(null);
 </script>
 
 <Seo />
@@ -42,7 +41,7 @@
 			<div class="how-copy">
 				<ol class="steps">
 					{#each steps as step (step.n)}
-						<li id="step-{step.title}" class:is-hot={hot === step.title}>
+						<li id="step-{step.title}">
 							<p class="mono">{step.n}</p>
 							<h3>{step.title}</h3>
 							<p>{step.body}</p>
@@ -77,7 +76,7 @@
 				{/if}
 			</div>
 			<div class="how-visual">
-				<Sampler onhot={(id) => (hot = id)} />
+				<OnAir />
 			</div>
 		</div>
 	</section>
@@ -305,12 +304,6 @@
 		border-radius: 18px;
 		background: var(--bubble);
 		box-shadow: 6px 6px 0 var(--bubble-shadow);
-	}
-	.steps li.is-hot {
-		--bubble: var(--cream);
-		--bubble-shadow: var(--brass);
-		background: var(--cream);
-		box-shadow: 6px 6px 0 var(--brass);
 	}
 	.steps .mono,
 	.tiers .mono,
