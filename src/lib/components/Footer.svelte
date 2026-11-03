@@ -11,5 +11,5 @@
 		{/each}
 		· <a href={JOIN_HREF}>join</a>
 	</p>
-	<p class="by">made with &lt;3 by @[placeholder]</p>
+	<p class="by">made by Johnny</p>
 </footer>

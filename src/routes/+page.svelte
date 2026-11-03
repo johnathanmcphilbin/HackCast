@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
-	import Mixer from '#lib/components/Mixer.svelte';
+	import Sampler from '#lib/components/Sampler.svelte';
 	import Sleeve from '#lib/components/Sleeve.svelte';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
@@ -8,6 +8,7 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+	let hot = $state<string | null>(null);
 </script>
 
 <Seo />
@@ -39,7 +40,7 @@
 				<h2>Build. Log hours. <span class="r">Ship it.</span></h2>
 				<ol class="steps">
 					{#each steps as step (step.n)}
-						<li>
+						<li id="step-{step.title}" class:is-hot={hot === step.title}>
 							<p class="mono">{step.n}</p>
 							<h3>{step.title}</h3>
 							<p>{step.body}</p>
@@ -73,7 +74,7 @@
 				{/if}
 			</div>
 			<div class="how-visual">
-				<Mixer />
+				<Sampler onhot={(id) => (hot = id)} />
 			</div>
 		</div>
 	</section>
@@ -262,6 +263,10 @@
 		border: 3px solid var(--shadow);
 		box-shadow: 6px 6px 0 var(--shadow);
 		padding: 0.85rem 1rem 0.95rem;
+	}
+	.steps li.is-hot {
+		background: var(--cream);
+		box-shadow: 6px 6px 0 var(--brass);
 	}
 	.steps .mono,
 	.tiers .mono,
