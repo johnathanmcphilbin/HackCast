@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { home } from '#lib/content.ts';
 import { visibleRsvpCount } from '#lib/server/auth-config.ts';
 import { isAuthReady } from '#lib/server/config.ts';
 import { getRsvp, rsvpCount, setRsvpQuestion } from '#lib/server/rsvps.ts';
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		question: row.question,
 		count,
 		note: eligible
-			? "You're on the list. Go build."
+			? home.notLive
 			: row.yswsEligible === false
 				? 'Not YSWS-eligible yet. We kept you on file.'
 				: "Eligibility isn't confirmed yet. We kept you on file."

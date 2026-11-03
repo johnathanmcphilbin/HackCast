@@ -2,7 +2,6 @@
 // Placeholder blocks stay in this file. `published` decides what the site shows.
 
 export const episodeRuntime = {
-	label: '25–40 min',
 	schedule: 'weekly',
 	hosts: '@[host] + @[host]',
 	hostsNote: 'TBC',
@@ -105,9 +104,9 @@ export const home = {
 	tagline: 'a podcast built by teens in tech',
 	lede: 'Build stuff, log hours, get on a teen podcast.',
 	showTitle: 'Teenagers. Mics. Opinions.',
-	show: 'A weekly show, 25–40 minutes.',
 	finaleTitle: "You're on air.",
-	finale: 'Log the hours. Get on the show.'
+	finale: 'Log the hours. Get on the show.',
+	notLive: "not live yet. rsvp and we'll ping you when it opens."
 } as const;
 
 export const steps = [

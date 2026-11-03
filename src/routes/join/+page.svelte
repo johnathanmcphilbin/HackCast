@@ -34,7 +34,7 @@
 				</p>
 				<h1 class="h2" style="margin-top:28px">
 					{#if mode === 'in'}
-						you're<br /><span class="r">on the list.</span>
+						you're<br /><span class="r">rsvped.</span>
 					{:else if mode === 'held'}
 						saved.<br /><span class="r">not eligible yet.</span>
 					{:else if mode === 'auth-error'}
@@ -125,7 +125,7 @@
 <div class="phone">
 	<p class="station-sign">the booth · join</p>
 	{#if onList}
-		<h1>{mode === 'in' ? "you're" : 'saved.'} <span class="r">{mode === 'in' ? 'on the list.' : 'not eligible yet.'}</span></h1>
+		<h1>{mode === 'in' ? "you're" : 'saved.'} <span class="r">{mode === 'in' ? 'rsvped.' : 'not eligible yet.'}</span></h1>
 		<p>welcome aboard, {data.name}. {data.note}</p>
 		{#if data.count}<p class="mono">{rsvpCountLabel(data.count)}</p>{/if}
 		<form method="POST" action="?/question" use:enhance>

@@ -8,6 +8,7 @@ export const site = {
 	ogImage: '/og.png',
 	hackClubUrl: 'https://hackclub.com',
 	hackClubSignupUrl: 'https://auth.hackclub.com/signup',
+	youtubeUrl: 'https://www.youtube.com/@HackClubHQ',
 	hackClubFlag: 'https://assets.hackclub.com/flag-orpheus-top.svg'
 } as const;
 

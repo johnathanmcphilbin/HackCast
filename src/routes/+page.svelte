@@ -5,7 +5,7 @@
 	import Sleeve from '#lib/components/Sleeve.svelte';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
-	import { JOIN_HREF } from '#lib/site.ts';
+	import { JOIN_HREF, site } from '#lib/site.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -21,8 +21,9 @@
 			<p class="tagline">{home.tagline}</p>
 			<p class="lede">{home.lede}</p>
 			<p class="cta-row">
-				<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
+				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 			</p>
+			<p class="soon">{home.notLive}</p>
 			<HackClubSignup />
 			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
 		</div>
@@ -83,9 +84,10 @@
 
 	<section class="show" id="show">
 		<div class="show-inner">
-			<p class="kicker">the show</p>
 			<h2>{home.showTitle}</h2>
-			<p>{home.show}</p>
+			<p>
+				episodes go up on <a class="ext" href={site.youtubeUrl} target="_blank" rel="noopener">YouTube</a>.
+			</p>
 			{#if published.tracklist}
 				<ol class="tracklist">
 					{#each episodes as episode (episode.id)}
@@ -105,8 +107,9 @@
 		<h2>{home.finaleTitle}</h2>
 		<p>{home.finale}</p>
 		<p class="cta-row">
-			<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
+			<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 		</p>
+		<p class="soon">{home.notLive}</p>
 		<HackClubSignup />
 	</section>
 </div>
@@ -217,6 +220,14 @@
 		font-weight: 700;
 		color: var(--cream);
 	}
+	.soon {
+		margin: 0.85rem 0 0;
+		max-width: 28rem;
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.45;
+		color: var(--cream);
+	}
 	.cta {
 		font-size: 1.35rem;
 		padding: 0.85rem 1.25rem;
@@ -247,13 +258,6 @@
 		clip: rect(0, 0, 0, 0);
 		white-space: nowrap;
 		border: 0;
-	}
-	.kicker {
-		margin: 0 0 0.7rem;
-		font-family: 'Space Mono', monospace;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		color: var(--cream);
 	}
 	h2 {
 		margin: 0 0 0.9rem;
@@ -387,6 +391,12 @@
 	}
 	.show {
 		padding: 4.2rem 0 3.2rem;
+	}
+	.show-inner a.ext {
+		color: inherit;
+		font-weight: 800;
+		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 	.tracklist {
 		margin-top: 1.4rem;
