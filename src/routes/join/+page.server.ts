@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { parseQuestion } from '#lib/question.ts';
 import { visibleRsvpCount } from '#lib/server/auth-config.ts';
 import { isAuthReady } from '#lib/server/config.ts';
 import { getRsvp, rsvpCount, setRsvpQuestion } from '#lib/server/rsvps.ts';
@@ -35,13 +36,17 @@ export const actions: Actions = {
 	question: async ({ request, locals }) => {
 		if (!isAuthReady() || !locals.session) redirect(303, '/auth/login');
 		const data = await request.formData();
-		const question = String(data.get('question') ?? '').trim().slice(0, 200);
+		const raw = String(data.get('question') ?? '');
+		const echoed = raw.slice(0, 2000);
+		const parsed = parseQuestion(raw);
+		if (!parsed.ok) return fail(400, { questionError: parsed.error, question: echoed });
 		try {
-			await setRsvpQuestion(locals.session.sub, question || null);
+			const saved = await setRsvpQuestion(locals.session.sub, parsed.question);
+			if (!saved) return fail(400, { questionError: 'sign in again, then save your question.', question: parsed.question });
 		} catch {
 			console.error('rsvp question failed');
-			return fail(503, { questionError: 'Could not save that. Try again.' });
+			return fail(503, { questionError: 'could not save that. try again.', question: parsed.question });
 		}
-		return { questionSaved: true };
+		return { questionSaved: true, question: parsed.question };
 	}
 };

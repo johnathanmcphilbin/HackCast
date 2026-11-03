@@ -4,6 +4,7 @@
 	import closed from '#lib/boards/join-closed.svg?raw';
 	import errored from '#lib/boards/join-error.svg?raw';
 	import ok from '#lib/boards/join-success.svg?raw';
+	import { QUESTION_MAX } from '#lib/question.ts';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
 	import type { PageProps } from './$types';
@@ -16,9 +17,14 @@
 	const onList = $derived(mode === 'in' || mode === 'held');
 	const art = $derived(onList ? ok : mode === 'auth-error' ? errored : closed);
 	const questionError = $derived(form && 'questionError' in form ? form.questionError : '');
+	const draft = $derived(
+		form && 'question' in form && typeof form.question === 'string' ? form.question : (data.question ?? '')
+	);
+	const saved = $derived(Boolean(form && 'questionSaved' in form && form.questionSaved));
 
 	const field =
 		'display:block;width:100%;margin-top:6px;border:3px solid #0c1422;background:#fffaf0;color:#17171d;padding:12px 14px;font-size:21px;font-weight:600;border-radius:6px;font-family:Figtree,sans-serif';
+	const area = `${field};min-height:92px;resize:vertical;line-height:1.35`;
 </script>
 
 <Seo title="Join Hackcast" description="Sign up for Hackcast. The form says when signups are still opening." />
@@ -71,10 +77,26 @@
 									}}
 									style="text-align:left;margin-top:16px"
 								>
-									<label for="question" style="font-weight:800;font-size:20px;color:#17171d">what would you ask on the show?</label>
-									<input id="question" name="question" class="jfield" style={field} maxlength="200" value={data.question ?? ''} />
+									<label for="question" style="font-weight:800;font-size:20px;color:#17171d">a question for max and zach</label>
+									<p id="question-help" style="font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 0;color:#17171d">
+										episode 1. it goes in a hat and we pick one at random on the show. optional, {QUESTION_MAX} characters max.
+									</p>
+									<textarea
+										id="question"
+										name="question"
+										class="jfield"
+										style={area}
+										maxlength={QUESTION_MAX}
+										rows="3"
+										spellcheck="true"
+										autocomplete="off"
+										aria-invalid={questionError ? 'true' : undefined}
+										aria-describedby="question-help"
+										value={draft}
+									></textarea>
 									{#if questionError}<p class="jerr">{questionError}</p>{/if}
-									<button class="redbtn" type="submit" disabled={saving} style="margin-top:8px;cursor:pointer">{saving ? 'saving…' : 'save'}</button>
+									{#if saved}<p class="jok">saved. you can change it whenever.</p>{/if}
+									<button class="redbtn" type="submit" disabled={saving} style="margin-top:8px;cursor:pointer">{saving ? 'saving…' : 'save question'}</button>
 								</form>
 								<p><a href="/" style="color:#17171d;font-weight:800">← back to hackcast</a></p>
 								<form method="POST" action="/auth/logout"><button class="linkish" type="submit">sign out</button></form>
@@ -125,12 +147,37 @@
 		<h1>{mode === 'in' ? "you're" : 'saved.'} <span class="r">{mode === 'in' ? 'on the list.' : 'not eligible yet.'}</span></h1>
 		<p>welcome aboard, {data.name}. {data.note}</p>
 		{#if data.count}<p class="mono">{rsvpCountLabel(data.count)}</p>{/if}
-		<form method="POST" action="?/question" use:enhance>
-			<label for="m-question">what would you ask on the show?</label>
-			<input id="m-question" name="question" class="field" maxlength="200" value={data.question ?? ''} />
-			{#if questionError}<p class="err">{questionError}</p>{/if}
-			<button class="redbtn" type="submit">save</button>
-		</form>
+		<div class="card">
+			<form
+				method="POST"
+				action="?/question"
+				use:enhance={() => {
+					saving = true;
+					return async ({ update }) => {
+						await update();
+						saving = false;
+					};
+				}}
+			>
+				<label for="m-question">a question for max and zach</label>
+				<p id="m-question-help">episode 1. it goes in a hat and we pick one at random on the show. optional, {QUESTION_MAX} characters max.</p>
+				<textarea
+					id="m-question"
+					name="question"
+					class="field"
+					maxlength={QUESTION_MAX}
+					rows="3"
+					spellcheck="true"
+					autocomplete="off"
+					aria-invalid={questionError ? 'true' : undefined}
+					aria-describedby="m-question-help"
+					value={draft}
+				></textarea>
+				{#if questionError}<p class="err">{questionError}</p>{/if}
+				{#if saved}<p>saved. you can change it whenever.</p>{/if}
+				<button class="redbtn" type="submit" disabled={saving}>{saving ? 'saving…' : 'save question'}</button>
+			</form>
+		</div>
 		<p><a href="/">← back to hackcast</a></p>
 		<form method="POST" action="/auth/logout"><button class="linkish" type="submit">sign out</button></form>
 	{:else if mode === 'auth-error'}
@@ -177,6 +224,12 @@
 		color: #be1e3a;
 		font-weight: 800;
 		font-size: 20px;
+	}
+	.jok {
+		margin: 6px 0 0;
+		color: #17171d;
+		font-weight: 800;
+		font-size: 18px;
 	}
 	.wait {
 		display: inline-block;
