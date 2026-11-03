@@ -25,10 +25,10 @@ export const variables = defineEnvVars({
 	},
 	DATABASE_URL: {
 		schema: optional,
-		description: 'Postgres connection string (Orchard Postgres 17). RSVPs are stored here.'
+		description: 'Postgres connection string (Orchard Postgres 17). RSVPs, emails, questions, and the latest question draw are stored here. The schema is applied automatically and is safe to run more than once.'
 	},
 	ADMIN_SLACK_IDS: {
 		schema: optional,
-		description: 'Comma-separated Hack Club Slack member IDs allowed to open /admin/rsvps.'
+		description: 'Comma-separated Hack Club Slack member IDs allowed to open /admin/rsvps, download the CSV, and draw a question.'
 	}
 });

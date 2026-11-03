@@ -1,25 +1,20 @@
 import postgres from 'postgres';
 import { databaseUrl } from './config.ts';
+import {
+	applySchema,
+	countRsvpRows,
+	drawQuestionRow,
+	listRsvpRows,
+	readQuestionPick,
+	readRsvp,
+	setQuestionRow,
+	upsertRsvpRow,
+	type QuestionPick,
+	type RsvpRow,
+	type RsvpWrite
+} from './rsvp-db.ts';
 
-export type RsvpRow = {
-	sub: string;
-	name: string;
-	email: string;
-	slackId: string | null;
-	verificationStatus: string | null;
-	yswsEligible: boolean | null;
-	question: string | null;
-	createdAt: Date;
-};
-
-export type RsvpWrite = {
-	sub: string;
-	name: string;
-	email: string;
-	slackId: string | null;
-	verificationStatus: string | null;
-	yswsEligible: boolean | null;
-};
+export type { QuestionPick, RsvpRow, RsvpWrite };
 
 let sql: postgres.Sql | null = null;
 let schema: Promise<void> | null = null;
@@ -29,103 +24,68 @@ const COUNT_TTL_MS = 30_000;
 function db(): postgres.Sql | null {
 	const url = databaseUrl();
 	if (!url) return null;
-	if (!sql) sql = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 10 });
+	if (!sql) {
+		sql = postgres(url, {
+			max: 5,
+			idle_timeout: 20,
+			connect_timeout: 10,
+			onnotice: () => undefined
+		});
+	}
 	return sql;
 }
 
 async function ensure(client: postgres.Sql): Promise<void> {
 	if (!schema) {
-		schema = client`
-			create table if not exists rsvps (
-				sub text primary key,
-				name text not null default '',
-				email text not null default '',
-				slack_id text,
-				verification_status text,
-				ysws_eligible boolean,
-				question text,
-				created_at timestamptz not null default now(),
-				updated_at timestamptz not null default now()
-			)
-		`
-			.then(() => undefined)
-			.catch((err) => {
-				schema = null;
-				throw err;
-			});
+		schema = applySchema(client).catch((err) => {
+			schema = null;
+			throw err;
+		});
 	}
 	await schema;
-}
-
-type Raw = {
-	sub: string;
-	name: string;
-	email: string;
-	slack_id: string | null;
-	verification_status: string | null;
-	ysws_eligible: boolean | null;
-	question: string | null;
-	created_at: Date;
-};
-
-function mapRow(row: Raw): RsvpRow {
-	return {
-		sub: row.sub,
-		name: row.name,
-		email: row.email,
-		slackId: row.slack_id,
-		verificationStatus: row.verification_status,
-		yswsEligible: row.ysws_eligible,
-		question: row.question,
-		createdAt: row.created_at
-	};
 }
 
 export async function upsertRsvp(row: RsvpWrite): Promise<void> {
 	const client = db();
 	if (!client) throw new Error('database');
 	await ensure(client);
-	await client`
-		insert into rsvps (sub, name, email, slack_id, verification_status, ysws_eligible)
-		values (${row.sub}, ${row.name}, ${row.email}, ${row.slackId}, ${row.verificationStatus}, ${row.yswsEligible})
-		on conflict (sub) do update set
-			name = excluded.name,
-			email = excluded.email,
-			slack_id = excluded.slack_id,
-			verification_status = excluded.verification_status,
-			ysws_eligible = excluded.ysws_eligible,
-			updated_at = now()
-	`;
+	await upsertRsvpRow(client, row);
 	countCache = null;
 }
 
-export async function setRsvpQuestion(sub: string, question: string | null): Promise<void> {
+export async function setRsvpQuestion(sub: string, question: string): Promise<boolean> {
 	const client = db();
 	if (!client) throw new Error('database');
 	await ensure(client);
-	await client`update rsvps set question = ${question}, updated_at = now() where sub = ${sub}`;
+	return setQuestionRow(client, sub, question);
 }
 
 export async function getRsvp(sub: string): Promise<RsvpRow | null> {
 	const client = db();
 	if (!client) return null;
 	await ensure(client);
-	const rows = await client<Raw[]>`
-		select sub, name, email, slack_id, verification_status, ysws_eligible, question, created_at
-		from rsvps where sub = ${sub} limit 1
-	`;
-	return rows[0] ? mapRow(rows[0]) : null;
+	return readRsvp(client, sub);
 }
 
 export async function listRsvps(): Promise<RsvpRow[]> {
 	const client = db();
 	if (!client) throw new Error('database');
 	await ensure(client);
-	const rows = await client<Raw[]>`
-		select sub, name, email, slack_id, verification_status, ysws_eligible, question, created_at
-		from rsvps order by created_at asc
-	`;
-	return rows.map(mapRow);
+	return listRsvpRows(client);
+}
+
+export async function getQuestionPick(): Promise<QuestionPick | null> {
+	const client = db();
+	if (!client) return null;
+	await ensure(client);
+	return readQuestionPick(client);
+}
+
+export async function drawQuestion(): Promise<QuestionPick | null> {
+	const client = db();
+	if (!client) throw new Error('database');
+	await ensure(client);
+	return drawQuestionRow(client);
 }
 
 /** Raw count, or null when Postgres is unset or unreachable. Cached for 30s. */
@@ -135,8 +95,7 @@ export async function rsvpCount(): Promise<number | null> {
 	if (!client) return null;
 	try {
 		await ensure(client);
-		const rows = await client<{ count: number }[]>`select count(*)::int as count from rsvps`;
-		const count = Number(rows[0]?.count ?? 0);
+		const count = await countRsvpRows(client);
 		if (!Number.isFinite(count)) return null;
 		countCache = { at: Date.now(), count };
 		return count;
