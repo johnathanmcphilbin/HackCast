@@ -7,6 +7,8 @@ export const site = {
 		'Hackcast is a weekly podcast by teenagers in Hack Club. Build a project, log your hours, and spend them on shop prizes and time on the show.',
 	ogImage: '/og.png',
 	hackClubUrl: 'https://hackclub.com',
+	hackClubSignupUrl: 'https://auth.hackclub.com/signup',
+	youtubeUrl: 'https://www.youtube.com/@HackClubHQ',
 	hackClubFlag: 'https://assets.hackclub.com/flag-orpheus-top.svg'
 } as const;
 

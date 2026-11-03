@@ -4,6 +4,7 @@
 	import closed from '#lib/boards/join-closed.svg?raw';
 	import errored from '#lib/boards/join-error.svg?raw';
 	import ok from '#lib/boards/join-success.svg?raw';
+	import HackClubSignup from '#lib/components/HackClubSignup.svelte';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
 	import type { PageProps } from './$types';
@@ -33,7 +34,7 @@
 				</p>
 				<h1 class="h2" style="margin-top:28px">
 					{#if mode === 'in'}
-						you're<br /><span class="r">on the list.</span>
+						you're<br /><span class="r">rsvped.</span>
 					{:else if mode === 'held'}
 						saved.<br /><span class="r">not eligible yet.</span>
 					{:else if mode === 'auth-error'}
@@ -82,6 +83,7 @@
 						{:else if mode === 'auth-error'}
 							<p style="font-size:22px;font-weight:700">That sign-in didn't land.</p>
 							<p><a class="redbtn" href="/auth/login">try again →</a></p>
+							<HackClubSignup tone="ink" />
 						{:else}
 							<p class="mono" style="display:flex;justify-content:space-between;font-size:18px">
 								<span>HACKCAST SIGNUP SLIP</span><span>№ ______ · Hack Club</span>
@@ -106,6 +108,7 @@
 									</div>
 
 									<button type="submit" disabled class="wait">signups opening soon</button>
+									<HackClubSignup tone="ink" />
 									{#if dev}
 										<p class="mono" style="color:#17171d;font-size:14px;margin-top:10px">dev: set the HCA and database env vars to open sign-in.</p>
 									{/if}
@@ -122,7 +125,7 @@
 <div class="phone">
 	<p class="station-sign">the booth · join</p>
 	{#if onList}
-		<h1>{mode === 'in' ? "you're" : 'saved.'} <span class="r">{mode === 'in' ? 'on the list.' : 'not eligible yet.'}</span></h1>
+		<h1>{mode === 'in' ? "you're" : 'saved.'} <span class="r">{mode === 'in' ? 'rsvped.' : 'not eligible yet.'}</span></h1>
 		<p>welcome aboard, {data.name}. {data.note}</p>
 		{#if data.count}<p class="mono">{rsvpCountLabel(data.count)}</p>{/if}
 		<form method="POST" action="?/question" use:enhance>
@@ -137,6 +140,7 @@
 		<h1>hmm, that <span class="r">clipped.</span></h1>
 		<p>That sign-in didn't land.</p>
 		<p><a class="redbtn" href="/auth/login">try again →</a></p>
+		<HackClubSignup />
 	{:else}
 		<h1>signups <span class="r">opening soon.</span></h1>
 		<p>The form opens soon.</p>
@@ -155,6 +159,7 @@
 						<input id="m-building" name="building" class="field" value="" placeholder="a game, a robot…" />
 						<div style="position:absolute;left:-9999px" aria-hidden="true"><input name="website" tabindex="-1" /></div>
 						<button class="ghost" type="submit" disabled>signups opening soon</button>
+						<HackClubSignup tone="ink" />
 					</fieldset>
 				</form>
 			</div>

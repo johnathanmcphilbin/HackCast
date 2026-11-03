@@ -29,7 +29,7 @@
 				</li>
 			{/each}
 			<li class="join">
-				<a class="redbtn" href={JOIN_HREF}>join hackcast →</a>
+				<a class="redbtn" href={JOIN_HREF}>rsvp for hackcast →</a>
 			</li>
 		</ul>
 	</nav>

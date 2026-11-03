@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
+	import HackClubSignup from '#lib/components/HackClubSignup.svelte';
 	import Sampler from '#lib/components/Sampler.svelte';
 	import Sleeve from '#lib/components/Sleeve.svelte';
 	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
-	import { JOIN_HREF } from '#lib/site.ts';
+	import { JOIN_HREF, site } from '#lib/site.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -20,8 +21,10 @@
 			<p class="tagline">{home.tagline}</p>
 			<p class="lede">{home.lede}</p>
 			<p class="cta-row">
-				<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
+				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 			</p>
+			<p class="soon">{home.notLive}</p>
+			<HackClubSignup />
 			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
 		</div>
 		<div class="hero-visual">
@@ -33,17 +36,17 @@
 		</figure>
 	</section>
 
-	<section class="band" id="how">
+	<section class="band" id="how" aria-labelledby="how-title">
+		<h2 id="how-title" class="visually-hidden">how it works</h2>
 		<div class="how">
 			<div class="how-copy">
-				<p class="kicker">how it works</p>
-				<h2>Build. Log hours. <span class="r">Ship it.</span></h2>
 				<ol class="steps">
 					{#each steps as step (step.n)}
 						<li id="step-{step.title}" class:is-hot={hot === step.title}>
 							<p class="mono">{step.n}</p>
 							<h3>{step.title}</h3>
 							<p>{step.body}</p>
+							{@render bubbleTail()}
 						</li>
 					{/each}
 				</ol>
@@ -59,7 +62,7 @@
 						{/each}
 					</ul>
 				{:else}
-					<p class="mechanic" id="rewards">{rewardLine}</p>
+					<p class="mechanic" id="rewards">{rewardLine}{@render bubbleTail()}</p>
 				{/if}
 				{#if published.shop}
 					<div class="shop">
@@ -79,11 +82,23 @@
 		</div>
 	</section>
 
+	<section class="finale">
+		<p class="onair" aria-hidden="true"><span class="onair-lit">ON AIR</span></p>
+		<h2>{home.finaleTitle}</h2>
+		<p>{home.finale}</p>
+		<p class="cta-row">
+			<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+		</p>
+		<p class="soon">{home.notLive}</p>
+		<HackClubSignup />
+	</section>
+
 	<section class="show" id="show">
 		<div class="show-inner">
-			<p class="kicker">the show</p>
 			<h2>{home.showTitle}</h2>
-			<p>{home.show}</p>
+			<p>
+				episodes go up on <a class="ext" href={site.youtubeUrl} target="_blank" rel="noopener">YouTube</a>.
+			</p>
 			{#if published.tracklist}
 				<ol class="tracklist">
 					{#each episodes as episode (episode.id)}
@@ -97,16 +112,20 @@
 			{/if}
 		</div>
 	</section>
-
-	<section class="finale">
-		<p class="onair" aria-hidden="true"><span class="onair-lit">ON AIR</span></p>
-		<h2>{home.finaleTitle}</h2>
-		<p>{home.finale}</p>
-		<p class="cta-row">
-			<a class="redbtn cta" href={JOIN_HREF}>join hackcast →</a>
-		</p>
-	</section>
 </div>
+
+{#snippet bubbleTail()}
+	<svg class="tail tail-side" viewBox="0 0 30 42" aria-hidden="true">
+		<polygon class="tail-shadow" points="8,12 28,22 8,36" />
+		<polygon class="tail-face" points="0,4 20,18 0,32" />
+		<polyline class="tail-edge" points="0,4 20,18 0,32" />
+	</svg>
+	<svg class="tail tail-down" viewBox="0 0 42 28" aria-hidden="true">
+		<polygon class="tail-shadow" points="12,6 22,26 36,6" />
+		<polygon class="tail-face" points="4,0 18,18 32,0" />
+		<polyline class="tail-edge" points="4,0 18,18 32,0" />
+	</svg>
+{/snippet}
 
 <style>
 	.home {
@@ -201,6 +220,14 @@
 		font-weight: 700;
 		color: var(--cream);
 	}
+	.soon {
+		margin: 0.85rem 0 0;
+		max-width: 28rem;
+		font-size: 1rem;
+		font-weight: 700;
+		line-height: 1.45;
+		color: var(--cream);
+	}
 	.cta {
 		font-size: 1.35rem;
 		padding: 0.85rem 1.25rem;
@@ -217,16 +244,20 @@
 	.how {
 		display: grid;
 		grid-template-columns: minmax(0, 0.78fr) minmax(280px, 1.22fr);
-		gap: 1.5rem 2rem;
-		align-items: center;
-		padding: 3.2rem 0;
+		gap: 1.5rem 2.4rem;
+		align-items: start;
+		padding: 2.4rem 0;
 	}
-	.kicker {
-		margin: 0 0 0.7rem;
-		font-family: 'Space Mono', monospace;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		color: var(--cream);
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 	h2 {
 		margin: 0 0 0.9rem;
@@ -255,6 +286,9 @@
 		display: grid;
 		gap: 0.75rem;
 	}
+	.steps {
+		margin: 0;
+	}
 	.steps li,
 	.tiers li,
 	.tracklist li {
@@ -264,7 +298,17 @@
 		box-shadow: 6px 6px 0 var(--shadow);
 		padding: 0.85rem 1rem 0.95rem;
 	}
+	.steps li {
+		--bubble: var(--paper);
+		--bubble-shadow: var(--shadow);
+		position: relative;
+		border-radius: 18px;
+		background: var(--bubble);
+		box-shadow: 6px 6px 0 var(--bubble-shadow);
+	}
 	.steps li.is-hot {
+		--bubble: var(--cream);
+		--bubble-shadow: var(--brass);
 		background: var(--cream);
 		box-shadow: 6px 6px 0 var(--brass);
 	}
@@ -293,13 +337,50 @@
 		line-height: 1.45;
 	}
 	.mechanic {
-		margin-top: 1.1rem;
+		--bubble: var(--red);
+		--bubble-shadow: var(--shadow);
+		position: relative;
+		margin-top: 0.85rem;
 		padding: 0.9rem 1rem;
-		background: var(--red);
+		background: var(--bubble);
 		color: #fff;
 		border: 3px solid var(--shadow);
-		box-shadow: 6px 6px 0 var(--shadow);
+		border-radius: 18px;
+		box-shadow: 6px 6px 0 var(--bubble-shadow);
 		font-weight: 800;
+	}
+	.tail {
+		position: absolute;
+		overflow: visible;
+		pointer-events: none;
+	}
+	.tail-shadow {
+		fill: var(--bubble-shadow);
+	}
+	.tail-face {
+		fill: var(--bubble);
+	}
+	.tail-edge {
+		fill: none;
+		stroke: var(--shadow);
+		stroke-width: 3;
+		stroke-linejoin: round;
+		stroke-linecap: round;
+	}
+	.tail-side {
+		width: 28px;
+		height: 40px;
+		right: -20px;
+		top: 1.15rem;
+	}
+	.tail-down {
+		display: none;
+	}
+	.steps li:nth-child(2) .tail-side {
+		top: 1.85rem;
+	}
+	.steps li:nth-child(3) .tail-side {
+		top: 1.05rem;
 	}
 	.shop {
 		margin-top: 1rem;
@@ -309,13 +390,19 @@
 		padding-left: 1.1rem;
 	}
 	.show {
-		padding: 4.2rem 0 3.2rem;
+		padding: 1.2rem 0 4.8rem;
+	}
+	.show-inner a.ext {
+		color: inherit;
+		font-weight: 800;
+		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 	.tracklist {
 		margin-top: 1.4rem;
 	}
 	.finale {
-		padding: 3.5rem 0 4.8rem;
+		padding: 3.2rem 0 1.2rem;
 		text-align: left;
 	}
 	.onair {
@@ -366,6 +453,30 @@
 		}
 		.how {
 			padding-bottom: 2.6rem;
+		}
+		.steps {
+			gap: 1.35rem;
+		}
+		.mechanic {
+			margin-top: 1.35rem;
+		}
+		.tail-side {
+			display: none;
+		}
+		.tail-down {
+			display: block;
+			width: 40px;
+			height: 22px;
+			left: 1.5rem;
+			right: auto;
+			top: auto;
+			bottom: -16px;
+		}
+		.steps li:nth-child(2) .tail-down {
+			left: 2.6rem;
+		}
+		.steps li:nth-child(3) .tail-down {
+			left: 1.15rem;
 		}
 	}
 </style>

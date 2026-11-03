@@ -24,7 +24,7 @@
 			<p>{item.a}</p>
 		</details>
 	{/each}
-	<p><a class="redbtn" href={JOIN_HREF}>join hackcast →</a></p>
+	<p><a class="redbtn" href={JOIN_HREF}>rsvp for hackcast →</a></p>
 </div>
 
 <style>
