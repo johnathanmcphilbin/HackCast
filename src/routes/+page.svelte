@@ -82,6 +82,17 @@
 		</div>
 	</section>
 
+	<section class="finale">
+		<p class="onair" aria-hidden="true"><span class="onair-lit">ON AIR</span></p>
+		<h2>{home.finaleTitle}</h2>
+		<p>{home.finale}</p>
+		<p class="cta-row">
+			<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+		</p>
+		<p class="soon">{home.notLive}</p>
+		<HackClubSignup />
+	</section>
+
 	<section class="show" id="show">
 		<div class="show-inner">
 			<h2>{home.showTitle}</h2>
@@ -100,17 +111,6 @@
 				</ol>
 			{/if}
 		</div>
-	</section>
-
-	<section class="finale">
-		<p class="onair" aria-hidden="true"><span class="onair-lit">ON AIR</span></p>
-		<h2>{home.finaleTitle}</h2>
-		<p>{home.finale}</p>
-		<p class="cta-row">
-			<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
-		</p>
-		<p class="soon">{home.notLive}</p>
-		<HackClubSignup />
 	</section>
 </div>
 
@@ -390,7 +390,7 @@
 		padding-left: 1.1rem;
 	}
 	.show {
-		padding: 4.2rem 0 3.2rem;
+		padding: 1.2rem 0 4.8rem;
 	}
 	.show-inner a.ext {
 		color: inherit;
@@ -402,7 +402,7 @@
 		margin-top: 1.4rem;
 	}
 	.finale {
-		padding: 3.5rem 0 4.8rem;
+		padding: 3.2rem 0 1.2rem;
 		text-align: left;
 	}
 	.onair {
