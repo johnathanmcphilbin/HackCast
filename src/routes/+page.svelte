@@ -35,17 +35,17 @@
 		</figure>
 	</section>
 
-	<section class="band" id="how">
+	<section class="band" id="how" aria-labelledby="how-title">
+		<h2 id="how-title" class="visually-hidden">how it works</h2>
 		<div class="how">
 			<div class="how-copy">
-				<p class="kicker">how it works</p>
-				<h2>Build. Log hours. <span class="r">Ship it.</span></h2>
 				<ol class="steps">
 					{#each steps as step (step.n)}
 						<li id="step-{step.title}" class:is-hot={hot === step.title}>
 							<p class="mono">{step.n}</p>
 							<h3>{step.title}</h3>
 							<p>{step.body}</p>
+							{@render bubbleTail()}
 						</li>
 					{/each}
 				</ol>
@@ -61,7 +61,7 @@
 						{/each}
 					</ul>
 				{:else}
-					<p class="mechanic" id="rewards">{rewardLine}</p>
+					<p class="mechanic" id="rewards">{rewardLine}{@render bubbleTail()}</p>
 				{/if}
 				{#if published.shop}
 					<div class="shop">
@@ -110,6 +110,19 @@
 		<HackClubSignup />
 	</section>
 </div>
+
+{#snippet bubbleTail()}
+	<svg class="tail tail-side" viewBox="0 0 30 42" aria-hidden="true">
+		<polygon class="tail-shadow" points="8,12 28,22 8,36" />
+		<polygon class="tail-face" points="0,4 20,18 0,32" />
+		<polyline class="tail-edge" points="0,4 20,18 0,32" />
+	</svg>
+	<svg class="tail tail-down" viewBox="0 0 42 28" aria-hidden="true">
+		<polygon class="tail-shadow" points="12,6 22,26 36,6" />
+		<polygon class="tail-face" points="4,0 18,18 32,0" />
+		<polyline class="tail-edge" points="4,0 18,18 32,0" />
+	</svg>
+{/snippet}
 
 <style>
 	.home {
@@ -220,9 +233,20 @@
 	.how {
 		display: grid;
 		grid-template-columns: minmax(0, 0.78fr) minmax(280px, 1.22fr);
-		gap: 1.5rem 2rem;
-		align-items: center;
-		padding: 3.2rem 0;
+		gap: 1.5rem 2.4rem;
+		align-items: start;
+		padding: 2.4rem 0;
+	}
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 	.kicker {
 		margin: 0 0 0.7rem;
@@ -258,6 +282,9 @@
 		display: grid;
 		gap: 0.75rem;
 	}
+	.steps {
+		margin: 0;
+	}
 	.steps li,
 	.tiers li,
 	.tracklist li {
@@ -267,7 +294,17 @@
 		box-shadow: 6px 6px 0 var(--shadow);
 		padding: 0.85rem 1rem 0.95rem;
 	}
+	.steps li {
+		--bubble: var(--paper);
+		--bubble-shadow: var(--shadow);
+		position: relative;
+		border-radius: 18px;
+		background: var(--bubble);
+		box-shadow: 6px 6px 0 var(--bubble-shadow);
+	}
 	.steps li.is-hot {
+		--bubble: var(--cream);
+		--bubble-shadow: var(--brass);
 		background: var(--cream);
 		box-shadow: 6px 6px 0 var(--brass);
 	}
@@ -296,13 +333,50 @@
 		line-height: 1.45;
 	}
 	.mechanic {
-		margin-top: 1.1rem;
+		--bubble: var(--red);
+		--bubble-shadow: var(--shadow);
+		position: relative;
+		margin-top: 0.85rem;
 		padding: 0.9rem 1rem;
-		background: var(--red);
+		background: var(--bubble);
 		color: #fff;
 		border: 3px solid var(--shadow);
-		box-shadow: 6px 6px 0 var(--shadow);
+		border-radius: 18px;
+		box-shadow: 6px 6px 0 var(--bubble-shadow);
 		font-weight: 800;
+	}
+	.tail {
+		position: absolute;
+		overflow: visible;
+		pointer-events: none;
+	}
+	.tail-shadow {
+		fill: var(--bubble-shadow);
+	}
+	.tail-face {
+		fill: var(--bubble);
+	}
+	.tail-edge {
+		fill: none;
+		stroke: var(--shadow);
+		stroke-width: 3;
+		stroke-linejoin: round;
+		stroke-linecap: round;
+	}
+	.tail-side {
+		width: 28px;
+		height: 40px;
+		right: -20px;
+		top: 1.15rem;
+	}
+	.tail-down {
+		display: none;
+	}
+	.steps li:nth-child(2) .tail-side {
+		top: 1.85rem;
+	}
+	.steps li:nth-child(3) .tail-side {
+		top: 1.05rem;
 	}
 	.shop {
 		margin-top: 1rem;
@@ -369,6 +443,30 @@
 		}
 		.how {
 			padding-bottom: 2.6rem;
+		}
+		.steps {
+			gap: 1.35rem;
+		}
+		.mechanic {
+			margin-top: 1.35rem;
+		}
+		.tail-side {
+			display: none;
+		}
+		.tail-down {
+			display: block;
+			width: 40px;
+			height: 22px;
+			left: 1.5rem;
+			right: auto;
+			top: auto;
+			bottom: -16px;
+		}
+		.steps li:nth-child(2) .tail-down {
+			left: 2.6rem;
+		}
+		.steps li:nth-child(3) .tail-down {
+			left: 1.15rem;
 		}
 	}
 </style>
