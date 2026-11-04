@@ -109,7 +109,6 @@ img {
 	font-size: 1.05rem;
 	padding: 0.55rem 0.9rem;
 	border: 3px solid var(--shadow);
-	box-shadow: 5px 5px 0 var(--shadow);
 	text-decoration: none;
 }
 .menu {
@@ -168,7 +167,6 @@ img {
 .canvas .dark {
 	background: var(--sleeve);
 	border: 3px solid var(--shadow);
-	box-shadow: 10px 10px 0 var(--shadow);
 	border-radius: 12px;
 }
 .canvas .paper,
@@ -176,7 +174,6 @@ img {
 	background: var(--paper);
 	color: var(--ink);
 	border: 3px solid var(--shadow);
-	box-shadow: 8px 8px 0 var(--shadow);
 }
 .canvas .redbtn {
 	font-size: 22px;
@@ -371,7 +368,6 @@ img {
 		background: #6b3f24;
 		color: var(--cream);
 		border: 3px solid var(--shadow);
-		box-shadow: 4px 4px 0 var(--shadow);
 		font-family: Bungee, sans-serif;
 		font-size: 0.78rem;
 	}
@@ -399,7 +395,6 @@ img {
 		background: var(--paper);
 		color: var(--ink);
 		border: 3px solid var(--shadow);
-		box-shadow: 4px 4px 0 var(--shadow);
 		padding: 0.7rem 0.8rem;
 		margin: 0 0 0.75rem;
 	}
@@ -431,7 +426,6 @@ img {
 		height: 180px;
 		object-fit: cover;
 		border: 3px solid var(--shadow);
-		box-shadow: 5px 5px 0 var(--shadow);
 	}
 	.field {
 		display: block;
@@ -470,7 +464,6 @@ img {
 	.slip {
 		background: #a87958;
 		border: 3px solid var(--shadow);
-		box-shadow: 8px 8px 0 var(--shadow);
 		border-radius: 14px;
 		padding: 1.6rem 0.7rem 0.7rem;
 		position: relative;

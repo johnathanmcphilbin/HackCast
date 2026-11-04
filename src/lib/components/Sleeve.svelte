@@ -1,14 +1,14 @@
 <script lang="ts">
-	const grooves = Array.from({ length: 18 }, (_, i) => 92 + i * 7.2);
+	const grooves = [100, 124, 148];
 
-	// How far the record sits from fully out, in viewBox units. Hover, drag or click it.
-	const TUCKED = -138; // record centre (468 - 138 = 330) lines up with the sleeve window
-	const OUT = 0;
+	// How far the record has slid right out of the sleeve, in viewBox units. Hover, drag or click it.
+	const TUCKED = 0; // fully inside the sleeve, centred behind the window
+	const OUT = 300;
 	let svg: SVGSVGElement;
 	let tx = $state(TUCKED);
 	let dragging = $state(false);
 	let start = { x: 0, tx: 0, moved: false };
-	const playing = $derived(tx > TUCKED / 3);
+	const playing = $derived(tx > OUT / 2);
 
 	function unitsPerPx(): number {
 		return 720 / svg.getBoundingClientRect().width;
@@ -24,7 +24,7 @@
 		if (!dragging) return;
 		const dx = (e.clientX - start.x) * unitsPerPx();
 		if (Math.abs(dx) > 4) start.moved = true;
-		tx = Math.min(OUT + 30, Math.max(TUCKED, start.tx + dx));
+		tx = Math.min(OUT + 20, Math.max(TUCKED, start.tx + dx));
 	}
 
 	function up() {
@@ -50,64 +50,38 @@
 <svg
 	bind:this={svg}
 	class="sleeve-art"
+	class:dragging
 	viewBox="0 0 720 530"
-	role="img"
-	aria-label="Hackcast 45 RPM record sliding out of its sleeve"
+	role="button"
+	tabindex="0"
+	aria-label={playing ? 'Slide the Hackcast record back into its sleeve' : 'Pull the Hackcast record out of its sleeve'}
+	aria-pressed={playing}
 	onpointerenter={(e) => hover(e, true)}
 	onpointerleave={(e) => hover(e, false)}
+	onpointerdown={down}
+	onpointermove={move}
+	onpointerup={up}
+	onpointercancel={up}
+	onkeydown={key}
 >
 	<defs>
 		<mask id="sleeve-paper">
 			<rect x="28" y="44" width="368" height="420" fill="#fff" />
-			<circle cx="330" cy="262" r="23" fill="#000" />
+			<circle cx="212" cy="254" r="20" fill="#000" />
 		</mask>
 	</defs>
 
-	<rect x="42" y="58" width="368" height="420" fill="#0c1422" />
-
-	<g
-		class="record"
-		class:dragging
-		style:transform="translate({tx}px, 0)"
-		role="button"
-		tabindex="0"
-		aria-label={playing ? 'Slide the record back into its sleeve' : 'Pull the record out of its sleeve'}
-		aria-pressed={playing}
-		onpointerdown={down}
-		onpointermove={move}
-		onpointerup={up}
-		onpointercancel={up}
-		onkeydown={key}
-	>
-	<circle cx="476" cy="270" r="214" fill="#0c1422" />
-	<g class="spin" class:playing style="transform-origin: 468px 262px">
-		<circle cx="468" cy="262" r="214" fill="#c9b8a3" stroke="#0c1422" stroke-width="4" />
-		{#each Array.from({ length: 46 }) as _, i}
-			<circle
-				cx={468 + 200 * Math.cos((i / 46) * Math.PI * 2)}
-				cy={262 + 200 * Math.sin((i / 46) * Math.PI * 2)}
-				r="2.5"
-				fill="#0c1422"
-			/>
-		{/each}
-		<circle cx="468" cy="262" r="192" fill="#10151c" stroke="#0c1422" stroke-width="3" />
-		{#each grooves as radius, i (radius)}
-			<circle
-				cx="468"
-				cy="262"
-				r={radius}
-				fill="none"
-				stroke={i % 4 === 0 ? '#4d6280' : '#2a3b52'}
-				stroke-width={i % 4 === 0 ? 2.5 : 1.3}
-			/>
-		{/each}
-		<path d="M330 140 A160 160 0 0 1 560 120" fill="none" stroke="#5a463a" stroke-width="16" stroke-linecap="round" opacity="0.65" />
-		<path d="M390 390 A150 150 0 0 1 610 340" fill="none" stroke="#3a2a22" stroke-width="9" stroke-linecap="round" opacity="0.75" />
-		<circle cx="468" cy="262" r="66" fill="#ec3750" stroke="#0c1422" stroke-width="3" />
-		<text x="468" y="246" text-anchor="middle" fill="#fff" font-family="Rammetto One, sans-serif" font-size="24">EP 01</text>
-		<text x="468" y="292" text-anchor="middle" fill="#f6e6cf" font-family="Space Mono, monospace" font-size="14" font-weight="700">coming soon</text>
-		<circle cx="468" cy="262" r="7" fill="#f6e6cf" stroke="#0c1422" stroke-width="2" />
-	</g>
+	<g class="record" class:dragging style:transform="translate({tx}px, 0)">
+		<g class="spin" class:playing style="transform-origin: 212px 254px">
+			<circle cx="212" cy="254" r="176" fill="#10151c" stroke="#0c1422" stroke-width="4" />
+			{#each grooves as radius (radius)}
+				<circle cx="212" cy="254" r={radius} fill="none" stroke="#2a3b52" stroke-width="2" />
+			{/each}
+			<circle cx="212" cy="254" r="62" fill="#ec3750" stroke="#0c1422" stroke-width="3" />
+			<text x="212" y="240" text-anchor="middle" fill="#fff" font-family="Rammetto One, sans-serif" font-size="24">EP 01</text>
+			<text x="212" y="284" text-anchor="middle" fill="#f6e6cf" font-family="Space Mono, monospace" font-size="14" font-weight="700">coming soon</text>
+			<circle cx="212" cy="254" r="6" fill="#f6e6cf" stroke="#0c1422" stroke-width="2" />
+		</g>
 	</g>
 
 	<g mask="url(#sleeve-paper)">
@@ -126,7 +100,7 @@
 		<rect x="28" y="386" width="368" height="78" fill="#ec3750" />
 	</g>
 	<rect x="28" y="44" width="368" height="420" fill="none" stroke="#0c1422" stroke-width="3" />
-	<circle cx="330" cy="262" r="23" fill="none" stroke="#0c1422" stroke-width="3" />
+	<circle cx="212" cy="254" r="20" fill="none" stroke="#0c1422" stroke-width="3" />
 
 	<text x="212" y="148" text-anchor="middle" fill="#17171d" font-family="Rammetto One, sans-serif" font-size="38">HACKCAST</text>
 	<text x="212" y="434" text-anchor="middle" fill="#fff" font-family="Space Mono, monospace" font-size="18" font-weight="700">45 RPM · VOL. 1</text>
@@ -139,19 +113,20 @@
 		height: auto;
 		overflow: visible;
 		touch-action: pan-y;
-	}
-	.record {
 		cursor: grab;
 		outline: none;
+	}
+	.sleeve-art.dragging {
+		cursor: grabbing;
+	}
+	.sleeve-art:focus-visible > rect:last-of-type {
+		stroke: #ec3750;
+	}
+	.record {
 		transition: transform 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
 	}
 	.record.dragging {
-		cursor: grabbing;
 		transition: none;
-	}
-	.record:focus-visible > circle:first-child {
-		stroke: #ec3750;
-		stroke-width: 6;
 	}
 	.spin.playing {
 		animation: spin 1.8s linear infinite;

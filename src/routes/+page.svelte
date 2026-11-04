@@ -219,7 +219,6 @@
 		background: var(--paper);
 		color: var(--ink);
 		border: 3px solid var(--shadow);
-		box-shadow: 8px 8px 0 var(--shadow);
 		transform: rotate(-2.5deg);
 		transition: transform 0.25s ease;
 	}
@@ -280,10 +279,6 @@
 		font-size: 1.35rem;
 		padding: 0.85rem 1.25rem;
 		cursor: pointer;
-	}
-	.cta:hover {
-		transform: translate(2px, 2px);
-		box-shadow: 3px 3px 0 var(--shadow);
 	}
 	.band {
 		background: #152033;
@@ -350,18 +345,15 @@
 		background: var(--paper);
 		color: var(--ink);
 		border: 3px solid var(--shadow);
-		box-shadow: 6px 6px 0 var(--shadow);
 		padding: 0.85rem 1rem 0.95rem;
 	}
 	/* Hand-cut cards in the mic art's colours, so they read as part of the drawing. */
 	.steps li {
 		--bubble: var(--cream);
-		--bubble-shadow: var(--shadow);
 		position: relative;
 		padding: 1rem 1.2rem 1.15rem;
 		border-radius: 24px 6px 28px 8px / 8px 26px 6px 22px;
 		background: var(--bubble);
-		box-shadow: 5px 7px 0 var(--bubble-shadow);
 		transform: rotate(-1.5deg);
 	}
 	.steps li:nth-child(2) {
@@ -407,7 +399,6 @@
 	}
 	.how-copy > .mechanic {
 		--bubble: var(--red);
-		--bubble-shadow: var(--shadow);
 		position: relative;
 		width: fit-content;
 		max-width: 100%;
@@ -418,7 +409,6 @@
 		color: var(--cream);
 		border: 3px solid var(--shadow);
 		border-radius: 6px 18px 4px 16px / 16px 4px 18px 6px;
-		box-shadow: 5px 7px 0 var(--bubble-shadow);
 		transform: rotate(0.8deg);
 		font-size: 1.15rem;
 		font-weight: 800;
@@ -453,7 +443,6 @@
 		background: var(--red);
 		color: #fff;
 		border: 3px solid var(--shadow);
-		box-shadow: 6px 6px 0 var(--shadow);
 		border-radius: 8px;
 		font-family: Bungee, sans-serif;
 		font-size: 1.55rem;

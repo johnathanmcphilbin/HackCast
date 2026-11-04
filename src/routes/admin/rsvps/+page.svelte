@@ -66,7 +66,6 @@
 		background: var(--paper);
 		color: var(--ink);
 		border: 3px solid var(--shadow);
-		box-shadow: 6px 6px 0 var(--shadow);
 	}
 	table {
 		width: 100%;
