@@ -181,9 +181,6 @@
 		cursor: pointer;
 	}
 	.home {
-		background-color: var(--bg);
-		background-image: radial-gradient(#314664 1.3px, transparent 1.5px);
-		background-size: 28px 28px;
 		color: var(--cream);
 	}
 	.hero,
