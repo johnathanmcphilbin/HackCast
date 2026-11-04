@@ -18,7 +18,6 @@
 		<div class="hero-copy">
 			<h1>HACKCAST</h1>
 			<p class="tagline">{home.tagline}</p>
-			<p class="lede">{home.lede}</p>
 			<p class="cta-row">
 				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 			</p>
@@ -199,14 +198,6 @@
 		font-size: 0.95rem;
 		font-weight: 700;
 		letter-spacing: 0.02em;
-		color: var(--cream);
-	}
-	.lede {
-		margin: 0.7rem 0 0;
-		max-width: 16ch;
-		font-size: clamp(1.35rem, 2.3vw, 1.75rem);
-		font-weight: 800;
-		line-height: 1.2;
 		color: var(--cream);
 	}
 	.cta-row {
@@ -433,9 +424,6 @@
 		}
 		.polaroid {
 			width: min(240px, 78%);
-		}
-		.lede {
-			max-width: 16ch;
 		}
 		.cta {
 			display: flex;
