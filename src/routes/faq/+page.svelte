@@ -17,9 +17,9 @@
 <div class="phone">
 	<p class="station-sign">the log book · faq</p>
 	<h1>frequently asked <span class="r">questions.</span></h1>
-	{#each faqs as item, i (item.id)}
+	{#each faqs as item (item.id)}
 		<details class="card">
-			<summary><span class="mono">CUE CARD · Q{String(i + 1).padStart(2, '0')}</span> {item.q}</summary>
+			<summary>{item.q}</summary>
 			<p>{item.a}</p>
 		</details>
 	{/each}

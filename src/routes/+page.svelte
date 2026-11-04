@@ -57,7 +57,7 @@
 				{/if}
 			</p>
 			<p class="soon">{home.notLive}</p>
-			<HackClubSignup />
+			{#if !data.firstName}<HackClubSignup />{/if}
 			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
 		</div>
 		<div class="hero-visual">
@@ -116,7 +116,6 @@
 
 	<section class="finale">
 		<p class="onair" aria-hidden="true"><span class="onair-lit">ON AIR</span></p>
-		<h2>{home.finaleTitle}</h2>
 		<p>{home.finale}</p>
 		<p class="cta-row">
 			{#if data.firstName}
@@ -126,15 +125,14 @@
 			{/if}
 		</p>
 		<p class="soon">{home.notLive}</p>
-		<HackClubSignup />
+		{#if !data.firstName}<HackClubSignup />{/if}
 	</section>
 
 	<section class="show" id="show">
 		<div class="show-inner">
-			<h2>{home.showTitle}</h2>
-			<p>
+			<h2>
 				episodes go up on <a class="ext" href={site.youtubeUrl} target="_blank" rel="noopener">YouTube</a>.
-			</p>
+			</h2>
 			{#if published.tracklist}
 				<ol class="tracklist">
 					{#each episodes as episode (episode.id)}
@@ -322,7 +320,6 @@
 		color: var(--cream);
 	}
 	.how-copy > p,
-	.show-inner > p,
 	.finale > p {
 		margin: 0 0 0.9rem;
 		max-width: 42rem;

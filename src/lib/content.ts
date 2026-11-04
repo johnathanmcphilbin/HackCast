@@ -102,8 +102,6 @@ export const rewardLine = hoursToAirtime();
 
 export const home = {
 	tagline: 'a podcast built by teens in tech',
-	showTitle: 'Teenagers. Mics. Opinions.',
-	finaleTitle: "You're on air.",
 	finale: 'Log the hours. Get on the show.',
 	notLive: "not live yet. rsvp and we'll ping you when it opens."
 } as const;
