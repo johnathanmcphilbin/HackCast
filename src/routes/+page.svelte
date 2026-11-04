@@ -175,7 +175,9 @@
 		font-size: 1.1rem;
 		font-weight: 600;
 	}
-	.notice button {
+	.notice .redbtn {
+		padding: 0.8rem 1.6rem;
+		font-size: 1.15rem;
 		cursor: pointer;
 	}
 	.home {
