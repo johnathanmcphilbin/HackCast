@@ -2,7 +2,6 @@
 	import './layout.css';
 	import Nav from '#lib/components/Nav.svelte';
 	import Footer from '#lib/components/Footer.svelte';
-	import Waves from '#lib/components/Waves.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -15,7 +14,6 @@
 	<meta name="theme-color" content="#1b2a41" />
 </svelte:head>
 
-<Waves />
 <Nav />
 <main id="main">
 	{@render children()}

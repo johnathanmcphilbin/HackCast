@@ -508,10 +508,3 @@ img {
 		animation: none !important;
 	}
 }
-
-/* Page content sits above the falling waves in Waves.svelte. */
-#main,
-.site-foot {
-	position: relative;
-	z-index: 1;
-}
