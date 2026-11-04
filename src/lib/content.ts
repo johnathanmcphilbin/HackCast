@@ -102,7 +102,6 @@ export const rewardLine = hoursToAirtime();
 
 export const home = {
 	tagline: 'a podcast built by teens in tech',
-	lede: 'Build stuff, log hours, get on a teen podcast.',
 	showTitle: 'Teenagers. Mics. Opinions.',
 	finaleTitle: "You're on air.",
 	finale: 'Log the hours. Get on the show.',
