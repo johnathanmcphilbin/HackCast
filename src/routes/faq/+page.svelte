@@ -10,7 +10,8 @@
 <Seo title="FAQ | Hackcast" description="Questions about Hackcast, the Hack Club You Ship, We Ship podcast. Some rules are still being finalised." />
 
 <div class="desk">
-	<Board html={p1} />
+	<!-- p1 ends after its second row; trim the empty bottom so p2 follows on -->
+	<Board html={p1} height={860} />
 	<Board html={p2} />
 </div>
 
