@@ -1,24 +1,26 @@
 <script lang="ts">
-	// Faint sound waves drifting down behind the site. Each wave gets a random spot, width,
+	// Faint vertical sound waves falling down behind the site. Each wave gets a random spot, width,
 	// pitch and speed, and starts again above the screen once it falls off the bottom.
 	let canvas: HTMLCanvasElement;
 
 	const COLOURS = ['#8fdcff', '#5cc8ff', '#b8ecff'];
 
-	type Wave = { x: number; y: number; w: number; amp: number; freq: number; speed: number; phase: number; colour: string };
+	type Wave = { x: number; y: number; len: number; amp: number; freq: number; speed: number; phase: number; colour: string };
 
 	function rand(min: number, max: number): number {
 		return min + Math.random() * (max - min);
 	}
 
-	function spawn(width: number, y: number): Wave {
+	// y is the top of the wave; above the screen when not given
+	function spawn(width: number, y?: number): Wave {
+		const len = rand(140, 380);
 		return {
-			x: rand(-60, width),
-			y,
-			w: rand(140, 380),
-			amp: rand(6, 22),
+			x: rand(0, width),
+			y: y ?? -len,
+			len,
+			amp: rand(4, 14),
 			freq: rand(0.02, 0.07),
-			speed: rand(25, 80),
+			speed: rand(60, 180),
 			phase: rand(0, Math.PI * 2),
 			colour: COLOURS[Math.floor(Math.random() * COLOURS.length)]
 		};
@@ -40,7 +42,7 @@
 			canvas.height = height * dpr;
 			ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 			const count = Math.round((width * height) / 70000) + 6;
-			waves = Array.from({ length: count }, () => spawn(width, rand(-40, height)));
+			waves = Array.from({ length: count }, () => spawn(width, rand(-380, height)));
 		}
 
 		function draw(dt: number) {
@@ -48,14 +50,14 @@
 			for (const wave of waves) {
 				wave.y += wave.speed * dt;
 				wave.phase += dt * 3;
-				if (wave.y - wave.amp > height) Object.assign(wave, spawn(width, -40));
+				if (wave.y > height) Object.assign(wave, spawn(width));
 				ctx!.beginPath();
-				for (let i = 0; i <= wave.w; i += 4) {
-					// fade the ends so each wave tapers in and out
-					const taper = Math.sin((i / wave.w) * Math.PI);
-					const y = wave.y + Math.sin(i * wave.freq + wave.phase) * wave.amp * taper;
-					if (i === 0) ctx!.moveTo(wave.x + i, y);
-					else ctx!.lineTo(wave.x + i, y);
+				for (let i = 0; i <= wave.len; i += 4) {
+					// taper the ends so each wave fades in and out
+					const taper = Math.sin((i / wave.len) * Math.PI);
+					const x = wave.x + Math.sin(i * wave.freq + wave.phase) * wave.amp * taper;
+					if (i === 0) ctx!.moveTo(x, wave.y + i);
+					else ctx!.lineTo(x, wave.y + i);
 				}
 				ctx!.strokeStyle = wave.colour;
 				ctx!.globalAlpha = 0.45;
