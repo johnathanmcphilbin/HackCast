@@ -82,7 +82,6 @@
 							<p class="mono">{step.n}</p>
 							<h3>{step.title}</h3>
 							<p>{step.body}</p>
-							{@render bubbleTail()}
 						</li>
 					{/each}
 				</ol>
@@ -98,7 +97,7 @@
 						{/each}
 					</ul>
 				{:else}
-					<p class="mechanic" id="rewards">{rewardLine}{@render bubbleTail()}</p>
+					<p class="mechanic" id="rewards">{rewardLine}</p>
 				{/if}
 				{#if published.shop}
 					<div class="shop">
@@ -150,19 +149,6 @@
 		</div>
 	</section>
 </div>
-
-{#snippet bubbleTail()}
-	<svg class="tail tail-side" viewBox="0 0 30 42" aria-hidden="true">
-		<polygon class="tail-shadow" points="8,12 28,22 8,36" />
-		<polygon class="tail-face" points="0,4 20,18 0,32" />
-		<polyline class="tail-edge" points="0,4 20,18 0,32" />
-	</svg>
-	<svg class="tail tail-down" viewBox="0 0 42 28" aria-hidden="true">
-		<polygon class="tail-shadow" points="12,6 22,26 36,6" />
-		<polygon class="tail-face" points="4,0 18,18 32,0" />
-		<polyline class="tail-edge" points="4,0 18,18 32,0" />
-	</svg>
-{/snippet}
 
 <style>
 	.notice-backdrop {
@@ -364,13 +350,26 @@
 		box-shadow: 6px 6px 0 var(--shadow);
 		padding: 0.85rem 1rem 0.95rem;
 	}
+	/* Hand-cut cards in the mic art's colours, so they read as part of the drawing. */
 	.steps li {
-		--bubble: var(--paper);
+		--bubble: var(--cream);
 		--bubble-shadow: var(--shadow);
 		position: relative;
-		border-radius: 18px;
+		padding: 1rem 1.2rem 1.15rem;
+		border-radius: 24px 6px 28px 8px / 8px 26px 6px 22px;
 		background: var(--bubble);
-		box-shadow: 6px 6px 0 var(--bubble-shadow);
+		box-shadow: 5px 7px 0 var(--bubble-shadow);
+		transform: rotate(-1.5deg);
+	}
+	.steps li:nth-child(2) {
+		--bubble: #d7a750;
+		border-radius: 8px 28px 10px 24px / 26px 8px 24px 6px;
+		transform: rotate(1.2deg) translateY(8px);
+	}
+	.steps li:nth-child(3) {
+		--bubble: #43c8b4;
+		border-radius: 28px 10px 22px 6px / 6px 22px 10px 28px;
+		transform: rotate(-0.7deg);
 	}
 	.steps .mono,
 	.tiers .mono,
@@ -396,48 +395,30 @@
 		font-weight: 700;
 		line-height: 1.45;
 	}
-	.mechanic {
+	.steps .mono {
+		font-family: Bungee, sans-serif;
+		font-weight: 400;
+		font-size: 2rem;
+		line-height: 1;
+		color: var(--ink);
+	}
+	.how-copy > .mechanic {
 		--bubble: var(--red);
 		--bubble-shadow: var(--shadow);
 		position: relative;
-		margin-top: 0.85rem;
-		padding: 0.9rem 1rem;
+		width: fit-content;
+		max-width: 100%;
+		box-sizing: border-box;
+		margin: 1.9rem auto 0;
+		padding: 0.8rem 1.5rem;
 		background: var(--bubble);
-		color: #fff;
+		color: var(--cream);
 		border: 3px solid var(--shadow);
-		border-radius: 18px;
-		box-shadow: 6px 6px 0 var(--bubble-shadow);
+		border-radius: 6px 18px 4px 16px / 16px 4px 18px 6px;
+		box-shadow: 5px 7px 0 var(--bubble-shadow);
+		transform: rotate(0.8deg);
+		font-size: 1.15rem;
 		font-weight: 800;
-	}
-	.tail {
-		position: absolute;
-		overflow: visible;
-		pointer-events: none;
-	}
-	.tail-shadow {
-		fill: var(--bubble-shadow);
-	}
-	.tail-face {
-		fill: var(--bubble);
-	}
-	.tail-edge {
-		fill: none;
-		stroke: var(--shadow);
-		stroke-width: 3;
-		stroke-linejoin: round;
-		stroke-linecap: round;
-	}
-	.tail-side {
-		display: none;
-	}
-	.tail-down {
-		display: none;
-	}
-	.steps li:nth-child(2) .tail-side {
-		top: 1.85rem;
-	}
-	.steps li:nth-child(3) .tail-side {
-		top: 1.05rem;
 	}
 	.shop {
 		margin-top: 1rem;
@@ -512,26 +493,8 @@
 			grid-template-columns: 1fr;
 			gap: 1.35rem;
 		}
-		.mechanic {
-			margin-top: 1.35rem;
-		}
-		.tail-side {
-			display: none;
-		}
-		.tail-down {
-			display: block;
-			width: 40px;
-			height: 22px;
-			left: 1.5rem;
-			right: auto;
-			top: auto;
-			bottom: -16px;
-		}
-		.steps li:nth-child(2) .tail-down {
-			left: 2.6rem;
-		}
-		.steps li:nth-child(3) .tail-down {
-			left: 1.15rem;
+		.how-copy > .mechanic {
+			margin-top: 1.6rem;
 		}
 	}
 </style>
