@@ -258,6 +258,15 @@ img {
 	font-family: 'Space Mono', monospace;
 	font-size: 0.85rem;
 }
+.site-foot nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 1.2rem;
+	font-weight: 800;
+}
+.site-foot .word + .by {
+	margin-top: 0.3rem;
+}
 
 .phone {
 	display: none;

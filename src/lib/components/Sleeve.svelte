@@ -2,7 +2,7 @@
 	const grooves = Array.from({ length: 18 }, (_, i) => 92 + i * 7.2);
 
 	// How far the record sits from fully out, in viewBox units. Hover, drag or click it.
-	const TUCKED = -150;
+	const TUCKED = -138; // record centre (468 - 138 = 330) lines up with the sleeve window
 	const OUT = 0;
 	let svg: SVGSVGElement;
 	let tx = $state(TUCKED);
@@ -59,7 +59,7 @@
 	<defs>
 		<mask id="sleeve-paper">
 			<rect x="28" y="44" width="368" height="420" fill="#fff" />
-			<circle cx="330" cy="250" r="23" fill="#000" />
+			<circle cx="330" cy="262" r="23" fill="#000" />
 		</mask>
 	</defs>
 
@@ -126,7 +126,7 @@
 		<rect x="28" y="386" width="368" height="78" fill="#ec3750" />
 	</g>
 	<rect x="28" y="44" width="368" height="420" fill="none" stroke="#0c1422" stroke-width="3" />
-	<circle cx="330" cy="250" r="23" fill="none" stroke="#0c1422" stroke-width="3" />
+	<circle cx="330" cy="262" r="23" fill="none" stroke="#0c1422" stroke-width="3" />
 
 	<text x="212" y="148" text-anchor="middle" fill="#17171d" font-family="Rammetto One, sans-serif" font-size="38">HACKCAST</text>
 	<text x="212" y="434" text-anchor="middle" fill="#fff" font-family="Space Mono, monospace" font-size="18" font-weight="700">45 RPM · VOL. 1</text>

@@ -56,7 +56,7 @@
 					<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 				{/if}
 			</p>
-			<p class="soon">{home.notLive}</p>
+			{#if !data.firstName}<p class="soon">{home.notLive}</p>{/if}
 			{#if !data.firstName}<HackClubSignup />{/if}
 			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
 		</div>
@@ -124,7 +124,7 @@
 				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 			{/if}
 		</p>
-		<p class="soon">{home.notLive}</p>
+		{#if !data.firstName}<p class="soon">{home.notLive}</p>{/if}
 		{#if !data.firstName}<HackClubSignup />{/if}
 	</section>
 
