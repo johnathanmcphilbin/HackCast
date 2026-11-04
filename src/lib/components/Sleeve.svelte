@@ -52,6 +52,8 @@
 				stroke-width="2"
 			/>
 		{/each}
+		<!-- crowd photo, pre-screened navy halftone (transparent PNG) printed on the paper -->
+		<image href="/art/sleeve-crowd-halftone-navy.png" x="62" y="200" width="300" height="139" opacity="0.72" />
 		<rect x="28" y="386" width="368" height="78" fill="#ec3750" />
 	</g>
 	<rect x="28" y="44" width="368" height="420" fill="none" stroke="#0c1422" stroke-width="3" />
