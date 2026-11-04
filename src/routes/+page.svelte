@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { replaceState } from '$app/navigation';
+	import { page } from '$app/state';
 	import { episodes, home, hourTiers, published, rewardLine, shop, steps } from '#lib/content.ts';
 	import HackClubSignup from '#lib/components/HackClubSignup.svelte';
 	import OnAir from '#lib/components/OnAir.svelte';
@@ -9,9 +11,37 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	// /auth/login and /auth/callback land here with ?rsvp=done|soon|error.
+	const notices = {
+		done: { title: "you're on the list.", body: "We'll notify you when Hackcast opens." },
+		soon: { title: 'sign-in opens soon.', body: 'Check back in a bit.' },
+		error: { title: "that sign-in didn't land.", body: 'Give it another go.' }
+	} as const;
+	type Notice = keyof typeof notices;
+
+	const param = page.url.searchParams.get('rsvp');
+	let notice = $state<Notice | null>(param && param in notices ? (param as Notice) : null);
+
+	$effect(() => {
+		if (param) replaceState(page.url.pathname + page.url.hash, {});
+	});
 </script>
 
 <Seo />
+
+{#if notice}
+	<div class="notice-backdrop" role="presentation" onclick={() => (notice = null)}>
+		<div class="notice paper" role="dialog" aria-modal="true" aria-labelledby="notice-title" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.key === 'Escape' && (notice = null)}>
+			<h2 id="notice-title">{notices[notice].title}</h2>
+			<p>{notices[notice].body}</p>
+			{#if notice === 'error'}
+				<p><a class="redbtn" href={JOIN_HREF}>try again →</a></p>
+			{/if}
+			<button class="redbtn" type="button" onclick={() => (notice = null)}>got it</button>
+		</div>
+	</div>
+{/if}
 
 <div class="home">
 	<section class="hero">
@@ -127,6 +157,35 @@
 {/snippet}
 
 <style>
+	.notice-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: grid;
+		place-items: center;
+		padding: 16px;
+		background: rgb(12 20 34 / 0.7);
+	}
+	.notice {
+		width: min(440px, 100%);
+		padding: 1.5rem 1.6rem 1.6rem;
+		transform: rotate(-1deg);
+	}
+	.notice h2 {
+		margin: 0 0 0.5rem;
+		font-family: 'Archivo Black', sans-serif;
+		font-size: 1.7rem;
+		line-height: 1.15;
+		color: var(--ink);
+	}
+	.notice p {
+		margin: 0 0 1rem;
+		font-size: 1.1rem;
+		font-weight: 600;
+	}
+	.notice button {
+		cursor: pointer;
+	}
 	.home {
 		background-color: var(--bg);
 		background-image: radial-gradient(#314664 1.3px, transparent 1.5px);

@@ -1,6 +1,6 @@
 import { createRemoteJWKSet } from 'jose';
 import { isRedirect, redirect } from '@sveltejs/kit';
-import { HCA_JWKS, safeNext } from '#lib/server/auth-config.ts';
+import { afterSignIn, HCA_JWKS, safeNext } from '#lib/server/auth-config.ts';
 import { getRedirectUri, hcaClient, isAuthReady, secureCookies, sessionSecret } from '#lib/server/config.ts';
 import { redeemCode } from '#lib/server/hca.ts';
 import { upsertRsvp } from '#lib/server/rsvps.ts';
@@ -11,11 +11,11 @@ const jwks = createRemoteJWKSet(new URL(HCA_JWKS));
 
 function fail(cookies: Parameters<RequestHandler>[0]['cookies']): never {
 	cookies.delete(TXN_COOKIE, { path: '/' });
-	redirect(303, '/join?error=auth');
+	redirect(303, '/?rsvp=error');
 }
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
-	if (!isAuthReady()) redirect(303, '/join');
+	if (!isAuthReady()) redirect(303, '/?rsvp=soon');
 
 	const secret = sessionSecret();
 	const client = hcaClient();
@@ -59,7 +59,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			}
 		);
 		cookies.delete(TXN_COOKIE, { path: '/' });
-		redirect(303, safeNext(txn!.next));
+		redirect(303, afterSignIn(safeNext(txn!.next)));
 	} catch (err) {
 		if (isRedirect(err)) throw err;
 		console.error('Hack Club Auth callback failed');

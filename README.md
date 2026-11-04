@@ -19,8 +19,7 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | Route   | What it is |
 | ------- | ---------- |
 | `/`     | Landing page |
-| `/auth/login` | Starts Hack Club Auth. Falls back to `/join` when auth is not configured. |
-| `/join` | "Opening soon", or "you're on the list" after a Hack Club Auth RSVP |
+| `/auth/login` | Starts Hack Club Auth. Signing in is the RSVP. Lands back on `/` with a popup. |
 | `/faq`  | Dedicated FAQ page |
 | `/admin/rsvps` | RSVP list for Slack IDs in `ADMIN_SLACK_IDS`, plus a CSV download |
 
@@ -28,9 +27,9 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 
 ## RSVPs
 
-Join buttons go to `/auth/login`, which redirects to Hack Club Auth (OIDC authorization code + PKCE). The callback is `/auth/callback`. After that, `/join` shows "you're on the list".
+Join buttons go to `/auth/login`, which redirects to Hack Club Auth (OIDC authorization code + PKCE). The callback is `/auth/callback`. It saves the RSVP and sends people to `/?rsvp=done`, where a popup says they'll be notified. A failed sign-in lands on `/?rsvp=error`.
 
-Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, and `PUBLIC_BASE_URL` (or `HCA_REDIRECT_URI`) are set, `/auth/login` sends people to the existing "signups opening soon" slip. The rest of the site still renders.
+Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, and `PUBLIC_BASE_URL` (or `HCA_REDIRECT_URI`) are set, `/auth/login` sends people to `/?rsvp=soon` (a "sign-in opens soon" popup). The rest of the site still renders.
 
 `HCA_REDIRECT_URI` defaults to `${PUBLIC_BASE_URL}/auth/callback`. Register that exact URL on the Hack Club Auth app. See `.env.example`.
 

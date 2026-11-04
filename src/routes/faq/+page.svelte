@@ -17,7 +17,6 @@
 <div class="phone">
 	<p class="station-sign">the log book · faq</p>
 	<h1>frequently asked <span class="r">questions.</span></h1>
-	<p>Some rules go up before launch.</p>
 	{#each faqs as item, i (item.id)}
 		<details class="card">
 			<summary><span class="mono">CUE CARD · Q{String(i + 1).padStart(2, '0')}</span> {item.q}</summary>

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { generateKeyPair, exportJWK, SignJWT, importJWK, type JWK } from 'jose';
 import {
+	afterSignIn,
 	authReady,
 	HCA_SCOPES,
 	isAdminSlack,
@@ -46,8 +47,13 @@ describe('auth config', () => {
 
 	it('only allows known return paths', () => {
 		assert.equal(safeNext('/admin/rsvps'), '/admin/rsvps');
-		assert.equal(safeNext('https://evil.example'), '/join');
-		assert.equal(safeNext('//evil.example'), '/join');
+		assert.equal(safeNext('https://evil.example'), '/');
+		assert.equal(safeNext('//evil.example'), '/');
+	});
+
+	it('sends a home-page sign-in to the popup', () => {
+		assert.equal(afterSignIn('/'), '/?rsvp=done');
+		assert.equal(afterSignIn('/admin/rsvps'), '/admin/rsvps');
 	});
 
 	it('matches slack ids on the admin allowlist', () => {

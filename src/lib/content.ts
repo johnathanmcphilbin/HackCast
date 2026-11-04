@@ -15,7 +15,7 @@ export const hourTiers = [
 		channel: 'CH 1',
 		label: '5 hrs',
 		title: 'send in a question for the show',
-		detail: '+ one entry into the weekly prize wheel',
+		detail: '+ one entry into the prize wheel',
 		confirmed: false
 	},
 	{
@@ -48,7 +48,7 @@ export const prizeWheel = {
 	hoursPerEntry: 5,
 	confirmed: false,
 	blurb:
-		"every 5 approved hours gives you one entry into that week's prize wheel, spun live on the show. what's on the wheel will be announced closer to launch."
+		"every 5 approved hours gives you one entry into the prize wheel, spun every episode. what's on the wheel will be announced closer to launch."
 } as const;
 
 export const shop = {
@@ -121,61 +121,46 @@ export const faqs: Faq[] = [
 	{
 		id: 'what',
 		q: 'what is hackcast?',
-		a: 'A weekly teen podcast, and a Hack Club YSWS. Build, log hours, get on the show.'
+		a: 'A monthly podcast where your voice is heard.'
 	},
 	{
 		id: 'who',
 		q: 'who can participate?',
-		a: 'Teenagers. Eligibility goes up before launch.'
+		a: 'Anyone who is 13-18.'
 	},
 	{
 		id: 'build',
 		q: 'what can I build?',
-		a: 'Sites, games, apps, hardware, tools, or art. If you made it, it counts.'
+		a: 'Websites, games, hardware, anything.'
 	},
 	{
 		id: 'hours',
 		q: 'how do I track my hours?',
-		a: 'The tracker is still being finished. Instructions arrive before hours count.',
-		tbc: true
+		a: 'Hackatime for software. Hardware is Lapse and journals every 2 hours in the repo.'
 	},
 	{
 		id: 'shipped',
 		q: 'what counts as a shipped project?',
-		a: 'Still being written. The checklist goes up before launch.',
-		tbc: true
-	},
-	{
-		id: 'existing',
-		q: 'can I work on an existing project?',
-		a: 'Not settled yet. The rule goes up before launch.',
-		tbc: true
+		a: 'A working demo, plus open source code or design.'
 	},
 	{
 		id: 'shop',
 		q: 'how do I earn shop rewards?',
-		a: shop.confirmed
-			? shop.blurb
-			: 'Not open yet. Credit rules come before anything is for sale.',
-		tbc: !shop.confirmed
+		a: 'Shop credits will come in the form of hours.'
 	},
 	{
 		id: 'wheel',
-		q: 'how does the weekly prize wheel work?',
-		a: published.prizeWheel
-			? prizeWheel.blurb
-			: 'Spun live on the show. Entries and prizes come before launch.',
-		tbc: !published.prizeWheel
+		q: 'how does the prize wheel work?',
+		a: 'The wheel will be spun every episode.'
 	},
 	{
 		id: 'airtime',
 		q: 'how does someone choose a topic or guest?',
-		a: 'Pitches and guest spots take approved hours. Counts come before launch.',
-		tbc: true
+		a: 'You can buy a chance with your hours to ask for a specific guest at HQ.'
 	},
 	{
 		id: 'when',
 		q: 'when do new episodes come out?',
-		a: 'Every week. The day is announced with episode one.'
+		a: 'Hopefully every 2 weeks, if the first one goes well :0'
 	}
 ];

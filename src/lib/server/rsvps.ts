@@ -99,24 +99,6 @@ export async function upsertRsvp(row: RsvpWrite): Promise<void> {
 	countCache = null;
 }
 
-export async function setRsvpQuestion(sub: string, question: string | null): Promise<void> {
-	const client = db();
-	if (!client) throw new Error('database');
-	await ensure(client);
-	await client`update rsvps set question = ${question}, updated_at = now() where sub = ${sub}`;
-}
-
-export async function getRsvp(sub: string): Promise<RsvpRow | null> {
-	const client = db();
-	if (!client) return null;
-	await ensure(client);
-	const rows = await client<Raw[]>`
-		select sub, name, email, slack_id, verification_status, ysws_eligible, question, created_at
-		from rsvps where sub = ${sub} limit 1
-	`;
-	return rows[0] ? mapRow(rows[0]) : null;
-}
-
 export async function listRsvps(): Promise<RsvpRow[]> {
 	const client = db();
 	if (!client) throw new Error('database');

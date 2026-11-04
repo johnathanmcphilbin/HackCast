@@ -12,7 +12,7 @@ export const site = {
 	hackClubFlag: 'https://assets.hackclub.com/flag-orpheus-top.svg'
 } as const;
 
-/** Every join button starts Hack Club Auth. /auth/login sends people to HCA, or back to /join when auth is not configured. */
+/** Every join button starts Hack Club Auth. Signing in is the RSVP; people land back on the home page. */
 export const JOIN_HREF = '/auth/login';
 
 export const navLinks = [

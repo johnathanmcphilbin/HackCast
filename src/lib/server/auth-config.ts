@@ -21,7 +21,7 @@ export const HCA_JWKS = 'https://auth.hackclub.com/oauth/discovery/keys';
  */
 export const HCA_SCOPES = 'openid profile email name slack_id verification_status';
 
-const NEXT_PATHS = new Set(['/join', '/admin/rsvps']);
+const NEXT_PATHS = new Set(['/', '/admin/rsvps']);
 
 export function redirectUri(env: AuthEnv): string | undefined {
 	const explicit = env.HCA_REDIRECT_URI?.trim();
@@ -64,7 +64,12 @@ export function isAdminSlack(slackId: string | null | undefined, raw: string | u
 /** Only same-origin paths we actually have. Blocks open redirects. */
 export function safeNext(value: string | null | undefined): string {
 	if (value && NEXT_PATHS.has(value)) return value;
-	return '/join';
+	return '/';
+}
+
+/** Where a finished sign-in lands. The home page shows the "you're on the list" popup. */
+export function afterSignIn(next: string): string {
+	return next === '/' ? '/?rsvp=done' : next;
 }
 
 export function visibleRsvpCount(count: number | null | undefined): number | null {

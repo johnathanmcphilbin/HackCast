@@ -77,7 +77,7 @@ export function readTxn(token: string | undefined, secret: string | undefined): 
 		state: payload.state,
 		nonce: payload.nonce,
 		verifier: payload.verifier,
-		next: typeof payload.next === 'string' ? payload.next : '/join',
+		next: typeof payload.next === 'string' ? payload.next : '/',
 		exp: payload.exp ?? 0
 	};
 }
