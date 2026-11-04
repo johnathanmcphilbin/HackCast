@@ -54,7 +54,7 @@
 	}
 	h1 {
 		margin: 0.3rem 0 0.8rem;
-		font-family: 'Bricolage Grotesque', sans-serif;
+		font-family: 'Permanent Marker', sans-serif;
 		font-size: clamp(2rem, 5vw, 3rem);
 		font-weight: 400;
 	}
