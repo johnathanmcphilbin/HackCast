@@ -20,6 +20,7 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | ------- | ---------- |
 | `/`     | Landing page |
 | `/auth/login` | Starts Hack Club Auth. Signing in is the RSVP. Lands back on `/` with a popup. |
+| `/join` | Old link. Redirects to `/auth/login`. |
 | `/faq`  | Dedicated FAQ page |
 | `/admin/rsvps` | RSVP list for Slack IDs in `ADMIN_SLACK_IDS`, plus a CSV download |
 

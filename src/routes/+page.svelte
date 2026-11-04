@@ -33,7 +33,8 @@
 {#if notice}
 	<div class="notice-backdrop" role="presentation" onclick={() => (notice = null)}>
 		<div class="notice paper" role="dialog" aria-modal="true" aria-labelledby="notice-title" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.key === 'Escape' && (notice = null)}>
-			<h2 id="notice-title">{notices[notice].title}</h2>
+			<h2 id="notice-title">{notice === 'done' && data.firstName ? `hello, ${data.firstName}!` : notices[notice].title}</h2>
+			{#if notice === 'done' && data.firstName}<p>You're on the list.</p>{/if}
 			<p>{notices[notice].body}</p>
 			{#if notice === 'error'}
 				<p><a class="redbtn" href={JOIN_HREF}>try again →</a></p>
@@ -49,7 +50,11 @@
 			<h1>HACKCAST</h1>
 			<p class="tagline">{home.tagline}</p>
 			<p class="cta-row">
-				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+				{#if data.firstName}
+					<span class="redbtn cta">hello, {data.firstName}. you're on the list.</span>
+				{:else}
+					<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+				{/if}
 			</p>
 			<p class="soon">{home.notLive}</p>
 			<HackClubSignup />
@@ -115,7 +120,11 @@
 		<h2>{home.finaleTitle}</h2>
 		<p>{home.finale}</p>
 		<p class="cta-row">
-			<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+			{#if data.firstName}
+				<span class="redbtn cta">hello, {data.firstName}. you're on the list.</span>
+			{:else}
+				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+			{/if}
 		</p>
 		<p class="soon">{home.notLive}</p>
 		<HackClubSignup />

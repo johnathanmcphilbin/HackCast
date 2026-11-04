@@ -29,7 +29,11 @@
 				</li>
 			{/each}
 			<li class="join">
-				<a class="redbtn" href={JOIN_HREF}>rsvp for hackcast →</a>
+				{#if page.data.firstName}
+					<span class="redbtn">hello, {page.data.firstName}</span>
+				{:else}
+					<a class="redbtn" href={JOIN_HREF}>rsvp for hackcast →</a>
+				{/if}
 			</li>
 		</ul>
 	</nav>
