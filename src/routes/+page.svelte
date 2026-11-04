@@ -213,7 +213,7 @@
 	.polaroid {
 		grid-area: photo;
 		justify-self: start;
-		width: min(250px, 100%);
+		width: min(380px, 100%);
 		margin: 0.4rem 0 0.2rem;
 		padding: 0.65rem 0.65rem 0.4rem;
 		background: var(--paper);
@@ -221,11 +221,15 @@
 		border: 3px solid var(--shadow);
 		box-shadow: 8px 8px 0 var(--shadow);
 		transform: rotate(-2.5deg);
+		transition: transform 0.25s ease;
+	}
+	.polaroid:hover {
+		transform: rotate(0.5deg) scale(1.04);
 	}
 	.polaroid img {
 		display: block;
 		width: 100%;
-		height: 148px;
+		height: 230px;
 		object-fit: cover;
 		border: 3px solid var(--shadow);
 	}
@@ -233,7 +237,7 @@
 		margin: 0.4rem 0 0.15rem;
 		text-align: center;
 		font-family: 'Space Mono', monospace;
-		font-size: 0.75rem;
+		font-size: 0.9rem;
 		font-weight: 700;
 		color: var(--ink);
 	}
@@ -472,7 +476,7 @@
 			max-width: 100%;
 		}
 		.polaroid {
-			width: min(240px, 78%);
+			width: min(340px, 90%);
 		}
 		.cta {
 			display: flex;
