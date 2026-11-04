@@ -165,7 +165,7 @@
 	}
 	.notice h2 {
 		margin: 0 0 0.5rem;
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 		font-size: 1.7rem;
 		line-height: 1.15;
 		color: var(--ink);
@@ -240,11 +240,11 @@
 	h1 {
 		margin: 0;
 		padding-left: 0.04em;
-		font-family: 'Rammetto One', sans-serif;
-		font-size: clamp(2.15rem, 4.6vw, 4.05rem);
+		font-family: 'Bricolage Grotesque', sans-serif;
+		font-size: clamp(2.6rem, 5.6vw, 5rem);
 		font-weight: 400;
 		line-height: 0.92;
-		color: var(--cream);
+		color: var(--wave);
 	}
 	.tagline {
 		margin: 0.85rem 0 0;
@@ -307,11 +307,11 @@
 	}
 	h2 {
 		margin: 0 0 0.9rem;
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 		font-size: clamp(2.1rem, 4.6vw, 3.4rem);
 		font-weight: 400;
 		line-height: 1.02;
-		color: var(--cream);
+		color: var(--wave);
 	}
 	.how-copy > p,
 	.finale > p {
@@ -373,7 +373,7 @@
 	.tiers h3,
 	.shop h3 {
 		margin: 0.1rem 0 0.3rem;
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 		font-size: 1.45rem;
 		font-weight: 400;
 		color: var(--ink);

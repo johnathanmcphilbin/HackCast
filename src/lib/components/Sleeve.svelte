@@ -78,7 +78,7 @@
 				<circle cx="212" cy="254" r={radius} fill="none" stroke="#2a3b52" stroke-width="2" />
 			{/each}
 			<circle cx="212" cy="254" r="62" fill="#ec3750" stroke="#0c1422" stroke-width="3" />
-			<text x="212" y="240" text-anchor="middle" fill="#fff" font-family="Rammetto One, sans-serif" font-size="24">EP 01</text>
+			<text x="212" y="240" text-anchor="middle" fill="#fff" font-family="'Bricolage Grotesque', sans-serif" font-size="24">EP 01</text>
 			<text x="212" y="284" text-anchor="middle" fill="#f6e6cf" font-family="Space Mono, monospace" font-size="14" font-weight="700">coming soon</text>
 			<circle cx="212" cy="254" r="6" fill="#f6e6cf" stroke="#0c1422" stroke-width="2" />
 		</g>
@@ -102,7 +102,7 @@
 	<rect x="28" y="44" width="368" height="420" fill="none" stroke="#0c1422" stroke-width="3" />
 	<circle cx="212" cy="254" r="20" fill="none" stroke="#0c1422" stroke-width="3" />
 
-	<text x="212" y="148" text-anchor="middle" fill="#17171d" font-family="Rammetto One, sans-serif" font-size="38">HACKCAST</text>
+	<text x="212" y="148" text-anchor="middle" fill="#17171d" font-family="'Bricolage Grotesque', sans-serif" font-size="38">HACKCAST</text>
 	<text x="212" y="434" text-anchor="middle" fill="#fff" font-family="Space Mono, monospace" font-size="18" font-weight="700">45 RPM · VOL. 1</text>
 </svg>
 

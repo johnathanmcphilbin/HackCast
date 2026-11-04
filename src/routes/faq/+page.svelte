@@ -30,6 +30,6 @@
 <style>
 	summary {
 		cursor: pointer;
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 	}
 </style>

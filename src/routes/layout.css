@@ -12,6 +12,7 @@
 	--red: #ec3750;
 	--shadow: #0c1422;
 	--brass: #e0a53c;
+	--wave: #8fdcff;
 	font-family: Figtree, sans-serif;
 }
 
@@ -48,7 +49,7 @@ img {
 	background: var(--red);
 	color: #fff;
 	padding: 0.4rem 0.7rem;
-	font-family: 'Archivo Black', sans-serif;
+	font-family: 'Bricolage Grotesque', sans-serif;
 	text-decoration: none;
 }
 .skip:focus {
@@ -105,7 +106,7 @@ img {
 	display: inline-block;
 	background: var(--red);
 	color: #fff;
-	font-family: 'Archivo Black', sans-serif;
+	font-family: 'Bricolage Grotesque', sans-serif;
 	font-size: 1.05rem;
 	padding: 0.55rem 0.9rem;
 	border: 3px solid var(--shadow);
@@ -144,7 +145,7 @@ img {
 }
 .canvas .disp,
 .disp {
-	font-family: 'Archivo Black', sans-serif;
+	font-family: 'Bricolage Grotesque', sans-serif;
 }
 .canvas .mono,
 .mono {
@@ -198,10 +199,10 @@ img {
 	border: 2px solid var(--shadow);
 }
 .canvas .h2 {
-	font-family: 'Archivo Black', sans-serif;
+	font-family: 'Bricolage Grotesque', sans-serif;
 	font-size: 84px;
 	line-height: 0.98;
-	color: var(--cream);
+	color: var(--wave);
 	letter-spacing: -0.01em;
 }
 .canvas .h2 .r,
@@ -308,7 +309,7 @@ img {
 		border: 3px solid var(--shadow);
 		background: var(--red);
 		color: #fff;
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 		cursor: pointer;
 	}
 	.topbar nav {
@@ -372,11 +373,11 @@ img {
 	.phone h1,
 	.phone h2 {
 		margin: 0 0 0.6rem;
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 		font-size: clamp(1.8rem, 8vw, 2.3rem);
 		line-height: 1.02;
 		font-weight: 400;
-		color: var(--cream);
+		color: var(--wave);
 	}
 	.phone .r {
 		background: var(--red);
@@ -405,7 +406,7 @@ img {
 	}
 	.card h3 {
 		margin: 0.15rem 0;
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 		font-size: 1.35rem;
 		font-weight: 400;
 	}
@@ -491,7 +492,7 @@ img {
 		border: 3px dashed var(--shadow);
 		background: #eadbc0;
 		color: var(--ink);
-		font-family: 'Archivo Black', sans-serif;
+		font-family: 'Bricolage Grotesque', sans-serif;
 		font-size: 1rem;
 		cursor: not-allowed;
 	}
