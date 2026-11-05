@@ -9,6 +9,7 @@
 		{ href: '/admin/reviews', label: data.pending == null ? 'review queue' : `review queue (${data.pending})` },
 		...(data.role === 'admin'
 			? [
+					{ href: '/admin/shop', label: 'shop' },
 					{ href: '/admin/questions', label: 'questions' },
 					{ href: '/admin/guests', label: 'guest votes' },
 					{ href: '/admin/team', label: 'team' },

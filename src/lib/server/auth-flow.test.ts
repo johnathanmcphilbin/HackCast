@@ -48,6 +48,7 @@ describe('auth config', () => {
 
 	it('only allows known return paths', () => {
 		assert.equal(safeNext('/admin/rsvps'), '/admin/rsvps');
+		assert.equal(safeNext('/admin/shop'), '/admin/shop');
 		assert.equal(safeNext('/dashboard'), '/dashboard');
 		assert.equal(safeNext('/submit'), '/submit');
 		assert.equal(safeNext('/auth/hackatime'), '/auth/hackatime');

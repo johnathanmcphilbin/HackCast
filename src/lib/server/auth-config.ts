@@ -24,6 +24,7 @@ export const HCA_SCOPES = 'openid profile email name slack_id verification_statu
 const NEXT_PATHS = new Set([
 	'/',
 	'/admin',
+	'/admin/shop',
 	'/admin/reviews',
 	'/admin/questions',
 	'/admin/guests',

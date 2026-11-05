@@ -12,6 +12,8 @@ import {
 	questionsFrom,
 	voteGuest,
 } from '#lib/server/questions.ts';
+import { parseOnAirQuestion, parseShipTo, quoteRedeem } from '#lib/shop.ts';
+import { ShopError, redeemShopItem, redemptionsFor, spentSecondsFor } from '#lib/server/shop.ts';
 import { UUID } from '#lib/server/submission-form.ts';
 import { approvedSecondsFor, submissionsFor, type SubmissionStatus } from '#lib/server/submissions.ts';
 import {
@@ -78,7 +80,22 @@ export const load: PageServerLoad = async (event) => {
 		race: [] as { name: string; hours: string; you: boolean }[],
 		you: null as { rank: number; hours: string } | null,
 		first: false,
-		entries: 1
+		entries: 1,
+		redeemed: event.url.searchParams.get('redeemed') === '1',
+		shop: {
+			approvedSeconds: 0,
+			availableSeconds: 0,
+			unavailable: false,
+			redemptions: [] as {
+				id: string;
+				title: string;
+				hours: number;
+				grantLabel: string;
+				status: string;
+				stackable: boolean;
+				createdAt: string;
+			}[]
+		}
 	};
 
 	try {
@@ -140,11 +157,31 @@ export const load: PageServerLoad = async (event) => {
 		}));
 		if (mine >= 0) base.you = { rank: mine + 1, hours: formatHours(race[mine].seconds) };
 		base.first = mine === 0;
+		try {
+			const [spent, mineShop] = await Promise.all([spentSecondsFor(session.sub), redemptionsFor(session.sub)]);
+			base.shop = {
+				approvedSeconds: approved,
+				availableSeconds: Math.max(0, approved - spent),
+				unavailable: false,
+				redemptions: mineShop.map((row) => ({
+					id: row.id,
+					title: row.title,
+					hours: row.hours,
+					grantLabel: row.grantLabel,
+					status: row.status,
+					stackable: row.stackable,
+					createdAt: row.createdAt.toISOString()
+				}))
+			};
+		} catch {
+			console.error('shop load failed');
+			base.shop = { ...base.shop, approvedSeconds: approved, unavailable: true };
+		}
 		return base;
 	} catch (err) {
 		if (isRedirect(err)) throw err;
 		console.error('dashboard load failed');
-		return { ...base, unavailable: true };
+		return { ...base, unavailable: true, shop: { ...base.shop, unavailable: true } };
 	}
 };
 
@@ -224,5 +261,34 @@ export const actions: Actions = {
 			return fail(500, { message: "Couldn't save that vote. Try again." });
 		}
 		redirect(303, '/dashboard?voted=1');
+	},
+	redeem: async (event) => {
+		const session = requireSession(event, '/dashboard');
+		const form = await event.request.formData();
+		const sku = String(form.get('sku') ?? '');
+		const quote = quoteRedeem(sku, form.get('hours'));
+		if (!quote.ok) return fail(400, { area: 'shop', sku, message: quote.message });
+		const ship = quote.item.kind === 'gear' ? parseShipTo(form) : null;
+		if (ship && !ship.ok) return fail(400, { area: 'shop', sku, message: ship.message });
+		const question = quote.item.kind === 'question' ? parseOnAirQuestion(form.get('question')) : null;
+		if (quote.item.kind === 'question' && !question) {
+			return fail(400, { area: 'shop', sku, message: 'Write the question you want asked on the episode.' });
+		}
+		try {
+			await upsertUser({ hackclubId: session.sub, displayName: session.name, email: '', slackId: session.slackId });
+			await redeemShopItem({
+				hackclubId: session.sub,
+				sku,
+				hours: form.get('hours'),
+				question,
+				ship: ship && ship.ok ? ship.value : null
+			});
+		} catch (err) {
+			const message = err instanceof ShopError ? err.message : null;
+			if (message) return fail(400, { area: 'shop', sku, message });
+			console.error('redeem failed');
+			return fail(500, { area: 'shop', sku, message: 'Could not save that redemption. Try again.' });
+		}
+		redirect(303, '/dashboard?redeemed=1#shop');
 	}
 };
