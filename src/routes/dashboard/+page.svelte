@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Seo from '#lib/components/Seo.svelte';
+	import Shop from '#lib/components/Shop.svelte';
 	import { hackatimeContinueHref } from '#lib/hackatime-recovery.ts';
 	import type { PageProps } from './$types';
 
@@ -113,7 +114,9 @@
 					</p>
 				{/if}
 			{/if}
-			{#if form?.message && !data.popup}<p class="err" role="alert">{form.message}</p>{/if}
+			{#if form?.message && !data.popup && !('area' in form && form.area === 'shop')}
+				<p class="err" role="alert">{form.message}</p>
+			{/if}
 		</section>
 
 		<section class="panel" aria-labelledby="ask-title">
@@ -199,6 +202,16 @@
 		<p>Ready to ship a project for review</p>
 		<a class="redbtn" href="/submit">Submit for review</a>
 	</footer>
+
+	<Shop
+		approvedSeconds={data.shop.approvedSeconds}
+		availableSeconds={data.shop.availableSeconds}
+		redemptions={data.shop.redemptions}
+		leading={data.first}
+		unavailable={data.unavailable || data.shop.unavailable}
+		redeemed={data.redeemed}
+		form={'area' in (form ?? {}) && form?.area === 'shop' ? form : null}
+	/>
 </div>
 
 <style>

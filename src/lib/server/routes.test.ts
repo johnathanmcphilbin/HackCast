@@ -75,7 +75,7 @@ describe('booth routes', () => {
 
 	it('hides the admin area from people who are not staff', async () => {
 		await ready();
-		for (const path of ['/admin', '/admin/reviews', '/admin/team']) {
+		for (const path of ['/admin', '/admin/reviews', '/admin/team', '/admin/shop']) {
 			const signedOut = await fetch(`${base}${path}`, { redirect: 'manual' });
 			assert.equal(signedOut.status, 303, path);
 			assert.equal(new URL(signedOut.headers.get('location') ?? '', base).pathname, '/auth/login', path);
