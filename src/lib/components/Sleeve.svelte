@@ -131,7 +131,7 @@
 	<div class="peek-backdrop" role="presentation" onclick={(e) => e.target === e.currentTarget && closePeek()}>
 		<div class="peek" role="dialog" aria-modal="true" aria-label="Episode 1 sneak peek">
 			<!-- svelte-ignore a11y_media_has_caption (captions are burned into the video) -->
-			<video src="/video/sneak-peek.mp4" poster="/video/sneak-peek.jpg" controls playsinline {@attach autoplay}></video>
+			<video src="/video/sneak-peek.mp4?v=2" poster="/video/sneak-peek.jpg?v=2" controls playsinline {@attach autoplay}></video>
 			<button class="redbtn" type="button" onclick={closePeek}>close</button>
 		</div>
 	</div>
