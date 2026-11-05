@@ -6,3 +6,11 @@ export function cleanProjectName(value: unknown): string | null {
 	if (/[\u0000-\u001f\u007f]/.test(name)) return null;
 	return name;
 }
+
+/** How many Hackatime projects onboarding offers to pick from. */
+export const TOP_PROJECTS = 5;
+
+/** The projects with the most hours, most first. */
+export function topProjects<T extends { totalSeconds: number }>(projects: T[], count = TOP_PROJECTS): T[] {
+	return [...projects].sort((a, b) => b.totalSeconds - a.totalSeconds).slice(0, count);
+}

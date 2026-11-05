@@ -2,7 +2,7 @@
 	import Seo from '#lib/components/Seo.svelte';
 	import type { PageProps } from './$types';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 
 	const notices = {
 		connected: 'Hackatime is connected.',
@@ -43,9 +43,35 @@
 				<p>No HackCast project yet. Link the Hackatime project you're building.</p>
 				<p class="action"><a class="redbtn" href="/onboarding?add=1">add a HackCast project</a></p>
 			{:else}
+				{#if form?.message}
+					<p class="note" role="alert">{form.message}</p>
+				{/if}
 				<ul class="linked">
-					{#each data.linked as name (name)}
-						<li><span class="tag">HackCast</span>{name}</li>
+					{#each data.linked as project (project.id)}
+						<li>
+							<span class="tag">HackCast</span>{project.name}
+							{#if project.hackatimeProject && project.hackatimeProject !== project.name}
+								<span class="tracks">tracks {project.hackatimeProject} on Hackatime</span>
+							{:else if !project.hackatimeProject}
+								{#if data.projects && data.projects.length > 0}
+									<form method="POST" action="?/link" class="attach">
+										<input type="hidden" name="projectId" value={project.id} />
+										<label>
+											<span class="visually-hidden">Hackatime project for {project.name}</span>
+											<select name="hackatimeProject" required>
+												<option value="">link a Hackatime project…</option>
+												{#each data.projects as option (option.name)}
+													<option value={option.name}>{option.name} ({option.hours})</option>
+												{/each}
+											</select>
+										</label>
+										<button type="submit">link</button>
+									</form>
+								{:else}
+									<span class="tracks">no Hackatime project yet. Log some hours, then link it here.</span>
+								{/if}
+							{/if}
+						</li>
 					{/each}
 				</ul>
 				<p class="again"><a href="/onboarding?add=1">add another HackCast project</a></p>
@@ -177,6 +203,31 @@
 	.linked li {
 		margin: 0 0 0.45rem;
 		font-weight: 800;
+	}
+	.tracks {
+		display: block;
+		margin-top: 0.2rem;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.8rem;
+		font-weight: 700;
+	}
+	.attach {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin-top: 0.35rem;
+	}
+	.attach select,
+	.attach button {
+		padding: 0.35rem 0.5rem;
+		border: 3px solid var(--shadow);
+		background: #fff;
+		color: var(--ink);
+		font: inherit;
+		font-weight: 700;
+	}
+	.attach button {
+		cursor: pointer;
 	}
 	.tag {
 		display: inline-block;

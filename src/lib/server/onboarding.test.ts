@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { destinationAfterHca } from './auth-config.ts';
 import { HACKATIME_CALLBACK_PATH, hackatimeRedirectUri } from './hackatime.ts';
 import { redirectUri } from './auth-config.ts';
-import { cleanProjectName } from './projects.ts';
+import { cleanProjectName, topProjects } from './projects.ts';
 
 describe('HackCast onboarding path', () => {
 	it('keeps the Hackatime redirect distinct from Hack Club Auth', () => {
@@ -27,5 +27,14 @@ describe('HackCast onboarding path', () => {
 		assert.equal(cleanProjectName('a'.repeat(201)), null);
 		assert.equal(cleanProjectName('line\nbreak'), null);
 		assert.equal(cleanProjectName(null), null);
+	});
+
+	it('offers only the five Hackatime projects with the most hours', () => {
+		const projects = [1, 9, 3, 7, 5, 8, 2].map((hours) => ({ name: `p${hours}`, totalSeconds: hours * 3600 }));
+		assert.deepEqual(
+			topProjects(projects).map((project) => project.name),
+			['p9', 'p8', 'p7', 'p5', 'p3']
+		);
+		assert.equal(projects[0].name, 'p1');
 	});
 });

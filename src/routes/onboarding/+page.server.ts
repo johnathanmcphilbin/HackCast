@@ -2,13 +2,14 @@ import { fail, isRedirect, redirect } from '@sveltejs/kit';
 import { hackatimeCallback, hackatimeClient } from '#lib/server/config.ts';
 import { requireSession } from '#lib/server/guards.ts';
 import { fetchHackatimeProjects, formatHours } from '#lib/server/hackatime.ts';
-import { cleanProjectName } from '#lib/server/projects.ts';
+import { cleanProjectName, topProjects } from '#lib/server/projects.ts';
 import {
+	addHackcastProject,
 	hackatimeAccessToken,
 	hackatimeStatus,
-	linkHackcastProject,
 	listHackcastProjects,
-	upsertUser
+	upsertUser,
+	type HackcastProject
 } from '#lib/server/users.ts';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -34,7 +35,7 @@ export const load: PageServerLoad = async (event) => {
 		notice,
 		connected: false,
 		unavailable: false,
-		linked: [] as string[],
+		linked: [] as HackcastProject[],
 		projects: [] as { name: string; hours: string }[]
 	};
 
@@ -59,7 +60,7 @@ export const load: PageServerLoad = async (event) => {
 			...base,
 			connected: true,
 			linked,
-			projects: (remote ?? []).map((project) => ({
+			projects: topProjects(remote ?? []).map((project) => ({
 				name: project.name,
 				hours: formatHours(project.totalSeconds)
 			}))
@@ -71,30 +72,37 @@ export const load: PageServerLoad = async (event) => {
 	}
 };
 
-export const actions: Actions = {
-	default: async (event) => {
-		const session = requireSession(event, '/onboarding');
-		const form = await event.request.formData();
-		const typed = cleanProjectName(form.get('projectName'));
-		const picked = cleanProjectName(form.get('project'));
-		const name = typed ?? picked;
-		if (!name) return fail(400, { message: 'Name the HackCast project. Use the Hackatime project name.' });
+async function add(event: Parameters<Actions[string]>[0], name: string, hackatimeProject: string | null) {
+	const session = requireSession(event, '/onboarding');
+	try {
+		await upsertUser({
+			hackclubId: session.sub,
+			displayName: session.name,
+			email: '',
+			slackId: session.slackId
+		});
+		const status = await hackatimeStatus(session.sub);
+		if (!status.connected) redirect(303, '/auth/hackatime?next=/onboarding');
+		await addHackcastProject(session.sub, name, hackatimeProject);
+	} catch (err) {
+		if (isRedirect(err)) throw err;
+		console.error('add HackCast project failed');
+		return fail(500, { message: "Couldn't add that HackCast project. Try again." });
+	}
+	redirect(303, '/dashboard');
+}
 
-		try {
-			await upsertUser({
-				hackclubId: session.sub,
-				displayName: session.name,
-				email: '',
-				slackId: session.slackId
-			});
-			const status = await hackatimeStatus(session.sub);
-			if (!status.connected) redirect(303, '/auth/hackatime?next=/onboarding');
-			await linkHackcastProject(session.sub, name);
-		} catch (err) {
-			if (isRedirect(err)) throw err;
-			console.error('link HackCast project failed');
-			return fail(500, { message: "Couldn't add that HackCast project. Try again." });
-		}
-		redirect(303, '/dashboard');
+export const actions: Actions = {
+	// Track one of the Hackatime projects listed on the page.
+	pick: async (event) => {
+		const picked = cleanProjectName((await event.request.formData()).get('project'));
+		if (!picked) return fail(400, { message: 'Pick one of your Hackatime projects.' });
+		return add(event, picked, picked);
+	},
+	// Start a new HackCast project; a Hackatime project gets linked from the dashboard later.
+	create: async (event) => {
+		const name = cleanProjectName((await event.request.formData()).get('projectName'));
+		if (!name) return fail(400, { message: 'Give the new HackCast project a name.' });
+		return add(event, name, null);
 	}
 };

@@ -5,7 +5,8 @@ import { db } from './db.ts';
  * Signed-in people live in `users`, keyed by Hack Club Auth's subject
  * (`hackclub_id`). RSVPs stay in `rsvps`. Hackatime tokens live in
  * `hackatime_connections` and are never returned to a page load.
- * HackCast-linked Hackatime project names live in `hackcast_projects`.
+ * HackCast projects live in `hackcast_projects`: a name, plus the Hackatime
+ * project it tracks once one is linked (null until then).
  */
 
 export type UserWrite = {
@@ -64,12 +65,37 @@ async function ensure(sql: postgres.Sql): Promise<void> {
 			`;
 			await sql`
 				create table if not exists hackcast_projects (
+					id uuid not null default gen_random_uuid(),
 					user_id uuid not null references users (id) on delete cascade,
-					hackatime_project text not null,
+					name text not null,
+					hackatime_project text,
 					created_at timestamptz not null default now(),
-					primary key (user_id, hackatime_project),
+					constraint hackcast_projects_id_pkey primary key (id),
 					constraint hackcast_projects_name_length check (char_length(hackatime_project) between 1 and 200)
 				)
+			`;
+			// Older tables keyed projects by (user_id, hackatime_project) with no separate name.
+			await sql`alter table hackcast_projects add column if not exists id uuid not null default gen_random_uuid()`;
+			await sql`alter table hackcast_projects add column if not exists name text`;
+			await sql`update hackcast_projects set name = hackatime_project where name is null`;
+			await sql`alter table hackcast_projects alter column name set not null`;
+			await sql`alter table hackcast_projects drop constraint if exists hackcast_projects_pkey`;
+			await sql`
+				do $$ begin
+					if not exists (select 1 from pg_constraint where conname = 'hackcast_projects_id_pkey') then
+						alter table hackcast_projects add constraint hackcast_projects_id_pkey primary key (id);
+					end if;
+				end $$
+			`;
+			await sql`alter table hackcast_projects alter column hackatime_project drop not null`;
+			await sql`
+				create unique index if not exists hackcast_projects_user_hackatime_idx
+				on hackcast_projects (user_id, hackatime_project)
+				where hackatime_project is not null
+			`;
+			await sql`
+				create unique index if not exists hackcast_projects_user_name_idx
+				on hackcast_projects (user_id, name)
 			`;
 		})().catch((err) => {
 			schema = null;
@@ -144,33 +170,67 @@ export async function saveHackatimeConnection(hackclubId: string, tokens: Hackat
 	if (!rows[0]) throw new Error('database');
 }
 
-export async function listHackcastProjects(hackclubId: string): Promise<string[]> {
+export type HackcastProject = {
+	id: string;
+	name: string;
+	/** The Hackatime project this tracks, or null until one is linked. */
+	hackatimeProject: string | null;
+};
+
+export async function listHackcastProjects(hackclubId: string): Promise<HackcastProject[]> {
 	const sql = client();
 	await ensure(sql);
-	const rows = await sql<{ hackatime_project: string }[]>`
-		select p.hackatime_project
+	const rows = await sql<{ id: string; name: string; hackatime_project: string | null }[]>`
+		select p.id::text as id, p.name, p.hackatime_project
 		from hackcast_projects p
 		join users u on u.id = p.user_id
 		where u.hackclub_id = ${hackclubId}
 		order by p.created_at asc
 	`;
-	return rows.map((row) => row.hackatime_project);
+	return rows.map((row) => ({ id: row.id, name: row.name, hackatimeProject: row.hackatime_project }));
 }
 
-/** Link a Hackatime project name to HackCast. The name is the Hackatime project, not a separate HackCast id. */
-export async function linkHackcastProject(hackclubId: string, name: string): Promise<void> {
-	const sql = client();
-	await ensure(sql);
+async function userId(sql: postgres.Sql, hackclubId: string): Promise<string> {
 	const users = await sql<{ id: string }[]>`
 		select id::text as id from users where hackclub_id = ${hackclubId} limit 1
 	`;
-	const userId = users[0]?.id;
-	if (!userId) throw new Error('database');
+	const id = users[0]?.id;
+	if (!id) throw new Error('database');
+	return id;
+}
+
+/** Add a HackCast project. Pass the Hackatime project to track now, or null to link one later. */
+export async function addHackcastProject(
+	hackclubId: string,
+	name: string,
+	hackatimeProject: string | null
+): Promise<void> {
+	const sql = client();
+	await ensure(sql);
+	const id = await userId(sql, hackclubId);
 	await sql`
-		insert into hackcast_projects (user_id, hackatime_project)
-		values (${userId}::uuid, ${name})
-		on conflict (user_id, hackatime_project) do nothing
+		insert into hackcast_projects (user_id, name, hackatime_project)
+		values (${id}::uuid, ${name}, ${hackatimeProject})
+		on conflict do nothing
 	`;
+}
+
+/** Link a Hackatime project to a HackCast project that doesn't have one yet. False if nothing changed. */
+export async function linkHackatimeProject(
+	hackclubId: string,
+	projectId: string,
+	hackatimeProject: string
+): Promise<boolean> {
+	const sql = client();
+	await ensure(sql);
+	const id = await userId(sql, hackclubId);
+	const rows = await sql`
+		update hackcast_projects
+		set hackatime_project = ${hackatimeProject}
+		where id = ${projectId}::uuid and user_id = ${id}::uuid and hackatime_project is null
+		returning id
+	`;
+	return rows.length > 0;
 }
 
 export async function hackatimeStatus(hackclubId: string): Promise<{ connected: boolean; hackatimeUserId: string | null }> {

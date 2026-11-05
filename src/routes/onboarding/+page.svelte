@@ -18,7 +18,7 @@
 <div class="booth">
 	<p class="sign">hackcast</p>
 	<h1>add a HackCast project.</h1>
-	<p class="lede">Signed in as {data.firstName}. Pick a Hackatime project, or name a new one, and link it to HackCast.</p>
+	<p class="lede">Signed in as {data.firstName}. Pick one of your top Hackatime projects, or start a new one.</p>
 
 	{#if data.notice}
 		<p class="note" role="status">{notices[data.notice]}</p>
@@ -34,28 +34,31 @@
 		<p><a class="redbtn" href="/auth/hackatime?next=/onboarding">continue</a></p>
 	{:else}
 		{#if data.linked.length > 0}
-			<p>Already linked to HackCast: {data.linked.join(', ')}</p>
+			<p>Already in HackCast: {data.linked.map((project) => project.name).join(', ')}</p>
 		{/if}
-		<form method="POST">
-			{#if data.projects.length > 0}
+		{#if data.projects.length > 0}
+			<form method="POST" action="?/pick" class="box">
 				<fieldset>
-					<legend>Hackatime projects</legend>
+					<legend>your top Hackatime projects</legend>
 					{#each data.projects as project (project.name)}
 						<label>
-							<input type="radio" name="project" value={project.name} />
+							<input type="radio" name="project" value={project.name} required />
 							{project.name}
 							<span class="hours">{project.hours}</span>
 						</label>
 					{/each}
 				</fieldset>
-			{:else}
-				<p>No Hackatime project hours yet. Name the project and use that exact name in your editor.</p>
-			{/if}
+				<button class="redbtn" type="submit">add to HackCast</button>
+			</form>
+		{/if}
+		<form method="POST" action="?/create" class="box">
+			<h2>{data.projects.length > 0 ? 'or start a new project' : 'start a new project'}</h2>
+			<p>Name it now. Link a Hackatime project to it from your dashboard once you've logged some hours.</p>
 			<label class="new-name">
-				New HackCast project name
-				<input name="projectName" maxlength="200" autocomplete="off" />
+				project name
+				<input name="projectName" maxlength="200" autocomplete="off" required />
 			</label>
-			<button class="redbtn" type="submit">add to HackCast</button>
+			<button class="redbtn" type="submit">create HackCast project</button>
 		</form>
 	{/if}
 </div>
@@ -97,15 +100,25 @@
 		border-left: 10px solid var(--red);
 		font-weight: 800;
 	}
-	form,
+	.box {
+		margin: 1rem 0 0;
+		padding: 1rem 1.1rem 1.2rem;
+		background: var(--paper);
+		color: var(--ink);
+		border: 3px solid var(--shadow);
+	}
 	fieldset {
-		margin: 0.6rem 0 0;
+		margin: 0;
 		padding: 0;
 		border: 0;
 	}
-	legend {
+	legend,
+	.box h2 {
+		margin: 0 0 0.3rem;
 		font-family: 'Permanent Marker', sans-serif;
 		font-size: 1.4rem;
+		font-weight: 400;
+		color: var(--ink);
 	}
 	label {
 		display: flex;

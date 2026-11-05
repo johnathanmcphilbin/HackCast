@@ -1,9 +1,19 @@
-import { isRedirect, redirect } from '@sveltejs/kit';
+import { fail, isRedirect, redirect } from '@sveltejs/kit';
 import { hackatimeCallback, hackatimeClient } from '#lib/server/config.ts';
 import { requireSession } from '#lib/server/guards.ts';
 import { fetchHackatimeProfile, fetchHackatimeProjects, formatHours } from '#lib/server/hackatime.ts';
-import { hackatimeAccessToken, hackatimeStatus, listHackcastProjects, upsertUser } from '#lib/server/users.ts';
-import type { PageServerLoad } from './$types';
+import { cleanProjectName } from '#lib/server/projects.ts';
+import {
+	hackatimeAccessToken,
+	hackatimeStatus,
+	linkHackatimeProject,
+	listHackcastProjects,
+	upsertUser,
+	type HackcastProject
+} from '#lib/server/users.ts';
+import type { Actions, PageServerLoad } from './$types';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const NOTICES = ['connected', 'denied', 'failed', 'taken', 'soon'] as const;
 type Notice = (typeof NOTICES)[number];
@@ -30,7 +40,7 @@ export const load: PageServerLoad = async (event) => {
 		githubUsername: null as string | null,
 		projects: null as { name: string; hours: string; languages: string }[] | null,
 		totalHours: null as string | null,
-		linked: [] as string[]
+		linked: [] as HackcastProject[]
 	};
 
 	try {
@@ -64,7 +74,7 @@ export const load: PageServerLoad = async (event) => {
 			email: profile?.email ?? null,
 			githubUsername: profile?.githubUsername ?? null,
 			projects: projects
-				? projects.map((project) => ({
+				? [...projects].sort((a, b) => b.totalSeconds - a.totalSeconds).map((project) => ({
 						name: project.name,
 						hours: formatHours(project.totalSeconds),
 						languages: project.languages.join(', ')
@@ -77,5 +87,26 @@ export const load: PageServerLoad = async (event) => {
 		if (isRedirect(err)) throw err;
 		console.error('dashboard load failed');
 		return { ...base, unavailable: true };
+	}
+};
+
+export const actions: Actions = {
+	// Link a Hackatime project to a HackCast project that was started without one.
+	link: async (event) => {
+		const session = requireSession(event, '/dashboard');
+		const form = await event.request.formData();
+		const projectId = String(form.get('projectId') ?? '');
+		const hackatimeProject = cleanProjectName(form.get('hackatimeProject'));
+		if (!UUID.test(projectId) || !hackatimeProject) {
+			return fail(400, { message: 'Pick a Hackatime project to link.' });
+		}
+		try {
+			const linked = await linkHackatimeProject(session.sub, projectId, hackatimeProject);
+			if (!linked) return fail(400, { message: 'That Hackatime project is already linked.' });
+		} catch {
+			console.error('link Hackatime project failed');
+			return fail(500, { message: "Couldn't link that Hackatime project. Try again." });
+		}
+		redirect(303, '/dashboard');
 	}
 };
