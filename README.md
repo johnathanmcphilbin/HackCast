@@ -31,6 +31,7 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | `/admin/reviews` | Reviewers and admins. The queue, approved-but-unsent submissions, and recent decisions. |
 | `/admin/reviews/[id]` | One submission: approve with hours, ask for changes, or reject. Admins can move a rejection back. |
 | `/admin/questions` | Reviewers and admins. Questions for the next guest, askers with the most hours first. |
+| `/admin/guests` | Admins only. Guest votes for the next open episode (`guestVoteEpisode` in `src/lib/content.ts`): one HQ and one outside vote per person, spellings of the same name matched into one tally. Shortlist or dismiss each name, plus the raw votes as typed. |
 | `/admin/team` | Admins only. Add or remove reviewers and admins by Hack Club email. |
 | `/admin/rsvps` | Admins only. Older RSVP list plus a CSV download. |
 

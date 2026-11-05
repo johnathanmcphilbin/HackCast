@@ -4,7 +4,17 @@ import { hackatimeConnectBlocked, hackatimeContinueHref, hackatimeStatusCopy } f
 import { destinationAfterHca } from './auth-config.ts';
 import { HACKATIME_CALLBACK_PATH, hackatimeRedirectUri } from './hackatime.ts';
 import { redirectUri } from './auth-config.ts';
-import { cleanProjectName, raceName, recentProjects } from './projects.ts';
+import {
+	cleanGuestRequest,
+	cleanProjectName,
+	groupGuestVotes,
+	guestKey,
+	hatEntries,
+	pickWeighted,
+	raceName,
+	recentProjects,
+	sameGuest
+} from './projects.ts';
 
 describe('HackCast onboarding path', () => {
 	it('keeps the Hackatime redirect distinct from Hack Club Auth', () => {
@@ -54,5 +64,57 @@ describe('HackCast onboarding path', () => {
 		assert.equal(raceName('  Grace  Brewster Hopper '), 'Grace H.');
 		assert.equal(raceName('Cher'), 'Cher');
 		assert.equal(raceName(''), 'someone');
+	});
+
+	it('takes guest requests for HQ or outside, tidied', () => {
+		assert.deepEqual(cleanGuestRequest('hq', '  Zach   Latta '), { category: 'hq', name: 'Zach Latta' });
+		assert.deepEqual(cleanGuestRequest('outside', 'Linus Torvalds'), { category: 'outside', name: 'Linus Torvalds' });
+		assert.equal(cleanGuestRequest('elsewhere', 'Ada'), null);
+		assert.equal(cleanGuestRequest('hq', '   '), null);
+		assert.equal(cleanGuestRequest('hq', 'x'.repeat(121)), null);
+	});
+
+	it('matches spellings of the same guest into one tally', () => {
+		assert.equal(guestKey('  Zach  Latta. '), 'zach latta');
+		assert.equal(guestKey('Zoë'), 'zoe');
+		assert.ok(sameGuest('zach latta', 'zack latta'));
+		assert.ok(!sameGuest('ada', 'ida'));
+		assert.ok(!sameGuest('zach latta', 'max wofford'));
+		const at = new Date('2026-11-05T12:00:00Z');
+		const vote = (id: string, name: string, voter: string, category: 'hq' | 'outside' = 'hq') => ({
+			id,
+			category,
+			name,
+			voter,
+			status: 'new',
+			at
+		});
+		const groups = groupGuestVotes([
+			vote('1', 'Zach Latta', 'Ada'),
+			vote('2', 'zach latta', 'Grace'),
+			vote('3', 'Zack Latta', 'Linus'),
+			vote('4', 'Max Wofford', 'Ada'),
+			vote('5', 'Zach Latta', 'Mo', 'outside')
+		]);
+		assert.equal(groups[0].name, 'Zach Latta');
+		assert.equal(groups[0].votes, 3);
+		assert.deepEqual(groups[0].spellings, ['Zack Latta']);
+		assert.equal(groups.filter((group) => group.category === 'outside').length, 1);
+	});
+
+	it('puts a question in the hat once per approved hour, at least once', () => {
+		assert.equal(hatEntries(0), 1);
+		assert.equal(hatEntries(3599), 1);
+		assert.equal(hatEntries(3 * 3600), 3);
+		assert.equal(hatEntries(3.9 * 3600), 3);
+		const hat = [
+			{ item: 'one', weight: 1 },
+			{ item: 'three', weight: 3 }
+		];
+		assert.equal(pickWeighted(hat, 0), 'one');
+		assert.equal(pickWeighted(hat, 0.24), 'one');
+		assert.equal(pickWeighted(hat, 0.26), 'three');
+		assert.equal(pickWeighted(hat, 0.99), 'three');
+		assert.equal(pickWeighted([], 0.5), null);
 	});
 });

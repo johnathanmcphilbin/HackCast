@@ -1,12 +1,19 @@
 import { fail, isRedirect, redirect } from '@sveltejs/kit';
-import { nextGuest } from '#lib/content.ts';
+import { guestVoteEpisode, nextGuest } from '#lib/content.ts';
 import { hackatimeCallback, hackatimeClient } from '#lib/server/config.ts';
 import { requireSession } from '#lib/server/guards.ts';
 import { fetchHackatimeProjects, formatHours, type HackatimeProject } from '#lib/server/hackatime.ts';
-import { cleanProjectName, raceName, recentProjects } from '#lib/server/projects.ts';
-import { askQuestion, cleanQuestion, questionsFrom } from '#lib/server/questions.ts';
+import { cleanProjectName, hatEntries, raceName, recentProjects } from '#lib/server/projects.ts';
+import {
+	askQuestion,
+	cleanGuestRequest,
+	cleanQuestion,
+	guestVotesFrom,
+	questionsFrom,
+	voteGuest,
+} from '#lib/server/questions.ts';
 import { UUID } from '#lib/server/submission-form.ts';
-import { submissionsFor, type SubmissionStatus } from '#lib/server/submissions.ts';
+import { approvedSecondsFor, submissionsFor, type SubmissionStatus } from '#lib/server/submissions.ts';
 import {
 	addHackcastProject,
 	hackatimeAccessToken,
@@ -65,9 +72,13 @@ export const load: PageServerLoad = async (event) => {
 		popup: null as 'name' | 'link' | null,
 		recent: [] as { name: string; hours: string }[],
 		questions: [] as { id: string; body: string }[],
+		voteEpisode: guestVoteEpisode,
+		votes: {} as { hq?: string; outside?: string },
+		voted: event.url.searchParams.get('voted') === '1',
 		race: [] as { name: string; hours: string; you: boolean }[],
 		you: null as { rank: number; hours: string } | null,
-		first: false
+		first: false,
+		entries: 1
 	};
 
 	try {
@@ -103,11 +114,15 @@ export const load: PageServerLoad = async (event) => {
 			};
 		}
 
-		const [submissions, questions, race] = await Promise.all([
+		const [submissions, questions, race, votes, approved] = await Promise.all([
 			submissionsFor(session.sub),
 			questionsFrom(session.sub, nextGuest.slug),
-			hoursRace()
+			hoursRace(),
+			guestVotesFrom(session.sub, guestVoteEpisode),
+			approvedSecondsFor(session.sub)
 		]);
+		base.votes = votes;
+		base.entries = hatEntries(approved);
 		const latest = project ? submissions.find((item) => item.projectId === project.id) : undefined;
 		if (latest) {
 			base.review = {
@@ -195,5 +210,19 @@ export const actions: Actions = {
 			return fail(500, { message: "Couldn't send that question. Try again." });
 		}
 		redirect(303, '/dashboard?asked=1');
+	},
+	// One vote per category per episode. Voting again changes it.
+	vote: async (event) => {
+		const session = requireSession(event, '/dashboard');
+		const form = await event.request.formData();
+		const vote = cleanGuestRequest(form.get('category'), form.get('guestName'));
+		if (!vote) return fail(400, { message: 'Type who you want on the show.' });
+		try {
+			await voteGuest(session.sub, guestVoteEpisode, vote.category, vote.name);
+		} catch {
+			console.error('guest vote failed');
+			return fail(500, { message: "Couldn't save that vote. Try again." });
+		}
+		redirect(303, '/dashboard?voted=1');
 	}
 };

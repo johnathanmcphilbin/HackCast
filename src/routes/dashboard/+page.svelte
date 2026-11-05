@@ -75,7 +75,7 @@
 
 <div class="booth">
 	<section class="next" aria-labelledby="next-title">
-		<p class="kicker">Next up</p>
+		<p class="kicker">Episode {guest.episode}</p>
 		<h1 id="next-title">{guest.name}</h1>
 		<p>{guest.blurb}</p>
 	</section>
@@ -132,7 +132,8 @@
 				{#if data.first}
 					You are first right now. This can be your guaranteed question if you stay on top when we lock hours.
 				{:else}
-					Questions go into the pool. Most hours wins a guaranteed question.
+					Questions go into the hat. Most hours wins a guaranteed question. Every approved hour is another entry:
+					you have {data.entries} {data.entries === 1 ? 'entry' : 'entries'}.
 				{/if}
 			</p>
 		</section>
@@ -170,6 +171,27 @@
 					<p class="fine">Link Hackatime on your project to show up here.</p>
 				{/if}
 			{/if}
+		</section>
+		<section class="panel wide" aria-labelledby="vote-title">
+			<h2 id="vote-title">Who should come on episode {data.voteEpisode}?</h2>
+			<p>You get one vote for someone at Hack Club HQ and one for someone from outside. Vote again to change it.</p>
+			{#if data.voted}
+				<p class="got" role="status">Vote saved.</p>
+			{/if}
+			<div class="votes">
+				{#each [['hq', 'Someone at Hack Club HQ'], ['outside', 'Someone from outside Hack Club']] as [key, label] (key)}
+					{@const current = data.votes[key as 'hq' | 'outside']}
+					<form method="POST" action="?/vote" class="vote">
+						<input type="hidden" name="category" value={key} />
+						<label>
+							{label}
+							<input name="guestName" maxlength="120" autocomplete="off" value={current ?? ''} required />
+						</label>
+						{#if current}<p class="fine">Your vote: <b>{current}</b></p>{/if}
+						<button class="redbtn" type="submit">{current ? 'Change vote' : 'Vote'}</button>
+					</form>
+				{/each}
+			</div>
 		</section>
 	</div>
 
@@ -382,6 +404,22 @@
 		margin: 0;
 		padding: 0;
 		border: 0;
+	}
+	.wide {
+		grid-column: 1 / -1;
+	}
+	.votes {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+	}
+	.vote .fine {
+		margin: 0;
+	}
+	@media (max-width: 720px) {
+		.votes {
+			grid-template-columns: 1fr;
+		}
 	}
 	.choice {
 		display: grid;

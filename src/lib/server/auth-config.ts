@@ -26,6 +26,7 @@ const NEXT_PATHS = new Set([
 	'/admin',
 	'/admin/reviews',
 	'/admin/questions',
+	'/admin/guests',
 	'/admin/team',
 	'/admin/rsvps',
 	'/dashboard',

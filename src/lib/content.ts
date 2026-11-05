@@ -161,11 +161,15 @@ export const faqs: Faq[] = [
 	}
 ];
 
-/** The guest builders are asking questions for and racing hours toward. */
+/** The guest builders are asking questions for and racing hours toward. Episodes 1 and 2 have guests already. */
 export const nextGuest = {
+	episode: 2,
 	slug: 'zach-latta',
 	name: 'Zach Latta',
 	firstName: 'Zach',
 	blurb:
 		"Hack Club's founder. Ship hours on your HackCast project. Whoever has the most when we lock it gets a question asked on the show for sure."
 };
+
+/** The episode builders vote on a guest for: one Hack Club HQ pick and one from outside each. */
+export const guestVoteEpisode = 3;
