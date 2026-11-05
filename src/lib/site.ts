@@ -6,7 +6,7 @@ export const site = {
 	description:
 		'Hackcast is a podcast made by teens in Hack Club. Build a project, log your hours, and spend them on shop prizes and time on the show.',
 	// Bump ?v= when the image changes so Slack, Discord and iMessage refetch it.
-	ogImage: '/og.png?v=2',
+	ogImage: '/og.png?v=3',
 	hackClubUrl: 'https://hackclub.com',
 	hackClubSignupUrl: 'https://auth.hackclub.com/signup',
 	youtubeUrl: 'https://www.youtube.com/@HackClubHQ',
