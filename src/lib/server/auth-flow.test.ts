@@ -8,6 +8,7 @@ import {
 	isAdminSlack,
 	redirectUri,
 	safeNext,
+	sessionGate,
 	visibleRsvpCount
 } from './auth-config.ts';
 import { csvCell } from './csv.ts';
@@ -47,13 +48,27 @@ describe('auth config', () => {
 
 	it('only allows known return paths', () => {
 		assert.equal(safeNext('/admin/rsvps'), '/admin/rsvps');
+		assert.equal(safeNext('/dashboard'), '/dashboard');
+		assert.equal(safeNext('/submit'), '/submit');
+		assert.equal(safeNext('/auth/hackatime'), '/auth/hackatime');
 		assert.equal(safeNext('https://evil.example'), '/');
 		assert.equal(safeNext('//evil.example'), '/');
 	});
 
-	it('sends a home-page sign-in to the popup', () => {
+	it('sends a home-page sign-in to the popup and keeps the booth paths', () => {
 		assert.equal(afterSignIn('/'), '/?rsvp=done');
 		assert.equal(afterSignIn('/admin/rsvps'), '/admin/rsvps');
+		assert.equal(afterSignIn('/dashboard'), '/dashboard');
+		assert.equal(afterSignIn('/submit'), '/submit');
+	});
+
+	it('gates the booth and leaves the public site open', () => {
+		assert.equal(sessionGate('/dashboard'), '/auth/login?next=%2Fdashboard');
+		assert.equal(sessionGate('/submit'), '/auth/login?next=%2Fsubmit');
+		assert.equal(sessionGate('/auth/hackatime'), '/auth/login?next=%2Fauth%2Fhackatime');
+		assert.equal(sessionGate('/auth/hackatime/callback'), null);
+		assert.equal(sessionGate('/'), null);
+		assert.equal(sessionGate('/faq'), null);
 	});
 
 	it('matches slack ids on the admin allowlist', () => {

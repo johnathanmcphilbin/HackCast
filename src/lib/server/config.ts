@@ -1,13 +1,17 @@
 import {
 	ADMIN_SLACK_IDS,
 	DATABASE_URL,
+	HACKATIME_CLIENT_ID,
+	HACKATIME_CLIENT_SECRET,
 	HCA_CLIENT_ID,
 	HCA_CLIENT_SECRET,
 	HCA_REDIRECT_URI,
 	PUBLIC_BASE_URL,
+	PUBLIC_HACKATIME_OAUTH_UID,
 	SESSION_SECRET
 } from '$app/env/private';
 import { authReady, cookieSecure, isAdminSlack, redirectUri, type AuthEnv } from './auth-config.ts';
+import { hackatimeCredentials, hackatimeRedirectUri, type HackatimeEnv } from './hackatime.ts';
 
 export function authEnv(): AuthEnv {
 	return {
@@ -49,4 +53,21 @@ export function secureCookies(): boolean {
 
 export function slackIsAdmin(slackId: string | null | undefined): boolean {
 	return isAdminSlack(slackId, authEnv().ADMIN_SLACK_IDS);
+}
+
+export function hackatimeEnv(): HackatimeEnv {
+	return {
+		HACKATIME_CLIENT_ID: HACKATIME_CLIENT_ID || undefined,
+		HACKATIME_CLIENT_SECRET: HACKATIME_CLIENT_SECRET || undefined,
+		PUBLIC_HACKATIME_OAUTH_UID: PUBLIC_HACKATIME_OAUTH_UID || undefined,
+		PUBLIC_BASE_URL: PUBLIC_BASE_URL || undefined
+	};
+}
+
+export function hackatimeClient(): { id: string; secret: string } | undefined {
+	return hackatimeCredentials(hackatimeEnv());
+}
+
+export function hackatimeCallback(origin: string): string | undefined {
+	return hackatimeRedirectUri(hackatimeEnv(), origin);
 }

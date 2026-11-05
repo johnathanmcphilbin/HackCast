@@ -1,5 +1,5 @@
-import postgres from 'postgres';
-import { databaseUrl } from './config.ts';
+import type postgres from 'postgres';
+import { db } from './db.ts';
 
 export type RsvpRow = {
 	sub: string;
@@ -21,17 +21,9 @@ export type RsvpWrite = {
 	yswsEligible: boolean | null;
 };
 
-let sql: postgres.Sql | null = null;
 let schema: Promise<void> | null = null;
 let countCache: { at: number; count: number } | null = null;
 const COUNT_TTL_MS = 30_000;
-
-function db(): postgres.Sql | null {
-	const url = databaseUrl();
-	if (!url) return null;
-	if (!sql) sql = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 10 });
-	return sql;
-}
 
 async function ensure(client: postgres.Sql): Promise<void> {
 	if (!schema) {

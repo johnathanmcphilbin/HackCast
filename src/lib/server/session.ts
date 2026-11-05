@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 export const SESSION_COOKIE = 'hackcast_session';
 export const TXN_COOKIE = 'hackcast_hca';
+export const HT_COOKIE = 'hackcast_ht';
 
 export type Session = {
 	sub: string;
@@ -66,6 +67,26 @@ export function readSession(token: string | undefined, secret: string | undefine
 
 export function signTxn(txn: Omit<AuthTxn, 'exp'>, secret: string, ttlSeconds = 600): string {
 	return signPayload({ ...txn, exp: Math.floor(Date.now() / 1000) + ttlSeconds }, secret);
+}
+
+export type HtTxn = {
+	state: string;
+	next: string;
+	exp: number;
+};
+
+export function signHt(txn: Omit<HtTxn, 'exp'>, secret: string, ttlSeconds = 600): string {
+	return signPayload({ ...txn, exp: Math.floor(Date.now() / 1000) + ttlSeconds }, secret);
+}
+
+export function readHt(token: string | undefined, secret: string | undefined): HtTxn | null {
+	const payload = readPayload(token, secret) as Partial<HtTxn> | null;
+	if (!payload || typeof payload.state !== 'string') return null;
+	return {
+		state: payload.state,
+		next: typeof payload.next === 'string' ? payload.next : '/dashboard',
+		exp: payload.exp ?? 0
+	};
 }
 
 export function readTxn(token: string | undefined, secret: string | undefined): AuthTxn | null {

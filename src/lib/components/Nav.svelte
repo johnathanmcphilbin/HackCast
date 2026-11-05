@@ -28,6 +28,11 @@
 					<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
 				</li>
 			{/each}
+			{#if page.data.firstName}
+				<li>
+					<a href="/dashboard" aria-current={page.url.pathname === '/dashboard' ? 'page' : undefined}>dashboard</a>
+				</li>
+			{/if}
 			<li class="join">
 				{#if page.data.firstName}
 					<span class="redbtn">hello, {page.data.firstName}</span>

@@ -20,11 +20,14 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | ------- | ---------- |
 | `/`     | Landing page |
 | `/auth/login` | Starts Hack Club Auth. Signing in is the RSVP. Lands back on `/` with a popup. |
+| `/auth/hackatime` | Starts Hackatime OAuth for the signed-in user. |
 | `/join` | Old link. Redirects to `/auth/login`. |
 | `/faq`  | Dedicated FAQ page |
+| `/dashboard` | Signed-in booth. Connect Hackatime, see project hours, go submit. |
+| `/submit` | Signed-in. The submission is an Airtable embed, not a form we own. |
 | `/admin/rsvps` | RSVP list for Slack IDs in `ADMIN_SLACK_IDS`, plus a CSV download |
 
-`/dashboard`, `/shop` and `/leaderboard` are planned but not built. They're listed in `src/lib/site.ts` (`plannedRoutes`). Add each one as `src/routes/<name>/+page.svelte`; the shared nav and footer come from `src/routes/+layout.svelte`.
+`/shop` and `/leaderboard` are planned but not built. They're listed in `src/lib/site.ts` (`plannedRoutes`).
 
 ## RSVPs
 
@@ -33,6 +36,29 @@ Join buttons go to `/auth/login`, which redirects to Hack Club Auth (OIDC author
 Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, and `PUBLIC_BASE_URL` (or `HCA_REDIRECT_URI`) are set, `/auth/login` sends people to `/?rsvp=soon` (a "sign-in opens soon" popup). The rest of the site still renders.
 
 `HCA_REDIRECT_URI` defaults to `${PUBLIC_BASE_URL}/auth/callback`. Register that exact URL on the Hack Club Auth app. See `.env.example`.
+
+Signing in also upserts a `users` row (`hackclub_id` is the Hack Club Auth subject) beside the RSVP. That row is what a Hackatime connection hangs off. The RSVP list is unchanged.
+
+## Hackatime
+
+`/dashboard` asks the signed-in user to connect Hackatime. `/auth/hackatime` sends them to Hackatime's authorization code flow; `/auth/hackatime/callback` stores the tokens in `hackatime_connections`. Tokens stay on the server. Scopes are `profile` and `read`. Do not request `admin`.
+
+Register these redirect URIs on the Hackatime app (one per line):
+
+```
+https://hackcast.hackclub.com/auth/hackatime/callback
+http://localhost:5173/auth/hackatime/callback
+```
+
+Set `HACKATIME_CLIENT_ID` and `HACKATIME_CLIENT_SECRET` in Orchard. `PUBLIC_HACKATIME_OAUTH_UID` is accepted as another name for the client id. `PUBLIC_BASE_URL` (already used for Hack Club Auth) pins the production callback, including when the process sees an internal host. Leave `PUBLIC_BASE_URL` unset for `npm run dev` and the callback is `http://localhost:5173/auth/hackatime/callback`.
+
+The tables are created on first use, same as `rsvps`. Nothing here approves hours or runs the shop.
+
+## Submitting
+
+`/submit` requires a Hack Club Auth session. The page embeds Airtable's form and does not collect the submission itself:
+
+`https://airtable.com/embed/app5wPp2jEV7ZkTBB/pagbrjBbfwF27K7BE/form`
 
 `GET /api/rsvps/count` returns `{ "count": N }`. The landing and the success state hide the number when it is 0 or Postgres is unreachable. The count is cached for 30 seconds.
 
