@@ -13,8 +13,8 @@ export const site = {
 	hackClubFlag: 'https://assets.hackclub.com/flag-orpheus-top.svg'
 } as const;
 
-/** Every join button starts Hack Club Auth. Signing in is the RSVP; people land back on the home page. */
-export const JOIN_HREF = '/auth/login';
+/** Start Now begins Hack Club Auth, then Hackatime and a HackCast project. */
+export const START_HREF = '/auth/login?next=/onboarding';
 
 export const navLinks = [
 	{ href: '/#how', label: 'how it works' },

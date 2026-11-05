@@ -1,10 +1,10 @@
 import { createRemoteJWKSet } from 'jose';
 import { isRedirect, redirect } from '@sveltejs/kit';
-import { afterSignIn, HCA_JWKS, safeNext } from '#lib/server/auth-config.ts';
+import { destinationAfterHca, HCA_JWKS } from '#lib/server/auth-config.ts';
 import { getRedirectUri, hcaClient, isAuthReady, secureCookies, sessionSecret } from '#lib/server/config.ts';
 import { redeemCode } from '#lib/server/hca.ts';
 import { upsertRsvp } from '#lib/server/rsvps.ts';
-import { upsertUser } from '#lib/server/users.ts';
+import { hackatimeStatus, listHackcastProjects, upsertUser } from '#lib/server/users.ts';
 import { readTxn, SESSION_COOKIE, signSession, TXN_COOKIE } from '#lib/server/session.ts';
 import type { RequestHandler } from './$types';
 
@@ -66,7 +66,25 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			}
 		);
 		cookies.delete(TXN_COOKIE, { path: '/' });
-		redirect(303, afterSignIn(safeNext(txn!.next)));
+		let hackatimeConnected = false;
+		let hasHackcastProject = false;
+		try {
+			const status = await hackatimeStatus(claims.sub);
+			hackatimeConnected = status.connected;
+			if (hackatimeConnected) hasHackcastProject = (await listHackcastProjects(claims.sub)).length > 0;
+		} catch (statusErr) {
+			if (isRedirect(statusErr)) throw statusErr;
+			console.error('Hackatime status after sign-in failed');
+			redirect(303, '/onboarding');
+		}
+		redirect(
+			303,
+			destinationAfterHca({
+				next: txn!.next,
+				hackatimeConnected,
+				hasHackcastProject
+			})
+		);
 	} catch (err) {
 		if (isRedirect(err)) throw err;
 		console.error('Hack Club Auth callback failed');

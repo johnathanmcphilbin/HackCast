@@ -84,7 +84,7 @@ export function readHt(token: string | undefined, secret: string | undefined): H
 	if (!payload || typeof payload.state !== 'string') return null;
 	return {
 		state: payload.state,
-		next: typeof payload.next === 'string' ? payload.next : '/dashboard',
+		next: typeof payload.next === 'string' ? payload.next : '/onboarding',
 		exp: payload.exp ?? 0
 	};
 }

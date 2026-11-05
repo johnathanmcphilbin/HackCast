@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { generateKeyPair, exportJWK, SignJWT, importJWK, type JWK } from 'jose';
 import {
-	afterSignIn,
 	authReady,
+	destinationAfterHca,
 	HCA_SCOPES,
 	isAdminSlack,
 	redirectUri,
@@ -51,20 +51,45 @@ describe('auth config', () => {
 		assert.equal(safeNext('/dashboard'), '/dashboard');
 		assert.equal(safeNext('/submit'), '/submit');
 		assert.equal(safeNext('/auth/hackatime'), '/auth/hackatime');
+		assert.equal(safeNext('/onboarding'), '/onboarding');
 		assert.equal(safeNext('https://evil.example'), '/');
 		assert.equal(safeNext('//evil.example'), '/');
 	});
 
-	it('sends a home-page sign-in to the popup and keeps the booth paths', () => {
-		assert.equal(afterSignIn('/'), '/?rsvp=done');
-		assert.equal(afterSignIn('/admin/rsvps'), '/admin/rsvps');
-		assert.equal(afterSignIn('/dashboard'), '/dashboard');
-		assert.equal(afterSignIn('/submit'), '/submit');
+	it('continues sign-in into Hackatime, then a HackCast project', () => {
+		const hackatime = '/auth/hackatime?next=%2Fonboarding';
+		assert.equal(destinationAfterHca({ next: '/', hackatimeConnected: false, hasHackcastProject: false }), hackatime);
+		assert.equal(
+			destinationAfterHca({ next: '/dashboard', hackatimeConnected: false, hasHackcastProject: false }),
+			hackatime
+		);
+		assert.equal(
+			destinationAfterHca({ next: '/submit', hackatimeConnected: false, hasHackcastProject: false }),
+			hackatime
+		);
+		assert.equal(
+			destinationAfterHca({ next: '/admin/rsvps', hackatimeConnected: false, hasHackcastProject: false }),
+			'/admin/rsvps'
+		);
+		assert.equal(
+			destinationAfterHca({ next: '/dashboard', hackatimeConnected: true, hasHackcastProject: false }),
+			'/onboarding'
+		);
+		assert.equal(destinationAfterHca({ next: '/', hackatimeConnected: true, hasHackcastProject: true }), '/dashboard');
+		assert.equal(
+			destinationAfterHca({ next: '/submit', hackatimeConnected: true, hasHackcastProject: true }),
+			'/submit'
+		);
+		assert.equal(
+			destinationAfterHca({ next: '/onboarding', hackatimeConnected: true, hasHackcastProject: true }),
+			'/dashboard'
+		);
 	});
 
 	it('gates the booth and leaves the public site open', () => {
 		assert.equal(sessionGate('/dashboard'), '/auth/login?next=%2Fdashboard');
 		assert.equal(sessionGate('/submit'), '/auth/login?next=%2Fsubmit');
+		assert.equal(sessionGate('/onboarding'), '/auth/login?next=%2Fonboarding');
 		assert.equal(sessionGate('/auth/hackatime'), '/auth/login?next=%2Fauth%2Fhackatime');
 		assert.equal(sessionGate('/auth/hackatime/callback'), null);
 		assert.equal(sessionGate('/'), null);

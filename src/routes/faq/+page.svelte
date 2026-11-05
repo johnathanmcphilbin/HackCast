@@ -2,7 +2,7 @@
 	import p1 from '#lib/boards/faq-p1.html?raw';
 	import p2 from '#lib/boards/faq-p2.html?raw';
 	import { faqs } from '#lib/content.ts';
-	import { JOIN_HREF } from '#lib/site.ts';
+	import { START_HREF } from '#lib/site.ts';
 	import Board from '#lib/components/Board.svelte';
 	import Seo from '#lib/components/Seo.svelte';
 </script>
@@ -24,7 +24,7 @@
 			<p>{item.a}</p>
 		</details>
 	{/each}
-	<p><a class="redbtn" href={JOIN_HREF}>rsvp for hackcast →</a></p>
+	<p><a class="redbtn" href={START_HREF}>Start Now</a></p>
 </div>
 
 <style>

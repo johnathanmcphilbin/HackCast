@@ -53,7 +53,7 @@ describe('booth routes', () => {
 
 	it('sends signed-out booth routes through Hack Club Auth', async () => {
 		await ready();
-		for (const path of ['/dashboard', '/submit', '/auth/hackatime']) {
+		for (const path of ['/dashboard', '/submit', '/onboarding', '/auth/hackatime']) {
 			const response = await fetch(`${base}${path}`, { redirect: 'manual' });
 			assert.equal(response.status, 303, path);
 			const location = new URL(response.headers.get('location') ?? '', base);
@@ -77,7 +77,7 @@ describe('booth routes', () => {
 		assert.doesNotMatch(html, /<form[\s>]/i);
 	});
 
-	it('shows the connect and submit calls on the dashboard', async () => {
+	it('shows the booth and keeps the Hackatime callback off the Hack Club Auth path', async () => {
 		await ready();
 		const response = await fetch(`${base}/dashboard`, {
 			headers: { cookie: `hackcast_session=${session}` },
@@ -85,10 +85,18 @@ describe('booth routes', () => {
 		});
 		assert.equal(response.status, 200);
 		const html = await response.text();
-		assert.match(html, /connect hackatime/i);
-		assert.match(html, /href="\/auth\/hackatime"/);
 		assert.match(html, /href="\/submit"/);
 		assert.match(html, /hello, Ada/);
+		assert.doesNotMatch(html, /connect hackatime/i);
+		assert.doesNotMatch(html, /rsvp for hackcast/i);
+
+		const onboarding = await fetch(`${base}/onboarding`, {
+			headers: { cookie: `hackcast_session=${session}` },
+			redirect: 'manual'
+		});
+		assert.equal(onboarding.status, 200);
+		const onboardingHtml = await onboarding.text();
+		assert.match(onboardingHtml, /HackCast project/i);
 	});
 
 	it('starts Hackatime OAuth for a signed-in user', async () => {
@@ -104,14 +112,22 @@ describe('booth routes', () => {
 		assert.equal(target.searchParams.get('client_id'), 'ht-client');
 		assert.equal(target.searchParams.get('scope'), 'profile read');
 		assert.equal(target.searchParams.get('redirect_uri'), `${base}/auth/hackatime/callback`);
+		assert.notEqual(target.searchParams.get('redirect_uri'), `${base}/auth/callback`);
+		assert.equal(new URL(target.searchParams.get('redirect_uri')!).pathname, '/auth/hackatime/callback');
 		assert.equal(target.searchParams.get('client_secret'), null);
 		assert.ok(target.searchParams.get('state'));
 		assert.match(response.headers.get('set-cookie') ?? '', /hackcast_ht=/);
 	});
 
-	it('leaves the public landing page open', async () => {
+	it('leaves the public landing page open on Start Now', async () => {
 		await ready();
 		const response = await fetch(`${base}/`);
 		assert.equal(response.status, 200);
+		const html = await response.text();
+		assert.match(html, /Start Now/);
+		assert.match(html, /href="\/auth\/login\?next=(%2F|\/)onboarding"/);
+		assert.doesNotMatch(html, /rsvp for hackcast/i);
+		assert.doesNotMatch(html, /waitlist/i);
+		assert.doesNotMatch(html, /you're on the list/i);
 	});
 });

@@ -30,16 +30,26 @@
 	{/if}
 
 	<section class="panel" aria-labelledby="ht-title">
-		<h2 id="ht-title">hackatime</h2>
+		<h2 id="ht-title">your HackCast project</h2>
 		{#if data.unavailable}
-			<p>We couldn't load your Hackatime connection.</p>
-		{/if}
-		{#if !data.ready}
-			<p>Hackatime sign-in isn't open yet.</p>
+			<p>We couldn't load your HackCast project.</p>
+		{:else if !data.ready}
+			<p>Hackatime sign-in isn't set up on this server.</p>
 		{:else if !data.connected}
-			<p>Connect Hackatime so the booth can see the hours on your projects.</p>
-			<p class="action"><a class="redbtn" href="/auth/hackatime">connect hackatime →</a></p>
+			<p>Hackatime isn't connected yet.</p>
+			<p class="action"><a class="redbtn" href="/auth/hackatime?next=/onboarding">continue</a></p>
 		{:else}
+			{#if data.linked.length === 0}
+				<p>No HackCast project yet. Link the Hackatime project you're building.</p>
+				<p class="action"><a class="redbtn" href="/onboarding?add=1">add a HackCast project</a></p>
+			{:else}
+				<ul class="linked">
+					{#each data.linked as name (name)}
+						<li><span class="tag">HackCast</span>{name}</li>
+					{/each}
+				</ul>
+				<p class="again"><a href="/onboarding?add=1">add another HackCast project</a></p>
+			{/if}
 			<dl class="profile">
 				{#if data.email}
 					<dt>email</dt>
@@ -81,7 +91,7 @@
 					</tbody>
 				</table>
 			{/if}
-			<p class="again"><a href="/auth/hackatime">reconnect</a></p>
+			<p class="again"><a href="/auth/hackatime?next=/dashboard">reconnect Hackatime</a></p>
 		{/if}
 	</section>
 </div>
@@ -158,6 +168,24 @@
 	}
 	.action {
 		margin: 0.2rem 0 0;
+	}
+	.linked {
+		list-style: none;
+		margin: 0 0 0.6rem;
+		padding: 0;
+	}
+	.linked li {
+		margin: 0 0 0.45rem;
+		font-weight: 800;
+	}
+	.tag {
+		display: inline-block;
+		margin-right: 0.4rem;
+		padding: 0.1rem 0.35rem;
+		background: var(--red);
+		color: #fff;
+		font-family: 'Space Mono', monospace;
+		font-size: 0.72rem;
 	}
 	.profile {
 		display: grid;

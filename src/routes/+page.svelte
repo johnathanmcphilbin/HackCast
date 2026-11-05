@@ -5,18 +5,17 @@
 	import HackClubSignup from '#lib/components/HackClubSignup.svelte';
 	import OnAir from '#lib/components/OnAir.svelte';
 	import Sleeve from '#lib/components/Sleeve.svelte';
-	import { rsvpCountLabel } from '#lib/rsvp.ts';
 	import Seo from '#lib/components/Seo.svelte';
-	import { JOIN_HREF, site } from '#lib/site.ts';
+	import { START_HREF, site } from '#lib/site.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	// /auth/login and /auth/callback land here with ?rsvp=done|soon|error.
+	// /auth/login lands here when Hack Club Auth isn't configured, or the callback fails.
 	const notices = {
-		done: { title: "you're on the list.", body: "We'll notify you when Hackcast opens." },
-		soon: { title: 'sign-in opens soon.', body: 'Check back in a bit.' },
-		error: { title: "that sign-in didn't land.", body: 'Give it another go.' }
+		done: { title: "you're signed in.", body: 'Continue to your HackCast project.' },
+		soon: { title: "sign-in isn't ready yet.", body: 'Hack Club Auth is not configured on this server.' },
+		error: { title: "that sign-in didn't land.", body: 'Give Start Now another go.' }
 	} as const;
 	type Notice = keyof typeof notices;
 
@@ -34,10 +33,9 @@
 	<div class="notice-backdrop" role="presentation" onclick={() => (notice = null)}>
 		<div class="notice paper" role="dialog" aria-modal="true" aria-labelledby="notice-title" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.key === 'Escape' && (notice = null)}>
 			<h2 id="notice-title">{notice === 'done' && data.firstName ? `hello, ${data.firstName}!` : notices[notice].title}</h2>
-			{#if notice === 'done' && data.firstName}<p>You're on the list.</p>{/if}
 			<p>{notices[notice].body}</p>
-			{#if notice === 'error'}
-				<p><a class="redbtn" href={JOIN_HREF}>try again →</a></p>
+			{#if notice === 'error' || notice === 'done'}
+				<p><a class="redbtn" href={notice === 'done' ? '/onboarding' : START_HREF}>Start Now</a></p>
 			{/if}
 			<button class="redbtn" type="button" onclick={() => (notice = null)}>got it</button>
 		</div>
@@ -51,15 +49,12 @@
 			<p class="tagline">{home.tagline}</p>
 			<p class="cta-row">
 				{#if data.firstName}
-					<span class="redbtn cta">hello, {data.firstName}. you're on the list.</span>
+					<a class="redbtn cta" href="/onboarding">Start Now</a>
 				{:else}
-					<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+					<a class="redbtn cta" href={START_HREF}>Start Now</a>
 				{/if}
 			</p>
-			{#if data.firstName}<p class="cta-row"><a class="dash-link" href="/dashboard">dashboard →</a></p>{/if}
-			{#if !data.firstName}<p class="soon">{home.notLive}</p>{/if}
 			{#if !data.firstName}<HackClubSignup />{/if}
-			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
 		</div>
 		<div class="hero-visual">
 			<Sleeve />
@@ -121,13 +116,11 @@
 		<p>{home.finale}</p>
 		<p class="cta-row">
 			{#if data.firstName}
-				<span class="redbtn cta">hello, {data.firstName}. you're on the list.</span>
+				<a class="redbtn cta" href="/onboarding">Start Now</a>
 			{:else}
-				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
+				<a class="redbtn cta" href={START_HREF}>Start Now</a>
 			{/if}
 		</p>
-		{#if data.firstName}<p class="cta-row"><a class="dash-link" href="/dashboard">dashboard →</a></p>{/if}
-		{#if !data.firstName}<p class="soon">{home.notLive}</p>{/if}
 		{#if !data.firstName}<HackClubSignup />{/if}
 	</section>
 
@@ -261,31 +254,10 @@
 	.cta-row {
 		margin: 1.4rem 0 0;
 	}
-	.count {
-		margin: 0.85rem 0 0;
-		font-family: 'Space Mono', monospace;
-		font-size: 0.9rem;
-		font-weight: 700;
-		color: var(--text);
-	}
-	.soon {
-		margin: 0.85rem 0 0;
-		max-width: 28rem;
-		font-size: 1rem;
-		font-weight: 700;
-		line-height: 1.45;
-		color: var(--text);
-	}
 	.cta {
 		font-size: 1.35rem;
 		padding: 0.85rem 1.25rem;
 		cursor: pointer;
-	}
-	.dash-link {
-		color: var(--text);
-		font-family: 'Permanent Marker', sans-serif;
-		font-size: 1.25rem;
-		text-underline-offset: 4px;
 	}
 	.band {
 		background: var(--bg2);

@@ -35,6 +35,13 @@ describe('Hackatime OAuth', () => {
 			hackatimeRedirectUri({ PUBLIC_BASE_URL: 'https://hackcast.hackclub.com' }, 'https://127.0.0.1:3000'),
 			'https://hackcast.hackclub.com/auth/hackatime/callback'
 		);
+		assert.equal(
+			hackatimeRedirectUri({ PUBLIC_BASE_URL: 'https://hackcast.hackclub.com/auth/callback' }),
+			'https://hackcast.hackclub.com/auth/hackatime/callback'
+		);
+		const produced = hackatimeRedirectUri({ PUBLIC_BASE_URL: 'https://hackcast.hackclub.com' });
+		assert.equal(new URL(produced!).pathname, '/auth/hackatime/callback');
+		assert.notEqual(produced, 'https://hackcast.hackclub.com/auth/callback');
 		assert.equal(hackatimeRedirectUri({}, 'http://127.0.0.1:5173'), 'http://127.0.0.1:5173/auth/hackatime/callback');
 		assert.equal(hackatimeRedirectUri({}, 'http://localhost:5173'), 'http://localhost:5173/auth/hackatime/callback');
 		assert.equal(hackatimeRedirectUri({}, 'https://evil.example'), undefined);
