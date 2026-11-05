@@ -1,5 +1,6 @@
 import type postgres from 'postgres';
 import { db } from './db.ts';
+import type { PostalAddress } from './hca.ts';
 
 /**
  * Signed-in people live in `users`, keyed by Hack Club Auth's subject
@@ -14,6 +15,8 @@ export type UserWrite = {
 	displayName: string;
 	email: string;
 	slackId: string | null;
+	/** Set from Hack Club Auth. Omit it to leave a stored address alone. */
+	address?: PostalAddress | null;
 };
 
 export type HackatimeConnectionWrite = {
@@ -114,6 +117,13 @@ async function ensure(sql: postgres.Sql): Promise<void> {
 				update hackcast_projects set linked_at = created_at
 				where hackatime_project is not null and linked_at is null
 			`;
+			// Mailing address copied from Hack Club Auth at sign-in. Shop reads this. It does not ask again.
+			await sql`alter table users add column if not exists address_line1 text`;
+			await sql`alter table users add column if not exists address_line2 text`;
+			await sql`alter table users add column if not exists city text`;
+			await sql`alter table users add column if not exists state text`;
+			await sql`alter table users add column if not exists postal_code text`;
+			await sql`alter table users add column if not exists country text`;
 		})().catch((err) => {
 			schema = null;
 			throw err;
@@ -144,13 +154,28 @@ export async function upsertUser(row: UserWrite): Promise<string> {
 	const sql = client();
 	await ensure(sql);
 	const email = row.email.trim() || (await emailFromRsvp(sql, row.hackclubId));
+	const address = row.address?.line1 ? row.address : null;
+	const writeAddress = Boolean(address);
 	const rows = await sql<{ id: string }[]>`
-		insert into users (hackclub_id, slack_id, email, display_name)
-		values (${row.hackclubId}, ${row.slackId}, ${email}, ${row.displayName})
+		insert into users (
+			hackclub_id, slack_id, email, display_name,
+			address_line1, address_line2, city, state, postal_code, country
+		)
+		values (
+			${row.hackclubId}, ${row.slackId}, ${email}, ${row.displayName},
+			${address?.line1 ?? null}, ${address?.line2 ?? null}, ${address?.city ?? null},
+			${address?.state ?? null}, ${address?.postalCode ?? null}, ${address?.country ?? null}
+		)
 		on conflict (hackclub_id) do update set
 			slack_id = coalesce(excluded.slack_id, users.slack_id),
 			email = case when excluded.email <> '' then excluded.email else users.email end,
 			display_name = case when excluded.display_name <> '' then excluded.display_name else users.display_name end,
+			address_line1 = case when ${writeAddress} then excluded.address_line1 else users.address_line1 end,
+			address_line2 = case when ${writeAddress} then excluded.address_line2 else users.address_line2 end,
+			city = case when ${writeAddress} then excluded.city else users.city end,
+			state = case when ${writeAddress} then excluded.state else users.state end,
+			postal_code = case when ${writeAddress} then excluded.postal_code else users.postal_code end,
+			country = case when ${writeAddress} then excluded.country else users.country end,
 			updated_at = now()
 		returning id::text as id
 	`;

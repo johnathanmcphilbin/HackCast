@@ -12,8 +12,7 @@ import {
 	questionsFrom,
 	voteGuest,
 } from '#lib/server/questions.ts';
-import { parseOnAirQuestion, parseShipTo, quoteRedeem } from '#lib/shop.ts';
-import { ShopError, redeemShopItem, redemptionsFor, spentSecondsFor } from '#lib/server/shop.ts';
+import { ShopError, placeRedemption, redemptionsFor, shippingAddressFor, spentSecondsFor } from '#lib/server/shop.ts';
 import { UUID } from '#lib/server/submission-form.ts';
 import { approvedSecondsFor, submissionsFor, type SubmissionStatus } from '#lib/server/submissions.ts';
 import {
@@ -86,6 +85,7 @@ export const load: PageServerLoad = async (event) => {
 			approvedSeconds: 0,
 			availableSeconds: 0,
 			unavailable: false,
+			hasAddress: false,
 			redemptions: [] as {
 				id: string;
 				title: string;
@@ -158,10 +158,15 @@ export const load: PageServerLoad = async (event) => {
 		if (mine >= 0) base.you = { rank: mine + 1, hours: formatHours(race[mine].seconds) };
 		base.first = mine === 0;
 		try {
-			const [spent, mineShop] = await Promise.all([spentSecondsFor(session.sub), redemptionsFor(session.sub)]);
+			const [spent, mineShop, address] = await Promise.all([
+				spentSecondsFor(session.sub),
+				redemptionsFor(session.sub),
+				shippingAddressFor(session.sub)
+			]);
 			base.shop = {
 				approvedSeconds: approved,
 				availableSeconds: Math.max(0, approved - spent),
+				hasAddress: Boolean(address),
 				unavailable: false,
 				redemptions: mineShop.map((row) => ({
 					id: row.id,
@@ -266,24 +271,11 @@ export const actions: Actions = {
 		const session = requireSession(event, '/dashboard');
 		const form = await event.request.formData();
 		const sku = String(form.get('sku') ?? '');
-		const quote = quoteRedeem(sku, form.get('hours'));
-		if (!quote.ok) return fail(400, { area: 'shop', sku, message: quote.message });
-		const ship = quote.item.kind === 'gear' ? parseShipTo(form) : null;
-		if (ship && !ship.ok) return fail(400, { area: 'shop', sku, message: ship.message });
-		const question = quote.item.kind === 'question' ? parseOnAirQuestion(form.get('question')) : null;
-		if (quote.item.kind === 'question' && !question) {
-			return fail(400, { area: 'shop', sku, message: 'Write the question you want asked on the episode.' });
-		}
 		try {
 			await upsertUser({ hackclubId: session.sub, displayName: session.name, email: '', slackId: session.slackId });
-			await redeemShopItem({
-				hackclubId: session.sub,
-				sku,
-				hours: form.get('hours'),
-				question,
-				ship: ship && ship.ok ? ship.value : null
-			});
+			await placeRedemption(session.sub, form);
 		} catch (err) {
+			if (isRedirect(err)) throw err;
 			const message = err instanceof ShopError ? err.message : null;
 			if (message) return fail(400, { area: 'shop', sku, message });
 			console.error('redeem failed');

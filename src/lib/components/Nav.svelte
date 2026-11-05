@@ -32,6 +32,9 @@
 				<li>
 					<a href="/dashboard" aria-current={page.url.pathname === '/dashboard' ? 'page' : undefined}>dashboard</a>
 				</li>
+				<li>
+					<a href="/shop" aria-current={page.url.pathname === '/shop' ? 'page' : undefined}>shop</a>
+				</li>
 			{/if}
 			{#if page.data.staff}
 				<li>

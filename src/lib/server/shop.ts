@@ -2,7 +2,9 @@ import type postgres from 'postgres';
 import {
 	canAfford,
 	isRedemptionStatus,
+	parseOnAirQuestion,
 	quoteRedeem,
+	shopCopy,
 	type RedemptionStatus,
 	type ShipTo
 } from '../shop.ts';
@@ -11,8 +13,8 @@ import { database } from './users.ts';
 
 /**
  * Shop redemptions. Pending, approved, and fulfilled reserve approved hours.
- * Rejected gives the hours back. Gear rows keep a shipping address so Johnny
- * can send the thing. Credits are marked stackable. Questions store the text.
+ * Rejected gives the hours back. Gear rows copy the Hack Club Auth address
+ * onto the redemption. Credits are marked stackable. Questions store the text.
  * The catalog itself lives in src/lib/shop.ts.
  */
 
@@ -82,11 +84,84 @@ export type RedeemInput = {
 	ship: ShipTo | null;
 };
 
+type AddressRow = {
+	name: string;
+	address_line1: string | null;
+	address_line2: string | null;
+	city: string | null;
+	state: string | null;
+	postal_code: string | null;
+	country: string | null;
+};
+
+function toShip(row: AddressRow): ShipTo | null {
+	const line1 = row.address_line1?.trim() ?? '';
+	if (!line1) return null;
+	return {
+		name: row.name.trim() || 'Hack Clubber',
+		line1,
+		line2: row.address_line2?.trim() || null,
+		city: row.city?.trim() || '',
+		state: row.state?.trim() || null,
+		postalCode: row.postal_code?.trim() || '',
+		country: row.country?.trim() || ''
+	};
+}
+
+/**
+ * Address saved from Hack Club Auth at sign-in.
+ * If that is empty, the newest submission that still has one.
+ * Submission addresses are wiped after Airtable, so a found one is copied onto the user.
+ */
+export async function shippingAddressFor(hackclubId: string): Promise<ShipTo | null> {
+	const sql = await database();
+	const saved = await sql<AddressRow[]>`
+		select display_name as name, address_line1, address_line2, city, state, postal_code, country
+		from users where hackclub_id = ${hackclubId} limit 1
+	`;
+	const own = saved[0] ? toShip(saved[0]) : null;
+	if (own) return own;
+	try {
+		await submissionsDatabase();
+	} catch {
+		return null;
+	}
+	const prior = await sql<AddressRow[]>`
+		select trim(both ' ' from concat(s.first_name, ' ', s.last_name)) as name,
+			s.address_line1, s.address_line2, s.city, s.state, s.postal_code, s.country
+		from submissions s
+		join users u on u.id = s.user_id
+		where u.hackclub_id = ${hackclubId}
+			and s.address_line1 is not null
+			and btrim(s.address_line1) <> ''
+		order by s.submitted_at desc
+		limit 1
+	`;
+	const ship = prior[0] ? toShip(prior[0]) : null;
+	if (!ship) return null;
+	await sql`
+		update users set
+			address_line1 = ${ship.line1},
+			address_line2 = ${ship.line2},
+			city = ${ship.city},
+			state = ${ship.state},
+			postal_code = ${ship.postalCode},
+			country = ${ship.country},
+			updated_at = now()
+		where hackclub_id = ${hackclubId} and (address_line1 is null or btrim(address_line1) = '')
+	`;
+	return ship;
+}
+
 /** Reserve hours and store the redemption. Throws ShopError when the buy is not allowed. */
 export async function redeemShopItem(input: RedeemInput): Promise<{ id: string }> {
 	const quote = quoteRedeem(input.sku, input.hours);
 	if (!quote.ok) throw new ShopError(quote.message);
-	if (quote.item.kind === 'gear' && !input.ship) throw new ShopError('Add a shipping address so we can send it.');
+	let ship = input.ship;
+	if (quote.item.kind === 'gear') {
+		if (!ship?.line1) ship = await shippingAddressFor(input.hackclubId);
+		if (!ship?.line1) throw new ShopError(shopCopy.missingAddress);
+	}
 	if (quote.item.kind === 'question' && !input.question) {
 		throw new ShopError('Write the question you want asked on the episode.');
 	}
@@ -110,7 +185,7 @@ export async function redeemShopItem(input: RedeemInput): Promise<{ id: string }
 		`;
 		const available = Number(approved[0]?.total ?? 0) - Number(spent[0]?.total ?? 0);
 		if (!canAfford(available, quote.seconds)) throw new ShopError('You do not have enough approved hours for that.');
-		const ship = quote.item.kind === 'gear' ? input.ship : null;
+		const savedShip = quote.item.kind === 'gear' ? ship : null;
 		const rows = await tx<{ id: string }[]>`
 			insert into shop_redemptions (
 				user_id, sku, title, kind, stackable, hours, seconds, grant_cents, grant_label,
@@ -126,19 +201,30 @@ export async function redeemShopItem(input: RedeemInput): Promise<{ id: string }
 				${quote.grantCents},
 				${quote.grantLabel},
 				${quote.item.kind === 'question' ? input.question : null},
-				${ship?.name ?? null},
-				${ship?.line1 ?? null},
-				${ship?.line2 ?? null},
-				${ship?.city ?? null},
-				${ship?.state ?? null},
-				${ship?.postalCode ?? null},
-				${ship?.country ?? null}
+				${savedShip?.name ?? null},
+				${savedShip?.line1 ?? null},
+				${savedShip?.line2 ?? null},
+				${savedShip?.city ?? null},
+				${savedShip?.state ?? null},
+				${savedShip?.postalCode ?? null},
+				${savedShip?.country ?? null}
 			)
 			returning id::text as id
 		`;
 		const id = rows[0]?.id;
 		if (!id) throw new ShopError('Could not save that redemption. Try again.');
 		return { id };
+	});
+}
+
+/** Redeem from a shop form. Gear uses the saved Hack Club address. Questions need text. */
+export async function placeRedemption(hackclubId: string, form: FormData): Promise<void> {
+	await redeemShopItem({
+		hackclubId,
+		sku: String(form.get('sku') ?? ''),
+		hours: form.get('hours'),
+		question: parseOnAirQuestion(form.get('question')),
+		ship: null
 	});
 }
 
