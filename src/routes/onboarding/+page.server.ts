@@ -47,11 +47,9 @@ export const load: PageServerLoad = async (event) => {
 			slackId: session.slackId
 		});
 		const status = await hackatimeStatus(session.sub);
-		const linked = status.connected ? await listHackcastProjects(session.sub) : [];
-		if (!status.connected) {
-			if (ready && !notice) redirect(303, '/auth/hackatime?next=/onboarding');
-			return { ...base, linked };
-		}
+		const linked = await listHackcastProjects(session.sub);
+		// Stay on this page when Hackatime is missing. Bouncing into OAuth loops on `taken`.
+		if (!status.connected) return { ...base, linked };
 		if (linked.length > 0 && !adding) redirect(303, '/dashboard');
 
 		const token = await hackatimeAccessToken(session.sub);
@@ -81,8 +79,12 @@ async function add(event: Parameters<Actions[string]>[0], name: string, hackatim
 			email: '',
 			slackId: session.slackId
 		});
-		const status = await hackatimeStatus(session.sub);
-		if (!status.connected) redirect(303, '/auth/hackatime?next=/onboarding');
+		if (hackatimeProject) {
+			const status = await hackatimeStatus(session.sub);
+			if (!status.connected) {
+				return fail(400, { message: 'Connect Hackatime before linking one of its projects.' });
+			}
+		}
 		await addHackcastProject(session.sub, name, hackatimeProject);
 	} catch (err) {
 		if (isRedirect(err)) throw err;

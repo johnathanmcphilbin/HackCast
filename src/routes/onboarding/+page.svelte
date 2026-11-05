@@ -1,16 +1,10 @@
 <script lang="ts">
 	import Seo from '#lib/components/Seo.svelte';
+	import { hackatimeContinueHref, hackatimeStatusCopy } from '#lib/hackatime-recovery.ts';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
-
-	const notices = {
-		connected: 'Hackatime is connected. Link the project you are building for HackCast.',
-		denied: "Hackatime wasn't connected.",
-		failed: "That connection didn't land. Try again.",
-		taken: 'That Hackatime account is already connected to another Hackcast login.',
-		soon: "Hackatime sign-in isn't set up on this server."
-	} as const;
+	const connectHref = $derived(hackatimeContinueHref(data.notice, data.ready));
 </script>
 
 <Seo title="Add a HackCast project" description="Link a Hackatime project to HackCast." />
@@ -21,7 +15,7 @@
 	<p class="lede">Signed in as {data.firstName}. Pick one of your top Hackatime projects, or start a new one.</p>
 
 	{#if data.notice}
-		<p class="note" role="status">{notices[data.notice]}</p>
+		<p class="note" role="status">{hackatimeStatusCopy(data.notice)}</p>
 	{/if}
 	{#if form?.message}
 		<p class="note" role="alert">{form.message}</p>
@@ -30,8 +24,30 @@
 	{#if data.unavailable}
 		<p>We couldn't load your Hackatime connection.</p>
 	{:else if !data.connected}
-		<p>Hackatime connects as part of sign-in. Continue to finish that step.</p>
-		<p><a class="redbtn" href="/auth/hackatime?next=/onboarding">continue</a></p>
+		{#if !data.notice}
+			<p>Hackatime isn't connected. Connect it, or start a HackCast project without it.</p>
+		{/if}
+		{#if data.linked.length > 0}
+			<p>Already in HackCast: {data.linked.map((project) => project.name).join(', ')}</p>
+		{/if}
+		<p class="action">
+			{#if connectHref}
+				<a class="redbtn" href={connectHref}>connect Hackatime</a>
+			{/if}
+			{#if data.notice === 'taken'}
+				<a class="redbtn" href="/auth/logout">sign out and use the other account</a>
+			{/if}
+		</p>
+		<form method="POST" action="?/create" class="box">
+			<h2>start a new project without Hackatime</h2>
+			<p>Name it now. Link a Hackatime project from your dashboard once this account can connect.</p>
+			<label class="new-name">
+				project name
+				<input name="projectName" maxlength="200" autocomplete="off" required />
+			</label>
+			<button class="redbtn" type="submit">create HackCast project</button>
+		</form>
+		<p><a href="/dashboard">go to your dashboard</a></p>
 	{:else}
 		{#if data.linked.length > 0}
 			<p>Already in HackCast: {data.linked.map((project) => project.name).join(', ')}</p>
@@ -99,6 +115,11 @@
 		border: 3px solid var(--shadow);
 		border-left: 10px solid var(--red);
 		font-weight: 800;
+	}
+	.action {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
 	}
 	.box {
 		margin: 1rem 0 0;
