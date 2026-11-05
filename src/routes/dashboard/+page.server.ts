@@ -1,7 +1,8 @@
+import { isRedirect, redirect } from '@sveltejs/kit';
 import { hackatimeCallback, hackatimeClient } from '#lib/server/config.ts';
 import { requireSession } from '#lib/server/guards.ts';
 import { fetchHackatimeProfile, fetchHackatimeProjects, formatHours } from '#lib/server/hackatime.ts';
-import { hackatimeAccessToken, hackatimeStatus, upsertUser } from '#lib/server/users.ts';
+import { hackatimeAccessToken, hackatimeStatus, listHackcastProjects, upsertUser } from '#lib/server/users.ts';
 import type { PageServerLoad } from './$types';
 
 const NOTICES = ['connected', 'denied', 'failed', 'taken', 'soon'] as const;
@@ -28,7 +29,8 @@ export const load: PageServerLoad = async (event) => {
 		email: null as string | null,
 		githubUsername: null as string | null,
 		projects: null as { name: string; hours: string; languages: string }[] | null,
-		totalHours: null as string | null
+		totalHours: null as string | null,
+		linked: [] as string[]
 	};
 
 	try {
@@ -39,11 +41,15 @@ export const load: PageServerLoad = async (event) => {
 			slackId: session.slackId
 		});
 		const status = await hackatimeStatus(session.sub);
-		if (!status.connected) return base;
+		const linked = status.connected ? await listHackcastProjects(session.sub) : [];
+		if (!status.connected) {
+			if (ready && !base.notice) redirect(303, '/auth/hackatime?next=/onboarding');
+			return { ...base, linked };
+		}
 
 		const token = await hackatimeAccessToken(session.sub);
 		if (!token) {
-			return { ...base, connected: true, hackatimeUserId: status.hackatimeUserId };
+			return { ...base, connected: true, hackatimeUserId: status.hackatimeUserId, linked };
 		}
 
 		const [profile, projects] = await Promise.all([
@@ -64,9 +70,11 @@ export const load: PageServerLoad = async (event) => {
 						languages: project.languages.join(', ')
 					}))
 				: null,
-			totalHours: total == null ? null : formatHours(total)
+			totalHours: total == null ? null : formatHours(total),
+			linked
 		};
-	} catch {
+	} catch (err) {
+		if (isRedirect(err)) throw err;
 		console.error('dashboard load failed');
 		return { ...base, unavailable: true };
 	}

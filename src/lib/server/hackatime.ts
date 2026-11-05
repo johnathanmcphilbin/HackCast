@@ -10,6 +10,13 @@ export const HACKATIME_AUTHORIZE = 'https://hackatime.hackclub.com/oauth/authori
 export const HACKATIME_TOKEN = 'https://hackatime.hackclub.com/oauth/token';
 export const HACKATIME_API = 'https://hackatime.hackclub.com/api/v1';
 
+/**
+ * Hackatime's callback. Not Hack Club Auth's `/auth/callback`.
+ * Register this exact path on the Hackatime OAuth app:
+ * `https://hackcast.hackclub.com/auth/hackatime/callback`
+ */
+export const HACKATIME_CALLBACK_PATH = '/auth/hackatime/callback';
+
 /** Space-separated. `profile` is the person; `read` is their project hours. */
 export const HACKATIME_SCOPES = 'profile read';
 
@@ -64,7 +71,19 @@ function localCallback(requestOrigin: string | undefined): string | undefined {
 	}
 	if (url.protocol !== 'http:' && url.protocol !== 'https:') return undefined;
 	if (!LOCAL_HOSTS.has(url.hostname)) return undefined;
-	return `${url.origin}/auth/hackatime/callback`;
+	return `${url.origin}${HACKATIME_CALLBACK_PATH}`;
+}
+
+/** Origin only. A PUBLIC_BASE_URL pasted as the HCA callback still yields the site origin. */
+function publicOrigin(base: string): string | undefined {
+	try {
+		const url = new URL(base);
+		if (url.protocol !== 'http:' && url.protocol !== 'https:') return undefined;
+		return url.origin;
+	} catch {
+		const stripped = base.replace(/\/+$/, '').replace(/\/auth\/callback$/, '');
+		return stripped || undefined;
+	}
 }
 
 /**
@@ -72,10 +91,23 @@ function localCallback(requestOrigin: string | undefined): string | undefined {
  * defaults to https and can be an internal host, so it must not override that.
  * With PUBLIC_BASE_URL unset, a localhost origin is used — that is Vite dev
  * (`http://localhost:5173/auth/hackatime/callback`).
+ *
+ * The path is always `/auth/hackatime/callback`. Never `/auth/callback`
+ * (that path belongs to Hack Club Auth).
  */
 export function hackatimeRedirectUri(env: HackatimeEnv, requestOrigin?: string): string | undefined {
-	const base = env.PUBLIC_BASE_URL?.trim().replace(/\/+$/, '');
-	if (base) return `${base}/auth/hackatime/callback`;
+	const base = env.PUBLIC_BASE_URL?.trim();
+	if (base) {
+		const origin = publicOrigin(base);
+		if (!origin) return undefined;
+		const uri = `${origin}${HACKATIME_CALLBACK_PATH}`;
+		try {
+			if (new URL(uri).pathname !== HACKATIME_CALLBACK_PATH) return undefined;
+		} catch {
+			return undefined;
+		}
+		return uri;
+	}
 	return localCallback(requestOrigin);
 }
 

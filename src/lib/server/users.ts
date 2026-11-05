@@ -5,6 +5,7 @@ import { db } from './db.ts';
  * Signed-in people live in `users`, keyed by Hack Club Auth's subject
  * (`hackclub_id`). RSVPs stay in `rsvps`. Hackatime tokens live in
  * `hackatime_connections` and are never returned to a page load.
+ * HackCast-linked Hackatime project names live in `hackcast_projects`.
  */
 
 export type UserWrite = {
@@ -60,6 +61,15 @@ async function ensure(sql: postgres.Sql): Promise<void> {
 				create unique index if not exists hackatime_connections_hackatime_user_id_idx
 				on hackatime_connections (hackatime_user_id)
 				where hackatime_user_id is not null
+			`;
+			await sql`
+				create table if not exists hackcast_projects (
+					user_id uuid not null references users (id) on delete cascade,
+					hackatime_project text not null,
+					created_at timestamptz not null default now(),
+					primary key (user_id, hackatime_project),
+					constraint hackcast_projects_name_length check (char_length(hackatime_project) between 1 and 200)
+				)
 			`;
 		})().catch((err) => {
 			schema = null;
@@ -132,6 +142,35 @@ export async function saveHackatimeConnection(hackclubId: string, tokens: Hackat
 		returning user_id::text as user_id
 	`;
 	if (!rows[0]) throw new Error('database');
+}
+
+export async function listHackcastProjects(hackclubId: string): Promise<string[]> {
+	const sql = client();
+	await ensure(sql);
+	const rows = await sql<{ hackatime_project: string }[]>`
+		select p.hackatime_project
+		from hackcast_projects p
+		join users u on u.id = p.user_id
+		where u.hackclub_id = ${hackclubId}
+		order by p.created_at asc
+	`;
+	return rows.map((row) => row.hackatime_project);
+}
+
+/** Link a Hackatime project name to HackCast. The name is the Hackatime project, not a separate HackCast id. */
+export async function linkHackcastProject(hackclubId: string, name: string): Promise<void> {
+	const sql = client();
+	await ensure(sql);
+	const users = await sql<{ id: string }[]>`
+		select id::text as id from users where hackclub_id = ${hackclubId} limit 1
+	`;
+	const userId = users[0]?.id;
+	if (!userId) throw new Error('database');
+	await sql`
+		insert into hackcast_projects (user_id, hackatime_project)
+		values (${userId}::uuid, ${name})
+		on conflict (user_id, hackatime_project) do nothing
+	`;
 }
 
 export async function hackatimeStatus(hackclubId: string): Promise<{ connected: boolean; hackatimeUserId: string | null }> {

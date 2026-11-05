@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { JOIN_HREF, navLinks, site } from '#lib/site.ts';
+	import { START_HREF, navLinks, site } from '#lib/site.ts';
 
 	let open = $state(false);
 
@@ -37,7 +37,7 @@
 				{#if page.data.firstName}
 					<span class="redbtn">hello, {page.data.firstName}</span>
 				{:else}
-					<a class="redbtn" href={JOIN_HREF}>rsvp for hackcast →</a>
+					<a class="redbtn" href={START_HREF}>Start Now</a>
 				{/if}
 			</li>
 		</ul>

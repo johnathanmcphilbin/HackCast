@@ -1,6 +1,6 @@
 # Hackcast
 
-Signup site for **Hackcast**, a Hack Club You Ship, We Ship (YSWS) programme: build projects, earn shop rewards for approved hours, and help run a weekly podcast made by teenagers.
+Site for **Hackcast**, a Hack Club You Ship, We Ship (YSWS) programme: sign in, connect Hackatime, link a project, and ship.
 
 Built with SvelteKit, TypeScript and Tailwind CSS.
 
@@ -18,41 +18,46 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 
 | Route   | What it is |
 | ------- | ---------- |
-| `/`     | Landing page |
-| `/auth/login` | Starts Hack Club Auth. Signing in is the RSVP. Lands back on `/` with a popup. |
-| `/auth/hackatime` | Starts Hackatime OAuth for the signed-in user. |
-| `/join` | Old link. Redirects to `/auth/login`. |
+| `/`     | Landing page. **Start Now** begins sign-in. |
+| `/auth/login` | Starts Hack Club Auth. After it succeeds, Hackatime OAuth starts immediately if it is not already linked. |
+| `/auth/callback` | Hack Club Auth only. Not the Hackatime callback. |
+| `/auth/hackatime` | Starts Hackatime OAuth. Authorize `redirect_uri` is `/auth/hackatime/callback`. |
+| `/onboarding` | Pick or name the Hackatime project linked to HackCast. |
+| `/join` | Old link. Redirects into the same Start Now sign-in. |
 | `/faq`  | Dedicated FAQ page |
-| `/dashboard` | Signed-in booth. Connect Hackatime, see project hours, go submit. |
+| `/dashboard` | Signed-in booth: HackCast-linked projects, hours, submit. |
 | `/submit` | Signed-in. The submission is an Airtable embed, not a form we own. |
-| `/admin/rsvps` | RSVP list for Slack IDs in `ADMIN_SLACK_IDS`, plus a CSV download |
+| `/admin/rsvps` | Older RSVP list for Slack IDs in `ADMIN_SLACK_IDS`, plus a CSV download. Not shown on the public site. |
 
 `/shop` and `/leaderboard` are planned but not built. They're listed in `src/lib/site.ts` (`plannedRoutes`).
 
-## RSVPs
+## Sign-in
 
-Join buttons go to `/auth/login`, which redirects to Hack Club Auth (OIDC authorization code + PKCE). The callback is `/auth/callback`. It saves the RSVP and sends people to `/?rsvp=done`, where a popup says they'll be notified. A failed sign-in lands on `/?rsvp=error`.
+**Start Now** goes to `/auth/login` (Hack Club Auth, authorization code + PKCE). The Hack Club Auth callback is `/auth/callback`. It still writes the `users` row and the existing `rsvps` row. It does not send people back to a waitlist popup.
 
-Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, and `PUBLIC_BASE_URL` (or `HCA_REDIRECT_URI`) are set, `/auth/login` sends people to `/?rsvp=soon` (a "sign-in opens soon" popup). The rest of the site still renders.
+If Hackatime is not linked, that same callback redirects straight to `/auth/hackatime?next=/onboarding`, which starts Hackatime OAuth before the dashboard. After Hackatime connects, `/onboarding` asks them to pick a Hackatime project or type a new name and stores it in `hackcast_projects` as the HackCast-linked project. Someone who already has Hackatime and a linked project lands on `/dashboard`.
 
-`HCA_REDIRECT_URI` defaults to `${PUBLIC_BASE_URL}/auth/callback`. Register that exact URL on the Hack Club Auth app. See `.env.example`.
+Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, and `PUBLIC_BASE_URL` (or `HCA_REDIRECT_URI`) are set, `/auth/login` sends people to `/?rsvp=soon`. A failed sign-in lands on `/?rsvp=error`.
 
-Signing in also upserts a `users` row (`hackclub_id` is the Hack Club Auth subject) beside the RSVP. That row is what a Hackatime connection hangs off. The RSVP list is unchanged.
+`HCA_REDIRECT_URI` defaults to `${PUBLIC_BASE_URL}/auth/callback`. Register that exact URL on the **Hack Club Auth** app only. See `.env.example`.
 
 ## Hackatime
 
-`/dashboard` asks the signed-in user to connect Hackatime. `/auth/hackatime` sends them to Hackatime's authorization code flow; `/auth/hackatime/callback` stores the tokens in `hackatime_connections`. Tokens stay on the server. Scopes are `profile` and `read`. Do not request `admin`.
+`/auth/hackatime` sends the signed-in user to Hackatime's authorization code flow. `/auth/hackatime/callback` stores the tokens in `hackatime_connections`. Tokens stay on the server. Scopes are `profile` and `read`. Do not request `admin`.
 
-Register these redirect URIs on the Hackatime app (one per line):
+The authorize request's `redirect_uri` is always `${origin}/auth/hackatime/callback`. It is not `/auth/callback`. If `PUBLIC_BASE_URL` was set to the Hack Club Auth callback URL, the path is stripped and the Hackatime callback is still used.
+
+Register this exact redirect URI on the **Hackatime** OAuth app:
 
 ```
 https://hackcast.hackclub.com/auth/hackatime/callback
-http://localhost:5173/auth/hackatime/callback
 ```
 
-Set `HACKATIME_CLIENT_ID` and `HACKATIME_CLIENT_SECRET` in Orchard. `PUBLIC_HACKATIME_OAUTH_UID` is accepted as another name for the client id. `PUBLIC_BASE_URL` (already used for Hack Club Auth) pins the production callback, including when the process sees an internal host. Leave `PUBLIC_BASE_URL` unset for `npm run dev` and the callback is `http://localhost:5173/auth/hackatime/callback`.
+Also register `http://localhost:5173/auth/hackatime/callback` for local dev. Do not register `https://hackcast.hackclub.com/auth/callback` on the Hackatime app. Hackatime reports that as a malformed or mismatched redirect URI.
 
-The tables are created on first use, same as `rsvps`. Nothing here approves hours or runs the shop.
+Orchard already needs `HACKATIME_CLIENT_ID`, `HACKATIME_CLIENT_SECRET`, and `PUBLIC_BASE_URL=https://hackcast.hackclub.com` (origin only, no path). `PUBLIC_HACKATIME_OAUTH_UID` is another name for the client id. No new env vars. Leave `PUBLIC_BASE_URL` unset for `npm run dev` and the callback is `http://localhost:5173/auth/hackatime/callback`.
+
+Tables are created on first use, including `hackcast_projects`. The old `rsvps` table is unchanged. Nothing here approves hours or runs the shop.
 
 ## Submitting
 
@@ -60,7 +65,7 @@ The tables are created on first use, same as `rsvps`. Nothing here approves hour
 
 `https://airtable.com/embed/app5wPp2jEV7ZkTBB/pagbrjBbfwF27K7BE/form`
 
-`GET /api/rsvps/count` returns `{ "count": N }`. The landing and the success state hide the number when it is 0 or Postgres is unreachable. The count is cached for 30 seconds.
+`GET /api/rsvps/count` still returns `{ "count": N }` for the old RSVP table. The public site does not show that count. It is cached for 30 seconds.
 
 ## Editing content
 
