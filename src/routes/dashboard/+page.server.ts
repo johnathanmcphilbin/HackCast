@@ -75,12 +75,10 @@ export const load: PageServerLoad = async (event) => {
 			slackId: session.slackId
 		});
 		const status = await hackatimeStatus(session.sub);
-		const linked = status.connected ? await listHackcastProjects(session.sub) : [];
+		const linked = await listHackcastProjects(session.sub);
 		Object.assign(base, await reviewState(session.sub));
-		if (!status.connected) {
-			if (ready && !base.notice) redirect(303, '/auth/hackatime?next=/onboarding');
-			return { ...base, linked };
-		}
+		// Stay on the dashboard when Hackatime is missing. Don't restart OAuth.
+		if (!status.connected) return { ...base, linked };
 
 		const token = await hackatimeAccessToken(session.sub);
 		if (!token) {

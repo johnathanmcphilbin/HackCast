@@ -1,16 +1,10 @@
 <script lang="ts">
 	import Seo from '#lib/components/Seo.svelte';
+	import { hackatimeContinueHref, hackatimeStatusCopy } from '#lib/hackatime-recovery.ts';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
-
-	const notices = {
-		connected: 'Hackatime is connected.',
-		denied: "Hackatime wasn't connected.",
-		failed: "That connection didn't land. Try again.",
-		taken: 'That Hackatime account is already connected to another Hackcast login.',
-		soon: "Hackatime sign-in isn't open yet."
-	} as const;
+	const connectHref = $derived(hackatimeContinueHref(data.notice, data.ready));
 </script>
 
 <Seo title="Dashboard | Hackcast" description="Your Hackcast booth: Hackatime hours and the submission form." />
@@ -26,7 +20,7 @@
 	</header>
 
 	{#if data.notice}
-		<p class="note" role="status">{notices[data.notice]}</p>
+		<p class="note" role="status">{hackatimeStatusCopy(data.notice, 'dashboard')}</p>
 	{/if}
 	{#if data.submitted}
 		<p class="note" role="status">Sent in. A reviewer will look at it soon.</p>
@@ -39,11 +33,30 @@
 		<h2 id="ht-title">your HackCast project</h2>
 		{#if data.unavailable}
 			<p>We couldn't load your HackCast project.</p>
-		{:else if !data.ready}
-			<p>Hackatime sign-in isn't set up on this server.</p>
-		{:else if !data.connected}
-			<p>Hackatime isn't connected yet.</p>
-			<p class="action"><a class="redbtn" href="/auth/hackatime?next=/onboarding">continue</a></p>
+		{:else if !data.ready || !data.connected}
+			{#if !data.ready}
+				<p>Hackatime sign-in isn't set up on this server. You can still start a HackCast project.</p>
+			{:else if !data.notice}
+				<p>Hackatime isn't connected yet. Connect it later, or keep going without it.</p>
+			{/if}
+			<p class="action">
+				{#if connectHref}
+					<a class="redbtn" href={connectHref}>connect Hackatime</a>
+				{/if}
+				<a class="redbtn" href="/onboarding?add=1">
+					{data.linked.length === 0 ? 'start a project without Hackatime' : 'add a HackCast project'}
+				</a>
+				{#if data.notice === 'taken'}
+					<a href="/auth/logout">sign out and use the other account</a>
+				{/if}
+			</p>
+			{#if data.linked.length > 0}
+				<ul class="linked">
+					{#each data.linked as project (project.id)}
+						<li><span class="tag">HackCast</span>{project.name}</li>
+					{/each}
+				</ul>
+			{/if}
 		{:else}
 			{#if data.linked.length === 0}
 				<p>No HackCast project yet. Link the Hackatime project you're building.</p>
@@ -214,6 +227,10 @@
 		color: var(--ink);
 	}
 	.action {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+		align-items: center;
 		margin: 0.2rem 0 0;
 	}
 	.linked {
