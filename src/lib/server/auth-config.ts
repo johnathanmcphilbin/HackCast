@@ -21,7 +21,15 @@ export const HCA_JWKS = 'https://auth.hackclub.com/oauth/discovery/keys';
  */
 export const HCA_SCOPES = 'openid profile email name slack_id verification_status';
 
-const NEXT_PATHS = new Set(['/', '/admin/rsvps']);
+const NEXT_PATHS = new Set(['/', '/admin/rsvps', '/dashboard', '/submit', '/auth/hackatime']);
+
+/** Pages and the Hackatime connect route. Callback is not listed — it has its own checks. */
+const SESSION_GATES = new Set(['/dashboard', '/submit', '/auth/hackatime']);
+
+export function sessionGate(pathname: string): string | null {
+	if (!SESSION_GATES.has(pathname)) return null;
+	return `/auth/login?next=${encodeURIComponent(safeNext(pathname))}`;
+}
 
 export function redirectUri(env: AuthEnv): string | undefined {
 	const explicit = env.HCA_REDIRECT_URI?.trim();

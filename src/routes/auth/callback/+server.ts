@@ -4,6 +4,7 @@ import { afterSignIn, HCA_JWKS, safeNext } from '#lib/server/auth-config.ts';
 import { getRedirectUri, hcaClient, isAuthReady, secureCookies, sessionSecret } from '#lib/server/config.ts';
 import { redeemCode } from '#lib/server/hca.ts';
 import { upsertRsvp } from '#lib/server/rsvps.ts';
+import { upsertUser } from '#lib/server/users.ts';
 import { readTxn, SESSION_COOKIE, signSession, TXN_COOKIE } from '#lib/server/session.ts';
 import type { RequestHandler } from './$types';
 
@@ -38,6 +39,12 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			clientSecret: client!.secret,
 			redirectUri: redirectUri!,
 			jwks
+		});
+		await upsertUser({
+			hackclubId: claims.sub,
+			displayName: claims.name,
+			email: claims.email,
+			slackId: claims.slackId
 		});
 		await upsertRsvp({
 			sub: claims.sub,

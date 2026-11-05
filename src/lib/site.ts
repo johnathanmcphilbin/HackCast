@@ -23,11 +23,10 @@ export const navLinks = [
 ] as const;
 
 /**
- * Routes planned for after launch. They are not built yet; when one is added,
- * create `src/routes/<name>/+page.svelte` and (if it needs a signed-in user)
- * gate it in `src/hooks.server.ts`.
+ * Still to build. `/dashboard` and `/submit` are live and gated in
+ * `src/hooks.server.ts`.
  */
-export const plannedRoutes = ['/dashboard', '/shop', '/leaderboard'] as const;
+export const plannedRoutes = ['/shop', '/leaderboard'] as const;
 
 /**
  * Embed URL for the latest episode (e.g. a YouTube or Spotify embed link).

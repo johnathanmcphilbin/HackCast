@@ -56,6 +56,7 @@
 					<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 				{/if}
 			</p>
+			{#if data.firstName}<p class="cta-row"><a class="dash-link" href="/dashboard">dashboard →</a></p>{/if}
 			{#if !data.firstName}<p class="soon">{home.notLive}</p>{/if}
 			{#if !data.firstName}<HackClubSignup />{/if}
 			{#if data.count}<p class="count">{rsvpCountLabel(data.count)}</p>{/if}
@@ -125,6 +126,7 @@
 				<a class="redbtn cta" href={JOIN_HREF}>rsvp for hackcast →</a>
 			{/if}
 		</p>
+		{#if data.firstName}<p class="cta-row"><a class="dash-link" href="/dashboard">dashboard →</a></p>{/if}
 		{#if !data.firstName}<p class="soon">{home.notLive}</p>{/if}
 		{#if !data.firstName}<HackClubSignup />{/if}
 	</section>
@@ -278,6 +280,12 @@
 		font-size: 1.35rem;
 		padding: 0.85rem 1.25rem;
 		cursor: pointer;
+	}
+	.dash-link {
+		color: var(--text);
+		font-family: 'Permanent Marker', sans-serif;
+		font-size: 1.25rem;
+		text-underline-offset: 4px;
 	}
 	.band {
 		background: var(--bg2);
