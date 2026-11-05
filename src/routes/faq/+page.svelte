@@ -1,6 +1,7 @@
 <script lang="ts">
 	import p1 from '#lib/boards/faq-p1.html?raw';
 	import p2 from '#lib/boards/faq-p2.html?raw';
+	import p3 from '#lib/boards/faq-p3.html?raw';
 	import { faqs } from '#lib/content.ts';
 	import { START_HREF } from '#lib/site.ts';
 	import Board from '#lib/components/Board.svelte';
@@ -12,7 +13,9 @@
 <div class="desk">
 	<!-- p1 ends after its second row; trim the empty bottom so p2 follows on -->
 	<Board html={p1} height={860} />
-	<Board html={p2} />
+	<Board html={p2} height={800} />
+	<!-- hardware row, then the closing strip -->
+	<Board html={p3} height={666} />
 </div>
 
 <div class="phone">

@@ -158,6 +158,26 @@ export const faqs: Faq[] = [
 		id: 'when',
 		q: 'when do new episodes come out?',
 		a: 'Hopefully every 2 weeks, if the first one goes well :0'
+	},
+	{
+		id: 'hw-hours',
+		q: 'hardware: how do I log hours?',
+		a: 'Keep a JOURNAL.md in your repo. Add an entry about every hour: what you did, how long, and a photo.'
+	},
+	{
+		id: 'hw-repo',
+		q: 'hardware: what goes in the repo?',
+		a: 'A README, photos of the build, and all the source and design files. No live URL needed.'
+	},
+	{
+		id: 'hw-bom',
+		q: 'hardware: do I need a BOM?',
+		a: "Yes, unless it's only a 3D print. Name every part properly, like “Seeed Studio XIAO RP2040”."
+	},
+	{
+		id: 'hw-files',
+		q: 'hardware: PCBs, wiring and CAD?',
+		a: "Editable files: KiCad project, schematic and PCB, a wiring diagram, or STEP/F3D. Exports or STLs alone don't count."
 	}
 ];
 
