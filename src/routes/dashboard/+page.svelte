@@ -210,7 +210,7 @@
 		color: var(--ink);
 		border: 3px solid var(--shadow);
 		border-left-width: 10px;
-		border-left-color: var(--red);
+		border-left-color: var(--red-text);
 		font-weight: 800;
 	}
 	.panel {
@@ -259,7 +259,7 @@
 	}
 	.review.changes_requested,
 	.review.rejected {
-		color: #b0122c;
+		color: var(--red-text);
 	}
 	.tracks {
 		display: block;
@@ -291,7 +291,7 @@
 		margin-right: 0.4rem;
 		padding: 0.1rem 0.35rem;
 		background: var(--red);
-		color: #fff;
+		color: var(--on-red);
 		font-family: 'Space Mono', monospace;
 		font-size: 0.72rem;
 	}
@@ -304,7 +304,7 @@
 	.profile dt {
 		font-family: 'Space Mono', monospace;
 		font-weight: 700;
-		color: var(--red);
+		color: var(--red-text);
 	}
 	.profile dd {
 		margin: 0;
@@ -319,7 +319,7 @@
 		font-weight: 700;
 	}
 	.total {
-		color: var(--red);
+		color: var(--red-text);
 	}
 	table {
 		width: 100%;
@@ -341,7 +341,7 @@
 		white-space: nowrap;
 	}
 	.hours {
-		color: var(--red);
+		color: var(--red-text);
 	}
 	.langs {
 		display: block;

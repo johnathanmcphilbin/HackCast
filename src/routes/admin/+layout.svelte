@@ -48,7 +48,7 @@
 	.role {
 		padding: 0.1rem 0.4rem;
 		background: var(--red);
-		color: #fff;
+		color: var(--on-red);
 		font-family: 'Space Mono', monospace;
 		font-size: 0.75rem;
 	}

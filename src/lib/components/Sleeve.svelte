@@ -96,9 +96,9 @@
 			{#each grooves as radius (radius)}
 				<circle cx="212" cy="254" r={radius} fill="none" stroke="#2a3b52" stroke-width="2" />
 			{/each}
-			<circle cx="212" cy="254" r="62" fill="#ec3750" stroke="#0c1422" stroke-width="3" />
-			<text x="212" y="240" text-anchor="middle" fill="#fff" font-family="'Permanent Marker', sans-serif" font-size="24">EP 01</text>
-			<text x="212" y="284" text-anchor="middle" fill="#f6e6cf" font-family="Space Mono, monospace" font-size="14" font-weight="700">coming soon</text>
+			<circle cx="212" cy="254" r="62" fill="#f576c6" stroke="#0c1422" stroke-width="3" />
+			<text x="212" y="240" text-anchor="middle" fill="#14223a" font-family="'Permanent Marker', sans-serif" font-size="24">EP 01</text>
+			<text x="212" y="284" text-anchor="middle" fill="#14223a" font-family="Space Mono, monospace" font-size="14" font-weight="700">coming soon</text>
 			<circle cx="212" cy="254" r="6" fill="#f6e6cf" stroke="#0c1422" stroke-width="2" />
 		</g>
 	</g>
@@ -116,13 +116,13 @@
 		{/each}
 		<!-- crowd photo, pre-screened navy halftone (transparent PNG) printed on the paper -->
 		<image href="/art/sleeve-crowd-halftone-navy.png" x="62" y="200" width="300" height="139" opacity="0.72" />
-		<rect x="28" y="386" width="368" height="78" fill="#ec3750" />
+		<rect x="28" y="386" width="368" height="78" fill="#f576c6" />
 	</g>
 	<rect x="28" y="44" width="368" height="420" fill="none" stroke="#0c1422" stroke-width="3" />
 	<circle cx="212" cy="254" r="20" fill="none" stroke="#0c1422" stroke-width="3" />
 
 	<text x="212" y="148" text-anchor="middle" fill="#17171d" font-family="'Permanent Marker', sans-serif" font-size="38">HACKCAST</text>
-	<text x="212" y="436" text-anchor="middle" fill="#fff" font-family="'Permanent Marker', sans-serif" font-size="26">click for preview</text>
+	<text x="212" y="436" text-anchor="middle" fill="#14223a" font-family="'Permanent Marker', sans-serif" font-size="26">click for preview</text>
 </svg>
 
 <svelte:window onkeydown={(e) => peek && e.key === 'Escape' && closePeek()} />
@@ -151,7 +151,7 @@
 		cursor: grabbing;
 	}
 	.sleeve-art:focus-visible > rect:last-of-type {
-		stroke: #ec3750;
+		stroke: #f576c6;
 	}
 	.record {
 		transition: transform 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);

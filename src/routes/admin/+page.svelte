@@ -6,7 +6,7 @@
 	let { data }: PageProps = $props();
 
 	const BLUE = '#2f6db5';
-	const RED = '#e5484d';
+	const RED = '#c2338f';
 
 	const hours = (seconds: number) => `${(seconds / 3600).toFixed(1)}h`;
 	function wait(seconds: number | null): string {

@@ -348,7 +348,7 @@
 	.steps .mono,
 	.tiers .mono,
 	.tracklist .mono {
-		color: var(--red);
+		color: var(--red-text);
 		font-size: 0.85rem;
 	}
 	.steps h3,
@@ -385,7 +385,7 @@
 		margin: 1.9rem auto 0;
 		padding: 0.8rem 1.5rem;
 		background: var(--bubble);
-		color: var(--cream);
+		color: var(--on-red);
 		border: 3px solid var(--shadow);
 		border-radius: 6px 18px 4px 16px / 16px 4px 18px 6px;
 		transform: rotate(0.8deg);
@@ -429,7 +429,7 @@
 		margin: 0 0 1rem;
 		padding: 0.45rem 0.85rem;
 		background: var(--red);
-		color: #fff;
+		color: var(--on-red);
 		border: 3px solid var(--shadow);
 		border-radius: 8px;
 		font-family: Bungee, sans-serif;

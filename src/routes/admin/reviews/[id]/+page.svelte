@@ -159,7 +159,7 @@
 	dt {
 		font-family: 'Space Mono', monospace;
 		font-weight: 700;
-		color: var(--red);
+		color: var(--red-text);
 	}
 	dd {
 		margin: 0;

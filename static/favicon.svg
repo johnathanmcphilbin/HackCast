@@ -3,6 +3,6 @@
   <circle cx="32" cy="32" r="26" fill="#10151c"/>
   <circle cx="32" cy="32" r="22" fill="none" stroke="#4d6280" stroke-width="1.6"/>
   <circle cx="32" cy="32" r="18" fill="none" stroke="#2a3b52" stroke-width="1.4"/>
-  <circle cx="32" cy="32" r="12" fill="#ec3750" stroke="#0c1422" stroke-width="2"/>
+  <circle cx="32" cy="32" r="12" fill="#f576c6" stroke="#0c1422" stroke-width="2"/>
   <circle cx="32" cy="32" r="2.6" fill="#f6e6cf" stroke="#0c1422" stroke-width="1"/>
 </svg>

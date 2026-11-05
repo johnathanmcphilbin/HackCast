@@ -250,7 +250,7 @@
 		resize: vertical;
 	}
 	.err {
-		color: #b0122c;
+		color: var(--red-text);
 		font-size: 0.88rem;
 	}
 	.meta {

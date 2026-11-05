@@ -10,7 +10,10 @@
 	--cream: #ffffff;
 	--paper: #ffffff;
 	--ink: #17171d;
-	--red: #ec3750;
+	--red: #f576c6;
+	/* Text on a --red fill, and pink text on light backgrounds. */
+	--on-red: #14223a;
+	--red-text: #c2338f;
 	--shadow: #0c1422;
 	--brass: #e0a53c;
 	font-family: Figtree, sans-serif;
@@ -30,7 +33,7 @@ body {
 }
 ::selection {
 	background: var(--red);
-	color: #fff;
+	color: var(--on-red);
 }
 :focus-visible {
 	outline: 3px solid var(--red);
@@ -47,7 +50,7 @@ img {
 	z-index: 80;
 	transform: translateY(-150%);
 	background: var(--red);
-	color: #fff;
+	color: var(--on-red);
 	padding: 0.4rem 0.7rem;
 	font-family: 'Permanent Marker', sans-serif;
 	text-decoration: none;
@@ -105,7 +108,7 @@ img {
 .redbtn {
 	display: inline-block;
 	background: var(--red);
-	color: #fff;
+	color: var(--on-red);
 	font-family: 'Permanent Marker', sans-serif;
 	font-size: 1.05rem;
 	padding: 0.55rem 0.9rem;
@@ -180,7 +183,7 @@ img {
 .canvas .tag {
 	display: inline-block;
 	background: var(--red);
-	color: #fff;
+	color: var(--on-red);
 	font-family: 'Space Mono', monospace;
 	font-weight: 700;
 	font-size: 20px;
@@ -209,7 +212,7 @@ img {
 .h2 .r,
 .r {
 	background: var(--red);
-	color: #fff;
+	color: var(--on-red);
 	padding: 0 0.12em;
 	box-decoration-break: clone;
 }
@@ -308,7 +311,7 @@ img {
 		padding: 0 0.8rem;
 		border: 3px solid var(--shadow);
 		background: var(--red);
-		color: #fff;
+		color: var(--on-red);
 		font-family: 'Permanent Marker', sans-serif;
 		cursor: pointer;
 	}
@@ -381,7 +384,7 @@ img {
 	}
 	.phone .r {
 		background: var(--red);
-		color: #fff;
+		color: var(--on-red);
 		padding: 0 0.15em;
 	}
 	.phone p {
@@ -449,11 +452,11 @@ img {
 	}
 	.field[aria-invalid='true'] {
 		border-width: 5px;
-		border-color: #be1e3a;
+		border-color: var(--red-text);
 	}
 	.err {
 		margin: -0.4rem 0 0.7rem;
-		color: #be1e3a;
+		color: var(--red-text);
 		font-weight: 800;
 	}
 	label {
