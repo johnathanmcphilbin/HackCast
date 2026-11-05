@@ -130,9 +130,12 @@
 
 	<section class="show" id="show">
 		<div class="show-inner">
-			<h2>
-				episodes go up on <a class="ext" href={site.youtubeUrl} target="_blank" rel="noopener">YouTube</a>.
-			</h2>
+			<div class="show-head">
+				<h2>
+					episodes go up on <a class="ext" href={site.youtubeUrl} target="_blank" rel="noopener">YouTube</a>.
+				</h2>
+				<img class="dancer" src="/art/disc-dancer.png" alt="" width="105" height="72" />
+			</div>
 			{#if published.tracklist}
 				<ol class="tracklist">
 					{#each episodes as episode (episode.id)}
@@ -419,6 +422,18 @@
 	}
 	.show {
 		padding: 1.2rem 0 4.8rem;
+	}
+	.show-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem 2rem;
+	}
+	.dancer {
+		width: min(315px, 70%);
+		height: auto;
+		image-rendering: pixelated;
 	}
 	.show-inner a.ext {
 		color: inherit;
