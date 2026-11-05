@@ -62,6 +62,7 @@
 		</div>
 		<div class="hero-visual">
 			<Sleeve />
+			<img class="dancer" src="/art/disc-dancer.png" alt="" width="105" height="72" />
 		</div>
 		<figure class="polaroid">
 			<img src="/photos/hackclubbers.jpg" alt="Hack Clubbers building together" width="400" height="250" />
@@ -130,12 +131,9 @@
 
 	<section class="show" id="show">
 		<div class="show-inner">
-			<div class="show-head">
-				<h2>
-					episodes go up on <a class="ext" href={site.youtubeUrl} target="_blank" rel="noopener">YouTube</a>.
-				</h2>
-				<img class="dancer" src="/art/disc-dancer.png" alt="" width="105" height="72" />
-			</div>
+			<h2>
+				episodes go up on <a class="ext" href={site.youtubeUrl} target="_blank" rel="noopener">YouTube</a>.
+			</h2>
 			{#if published.tracklist}
 				<ol class="tracklist">
 					{#each episodes as episode (episode.id)}
@@ -207,6 +205,7 @@
 	}
 	.hero-visual {
 		grid-area: art;
+		position: relative;
 		max-width: none;
 		margin-inline: 0;
 	}
@@ -423,17 +422,14 @@
 	.show {
 		padding: 1.2rem 0 4.8rem;
 	}
-	.show-head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem 2rem;
-	}
 	.dancer {
-		width: min(315px, 70%);
+		position: absolute;
+		right: 0;
+		bottom: -1.5rem;
+		width: min(260px, 45%);
 		height: auto;
 		image-rendering: pixelated;
+		pointer-events: none;
 	}
 	.show-inner a.ext {
 		color: inherit;
@@ -477,6 +473,9 @@
 		}
 		.polaroid {
 			width: min(340px, 90%);
+		}
+		.dancer {
+			bottom: -0.5rem;
 		}
 		.cta {
 			display: flex;
