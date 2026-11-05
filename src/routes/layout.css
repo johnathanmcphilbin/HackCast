@@ -2,12 +2,13 @@
 @import 'tailwindcss';
 
 :root {
-	color-scheme: dark;
-	--bg: #1b2a41;
-	--bg2: #152033;
-	--sleeve: #243656;
-	--cream: #f6e6cf;
-	--paper: #f3e2c3;
+	color-scheme: light;
+	--bg: #cfe8f7;
+	--bg2: #b4d9f0;
+	--sleeve: #9fcbe6;
+	--text: #14223a;
+	--cream: #ffffff;
+	--paper: #ffffff;
 	--ink: #17171d;
 	--red: #ec3750;
 	--shadow: #0c1422;
@@ -22,7 +23,7 @@ html {
 body {
 	margin: 0;
 	background: var(--bg);
-	color: var(--cream);
+	color: var(--text);
 	font-family: Figtree, sans-serif;
 	font-weight: 600;
 	line-height: 1.45;
@@ -90,7 +91,7 @@ img {
 	list-style: none;
 }
 .topbar nav a {
-	color: var(--cream);
+	color: var(--text);
 	font-weight: 800;
 	font-size: 1.05rem;
 	text-decoration: none;
@@ -127,7 +128,7 @@ img {
 	width: 1920px;
 	height: 1080px;
 	transform-origin: top left;
-	color: var(--cream);
+	color: var(--text);
 	font-family: Figtree, sans-serif;
 }
 .canvas .abs {
@@ -157,7 +158,7 @@ img {
 	font-weight: 600;
 }
 .canvas .cream {
-	color: var(--cream);
+	color: var(--text);
 }
 .canvas .ink {
 	color: var(--ink);
@@ -201,7 +202,7 @@ img {
 	font-family: 'Permanent Marker', sans-serif;
 	font-size: 84px;
 	line-height: 0.98;
-	color: var(--cream);
+	color: var(--text);
 	letter-spacing: -0.01em;
 }
 .canvas .h2 .r,
@@ -232,18 +233,18 @@ img {
 	align-items: center;
 	justify-content: space-between;
 	padding: 1.1rem 1.25rem 1.4rem;
-	background: #152033;
+	background: var(--bg2);
 	border-top: 8px solid var(--shadow);
-	color: var(--cream);
+	color: var(--text);
 }
 .site-foot .word {
 	font-family: Bungee, sans-serif;
 	font-size: 1.4rem;
-	color: var(--cream);
+	color: var(--text);
 	text-decoration: none;
 }
 .site-foot a {
-	color: var(--cream);
+	color: var(--text);
 }
 .site-foot p {
 	margin: 0;
@@ -359,12 +360,12 @@ img {
 		background: var(--red);
 		border: 2px solid var(--shadow);
 	}
-	.station-sign {
+	.phone .station-sign {
 		display: inline-block;
 		margin: 0.2rem 0 0.6rem;
 		padding: 0.35rem 0.7rem;
 		background: #6b3f24;
-		color: var(--cream);
+		color: #f6e6cf;
 		border: 3px solid var(--shadow);
 		font-family: Bungee, sans-serif;
 		font-size: 0.78rem;
@@ -376,7 +377,7 @@ img {
 		font-size: clamp(1.8rem, 8vw, 2.3rem);
 		line-height: 1.02;
 		font-weight: 400;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.phone .r {
 		background: var(--red);
@@ -385,7 +386,7 @@ img {
 	}
 	.phone p {
 		margin: 0 0 0.8rem;
-		color: var(--cream);
+		color: var(--text);
 		font-size: 1rem;
 		font-weight: 600;
 	}

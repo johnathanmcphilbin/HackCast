@@ -182,7 +182,7 @@
 		cursor: pointer;
 	}
 	.home {
-		color: var(--cream);
+		color: var(--text);
 	}
 	.hero,
 	.how,
@@ -246,7 +246,7 @@
 		font-size: clamp(2.6rem, 5.6vw, 5rem);
 		font-weight: 400;
 		line-height: 0.92;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.tagline {
 		margin: 0.85rem 0 0;
@@ -254,7 +254,7 @@
 		font-size: 0.95rem;
 		font-weight: 700;
 		letter-spacing: 0.02em;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.cta-row {
 		margin: 1.4rem 0 0;
@@ -264,7 +264,7 @@
 		font-family: 'Space Mono', monospace;
 		font-size: 0.9rem;
 		font-weight: 700;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.soon {
 		margin: 0.85rem 0 0;
@@ -272,7 +272,7 @@
 		font-size: 1rem;
 		font-weight: 700;
 		line-height: 1.45;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.cta {
 		font-size: 1.35rem;
@@ -280,7 +280,7 @@
 		cursor: pointer;
 	}
 	.band {
-		background: #152033;
+		background: var(--bg2);
 		border-block: 3px solid var(--shadow);
 	}
 	.how {
@@ -313,7 +313,7 @@
 		font-size: clamp(2.1rem, 4.6vw, 3.4rem);
 		font-weight: 400;
 		line-height: 1.02;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.how-copy > p,
 	.finale > p {
@@ -322,7 +322,7 @@
 		font-size: 1.08rem;
 		font-weight: 700;
 		line-height: 1.5;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.steps,
 	.tiers,

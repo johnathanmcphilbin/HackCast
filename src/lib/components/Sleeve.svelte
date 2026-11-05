@@ -91,7 +91,7 @@
 	</defs>
 
 	<g class="record" class:dragging style:transform="translate({tx}px, 0)">
-		<g class="turn" class:playing={peek} style="transform-origin: 212px 254px">
+		<g class="turn playing" style="transform-origin: 212px 254px">
 			<circle cx="212" cy="254" r="176" fill="#10151c" stroke="#0c1422" stroke-width="4" />
 			{#each grooves as radius (radius)}
 				<circle cx="212" cy="254" r={radius} fill="none" stroke="#2a3b52" stroke-width="2" />
@@ -104,13 +104,13 @@
 	</g>
 
 	<g mask="url(#sleeve-paper)">
-		<rect x="28" y="44" width="368" height="420" fill="#f3e2c3" />
-		<rect x="28" y="44" width="20" height="420" fill="#e7c9a0" />
+		<rect x="28" y="44" width="368" height="420" fill="#ffffff" />
+		<rect x="28" y="44" width="20" height="420" fill="#dcebf5" />
 		{#each [0, 1, 2, 3, 4] as i}
 			<path
 				d="M{56 + i * 10} 56 C{90 + i * 16} 150 {48 + i * 20} 280 {72 + i * 14} 450"
 				fill="none"
-				stroke="#e6d2b2"
+				stroke="#dcebf5"
 				stroke-width="2"
 			/>
 		{/each}

@@ -16,7 +16,7 @@
 		line-height: 1.45;
 	}
 	.cream {
-		color: var(--cream);
+		color: var(--text);
 	}
 	.ink {
 		color: var(--ink);

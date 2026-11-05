@@ -46,7 +46,7 @@
 	.admin {
 		width: min(960px, calc(100% - 2rem));
 		margin: 1.5rem auto 3rem;
-		color: var(--cream);
+		color: var(--text);
 	}
 	.kicker {
 		font-family: 'Space Mono', monospace;
