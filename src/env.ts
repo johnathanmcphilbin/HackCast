@@ -41,6 +41,22 @@ export const variables = defineEnvVars({
 	},
 	ADMIN_SLACK_IDS: {
 		schema: optional,
-		description: 'Comma-separated Hack Club Slack member IDs allowed to open /admin/rsvps.'
+		description: 'Comma-separated Hack Club Slack member IDs with full admin.'
+	},
+	ADMIN_EMAILS: {
+		schema: optional,
+		description: 'Comma-separated Hack Club Auth emails with full admin, on top of johnny@hackclub.com. Reviewers are added from /admin/team.'
+	},
+	AIRTABLE_API_KEY: {
+		schema: optional,
+		description: 'Airtable personal access token with write access to the Hack Club YSWS submissions base. Approved projects are sent there.'
+	},
+	AIRTABLE_BASE_ID: {
+		schema: optional,
+		description: 'Airtable base id for approved submissions, e.g. app5wPp2jEV7ZkTBB.'
+	},
+	AIRTABLE_TABLE: {
+		schema: optional,
+		description: 'Airtable table name or id that approved submissions are written to.'
 	}
 });

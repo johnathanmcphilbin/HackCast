@@ -1,9 +1,9 @@
-import { assertAdmin } from '#lib/server/admin.ts';
+import { requireStaff } from '#lib/server/staff.ts';
 import { listRsvps } from '#lib/server/rsvps.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	assertAdmin(event);
+	await requireStaff(event, 'admin', '/admin/rsvps');
 	try {
 		const rows = await listRsvps();
 		return {

@@ -47,6 +47,8 @@ export type HackatimeProject = {
 	name: string;
 	totalSeconds: number;
 	languages: string[];
+	/** When Hackatime last saw coding time on it, or null. */
+	lastHeartbeat: Date | null;
 };
 
 export function hackatimeClientId(env: HackatimeEnv): string | undefined {
@@ -187,16 +189,24 @@ export function projectsFromPayload(json: unknown): HackatimeProject[] | null {
 	return list
 		.map((item) => {
 			if (!item || typeof item !== 'object') return null;
-			const project = item as { name?: unknown; total_seconds?: unknown; languages?: unknown };
+			const project = item as {
+				name?: unknown;
+				total_seconds?: unknown;
+				languages?: unknown;
+				most_recent_heartbeat?: unknown;
+			};
 			if (typeof project.name !== 'string' || !project.name.trim()) return null;
 			const seconds = Number(project.total_seconds ?? 0);
 			const languages = Array.isArray(project.languages)
 				? project.languages.filter((lang): lang is string => typeof lang === 'string' && !!lang.trim())
 				: [];
+			const heartbeat =
+				typeof project.most_recent_heartbeat === 'string' ? new Date(project.most_recent_heartbeat) : null;
 			return {
 				name: project.name.trim(),
 				totalSeconds: Number.isFinite(seconds) ? seconds : 0,
-				languages
+				languages,
+				lastHeartbeat: heartbeat && !Number.isNaN(heartbeat.getTime()) ? heartbeat : null
 			};
 		})
 		.filter((project): project is HackatimeProject => project !== null)

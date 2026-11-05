@@ -28,6 +28,12 @@
 	{#if data.notice}
 		<p class="note" role="status">{notices[data.notice]}</p>
 	{/if}
+	{#if data.submitted}
+		<p class="note" role="status">Sent in. A reviewer will look at it soon.</p>
+	{/if}
+	{#if data.approvedHours}
+		<p class="balance"><span>{data.approvedHours}</span> approved hours to spend in the shop</p>
+	{/if}
 
 	<section class="panel" aria-labelledby="ht-title">
 		<h2 id="ht-title">your HackCast project</h2>
@@ -50,6 +56,21 @@
 					{#each data.linked as project (project.id)}
 						<li>
 							<span class="tag">HackCast</span>{project.name}
+							{#if data.reviews[project.id]}
+								{@const review = data.reviews[project.id]}
+								<span class="review {review.status}">
+									{#if review.status === 'pending'}
+										waiting for review
+									{:else if review.status === 'changes_requested'}
+										needs changes: {review.feedback}
+										<a href="/submit?project={project.id}">edit and resubmit</a>
+									{:else if review.status === 'rejected'}
+										not approved{review.feedback ? `: ${review.feedback}` : ''}
+									{:else}
+										approved, {review.approvedHours}
+									{/if}
+								</span>
+							{/if}
 							{#if project.hackatimeProject && project.hackatimeProject !== project.name}
 								<span class="tracks">tracks {project.hackatimeProject} on Hackatime</span>
 							{:else if !project.hackatimeProject}
@@ -203,6 +224,25 @@
 	.linked li {
 		margin: 0 0 0.45rem;
 		font-weight: 800;
+	}
+	.balance {
+		margin: 0 0 1rem;
+		font-weight: 800;
+	}
+	.balance span {
+		font-family: 'Permanent Marker', sans-serif;
+		font-size: 1.6rem;
+		margin-right: 0.3rem;
+	}
+	.review {
+		display: block;
+		margin-top: 0.2rem;
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+	.review.changes_requested,
+	.review.rejected {
+		color: #b0122c;
 	}
 	.tracks {
 		display: block;

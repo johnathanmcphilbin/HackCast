@@ -1,5 +1,9 @@
 import {
+	ADMIN_EMAILS,
 	ADMIN_SLACK_IDS,
+	AIRTABLE_API_KEY,
+	AIRTABLE_BASE_ID,
+	AIRTABLE_TABLE,
 	DATABASE_URL,
 	HACKATIME_CLIENT_ID,
 	HACKATIME_CLIENT_SECRET,
@@ -70,4 +74,14 @@ export function hackatimeClient(): { id: string; secret: string } | undefined {
 
 export function hackatimeCallback(origin: string): string | undefined {
 	return hackatimeRedirectUri(hackatimeEnv(), origin);
+}
+
+export function adminEmails(): string | undefined {
+	return ADMIN_EMAILS || undefined;
+}
+
+/** Where approved submissions go. Unset means approvals wait in the queue with a "send" button. */
+export function airtableTarget(): { apiKey: string; baseId: string; table: string } | undefined {
+	if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_TABLE) return undefined;
+	return { apiKey: AIRTABLE_API_KEY, baseId: AIRTABLE_BASE_ID, table: AIRTABLE_TABLE };
 }

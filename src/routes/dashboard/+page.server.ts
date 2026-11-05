@@ -3,6 +3,7 @@ import { hackatimeCallback, hackatimeClient } from '#lib/server/config.ts';
 import { requireSession } from '#lib/server/guards.ts';
 import { fetchHackatimeProfile, fetchHackatimeProjects, formatHours } from '#lib/server/hackatime.ts';
 import { cleanProjectName } from '#lib/server/projects.ts';
+import { approvedSecondsFor, submissionsFor, type SubmissionStatus } from '#lib/server/submissions.ts';
 import {
 	hackatimeAccessToken,
 	hackatimeStatus,
@@ -26,6 +27,26 @@ function noticeFrom(value: string | null): Notice | null {
 	return NOTICES.find((item) => item === value) ?? null;
 }
 
+/** Where each project is in review, and the approved hours the shop spends. */
+async function reviewState(hackclubId: string): Promise<Partial<{ reviews: Record<string, { status: SubmissionStatus; approvedHours: string | null; feedback: string | null }>; approvedHours: string | null }>> {
+	try {
+		const [submissions, approved] = await Promise.all([submissionsFor(hackclubId), approvedSecondsFor(hackclubId)]);
+		const reviews: Record<string, { status: SubmissionStatus; approvedHours: string | null; feedback: string | null }> = {};
+		for (const item of submissions) {
+			if (!item.projectId) continue;
+			reviews[item.projectId] = {
+				status: item.status,
+				approvedHours: item.approvedSeconds == null ? null : formatHours(item.approvedSeconds),
+				feedback: item.feedback
+			};
+		}
+		return { reviews, approvedHours: approved > 0 ? formatHours(approved) : null };
+	} catch {
+		console.error('review state failed');
+		return {};
+	}
+}
+
 export const load: PageServerLoad = async (event) => {
 	const session = requireSession(event, '/dashboard');
 	const ready = Boolean(hackatimeClient() && hackatimeCallback(event.url.origin));
@@ -40,7 +61,10 @@ export const load: PageServerLoad = async (event) => {
 		githubUsername: null as string | null,
 		projects: null as { name: string; hours: string; languages: string }[] | null,
 		totalHours: null as string | null,
-		linked: [] as HackcastProject[]
+		linked: [] as HackcastProject[],
+		submitted: event.url.searchParams.get('submitted') === '1',
+		reviews: {} as Record<string, { status: SubmissionStatus; approvedHours: string | null; feedback: string | null }>,
+		approvedHours: null as string | null
 	};
 
 	try {
@@ -52,6 +76,7 @@ export const load: PageServerLoad = async (event) => {
 		});
 		const status = await hackatimeStatus(session.sub);
 		const linked = status.connected ? await listHackcastProjects(session.sub) : [];
+		Object.assign(base, await reviewState(session.sub));
 		if (!status.connected) {
 			if (ready && !base.notice) redirect(303, '/auth/hackatime?next=/onboarding');
 			return { ...base, linked };

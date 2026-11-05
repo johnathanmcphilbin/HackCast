@@ -46,6 +46,14 @@ async function ensure(sql: postgres.Sql): Promise<void> {
 					updated_at timestamptz not null default now()
 				)
 			`;
+			// Staff roles are keyed by email so a reviewer can be added before they first sign in.
+			await sql`
+				create table if not exists staff_roles (
+					email text primary key,
+					role text not null check (role in ('admin', 'reviewer')),
+					created_at timestamptz not null default now()
+				)
+			`;
 			await sql`
 				create table if not exists hackatime_connections (
 					user_id uuid primary key references users (id) on delete cascade,
@@ -97,12 +105,25 @@ async function ensure(sql: postgres.Sql): Promise<void> {
 				create unique index if not exists hackcast_projects_user_name_idx
 				on hackcast_projects (user_id, name)
 			`;
+			// When the Hackatime project was linked, for the "projects connected" chart.
+			await sql`alter table hackcast_projects add column if not exists linked_at timestamptz`;
+			await sql`
+				update hackcast_projects set linked_at = created_at
+				where hackatime_project is not null and linked_at is null
+			`;
 		})().catch((err) => {
 			schema = null;
 			throw err;
 		});
 	}
 	await schema;
+}
+
+/** The pool with the users and projects tables in place, for modules that build on them. */
+export async function database(): Promise<postgres.Sql> {
+	const sql = client();
+	await ensure(sql);
+	return sql;
 }
 
 async function emailFromRsvp(sql: postgres.Sql, hackclubId: string): Promise<string> {
@@ -190,7 +211,7 @@ export async function listHackcastProjects(hackclubId: string): Promise<Hackcast
 	return rows.map((row) => ({ id: row.id, name: row.name, hackatimeProject: row.hackatime_project }));
 }
 
-async function userId(sql: postgres.Sql, hackclubId: string): Promise<string> {
+export async function userId(sql: postgres.Sql, hackclubId: string): Promise<string> {
 	const users = await sql<{ id: string }[]>`
 		select id::text as id from users where hackclub_id = ${hackclubId} limit 1
 	`;
@@ -209,8 +230,8 @@ export async function addHackcastProject(
 	await ensure(sql);
 	const id = await userId(sql, hackclubId);
 	await sql`
-		insert into hackcast_projects (user_id, name, hackatime_project)
-		values (${id}::uuid, ${name}, ${hackatimeProject})
+		insert into hackcast_projects (user_id, name, hackatime_project, linked_at)
+		values (${id}::uuid, ${name}, ${hackatimeProject}, ${hackatimeProject ? new Date() : null})
 		on conflict do nothing
 	`;
 }
@@ -226,7 +247,7 @@ export async function linkHackatimeProject(
 	const id = await userId(sql, hackclubId);
 	const rows = await sql`
 		update hackcast_projects
-		set hackatime_project = ${hackatimeProject}
+		set hackatime_project = ${hackatimeProject}, linked_at = now()
 		where id = ${projectId}::uuid and user_id = ${id}::uuid and hackatime_project is null
 		returning id
 	`;
@@ -267,4 +288,50 @@ export function isUniqueViolation(err: unknown, depth = 0): boolean {
 	if ('code' in err && (err as { code?: unknown }).code === '23505') return true;
 	if ('cause' in err) return isUniqueViolation((err as { cause?: unknown }).cause, depth + 1);
 	return false;
+}
+
+export type StaffRole = 'admin' | 'reviewer';
+
+export type StaffMember = { email: string; displayName: string; role: StaffRole };
+
+/** The person's email and any staff role given to it. */
+export async function userAccess(hackclubId: string): Promise<{ email: string; role: StaffRole | null } | null> {
+	const sql = client();
+	await ensure(sql);
+	const rows = await sql<{ email: string; role: StaffRole | null }[]>`
+		select u.email, r.role
+		from users u
+		left join staff_roles r on r.email = lower(u.email)
+		where u.hackclub_id = ${hackclubId}
+		limit 1
+	`;
+	return rows[0] ?? null;
+}
+
+export async function listStaff(): Promise<StaffMember[]> {
+	const sql = client();
+	await ensure(sql);
+	const rows = await sql<{ email: string; display_name: string | null; role: StaffRole }[]>`
+		select r.email, max(u.display_name) as display_name, r.role
+		from staff_roles r
+		left join users u on lower(u.email) = r.email
+		group by r.email, r.role
+		order by r.role, r.email
+	`;
+	return rows.map((row) => ({ email: row.email, displayName: row.display_name ?? '', role: row.role }));
+}
+
+/** Give an email a staff role, or take it away with null. */
+export async function setStaffRole(email: string, role: StaffRole | null): Promise<void> {
+	const sql = client();
+	await ensure(sql);
+	const key = email.trim().toLowerCase();
+	if (role) {
+		await sql`
+			insert into staff_roles (email, role) values (${key}, ${role})
+			on conflict (email) do update set role = excluded.role
+		`;
+	} else {
+		await sql`delete from staff_roles where email = ${key}`;
+	}
 }

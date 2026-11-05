@@ -22,12 +22,16 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | `/auth/login` | Starts Hack Club Auth. After it succeeds, Hackatime OAuth starts immediately if it is not already linked. |
 | `/auth/callback` | Hack Club Auth only. Not the Hackatime callback. |
 | `/auth/hackatime` | Starts Hackatime OAuth. Authorize `redirect_uri` is `/auth/hackatime/callback`. |
-| `/onboarding` | Pick or name the Hackatime project linked to HackCast. |
+| `/onboarding` | Pick one of your top 5 Hackatime projects, or start a new HackCast project and link Hackatime later from the dashboard. |
 | `/join` | Old link. Redirects into the same Start Now sign-in. |
 | `/faq`  | Dedicated FAQ page |
 | `/dashboard` | Signed-in booth: HackCast-linked projects, hours, submit. |
-| `/submit` | Signed-in. The submission is an Airtable embed, not a form we own. |
-| `/admin/rsvps` | Older RSVP list for Slack IDs in `ADMIN_SLACK_IDS`, plus a CSV download. Not shown on the public site. |
+| `/submit` | Signed-in. Sends a HackCast project into the review queue. |
+| `/admin` | Admins only. Live Hackatime activity, sign-up funnel, review speed, hours, countries and charts. |
+| `/admin/reviews` | Reviewers and admins. The queue, approved-but-unsent submissions, and recent decisions. |
+| `/admin/reviews/[id]` | One submission: approve with hours, ask for changes, or reject. Admins can move a rejection back. |
+| `/admin/team` | Admins only. Add or remove reviewers and admins by Hack Club email. |
+| `/admin/rsvps` | Admins only. Older RSVP list plus a CSV download. |
 
 `/shop` and `/leaderboard` are planned but not built. They're listed in `src/lib/site.ts` (`plannedRoutes`).
 
@@ -55,15 +59,33 @@ https://hackcast.hackclub.com/auth/hackatime/callback
 
 Also register `http://localhost:5173/auth/hackatime/callback` for local dev. Do not register `https://hackcast.hackclub.com/auth/callback` on the Hackatime app. Hackatime reports that as a malformed or mismatched redirect URI.
 
-Orchard already needs `HACKATIME_CLIENT_ID`, `HACKATIME_CLIENT_SECRET`, and `PUBLIC_BASE_URL=https://hackcast.hackclub.com` (origin only, no path). `PUBLIC_HACKATIME_OAUTH_UID` is another name for the client id. No new env vars. Leave `PUBLIC_BASE_URL` unset for `npm run dev` and the callback is `http://localhost:5173/auth/hackatime/callback`.
+Orchard already needs `HACKATIME_CLIENT_ID`, `HACKATIME_CLIENT_SECRET`, and `PUBLIC_BASE_URL=https://hackcast.hackclub.com` (origin only, no path). `PUBLIC_HACKATIME_OAUTH_UID` is another name for the client id. Leave `PUBLIC_BASE_URL` unset for `npm run dev` and the callback is `http://localhost:5173/auth/hackatime/callback`.
 
-Tables are created on first use, including `hackcast_projects`. The old `rsvps` table is unchanged. Nothing here approves hours or runs the shop.
+Tables are created on first use, including `hackcast_projects`. The old `rsvps` table is unchanged.
 
-## Submitting
+## Submitting and review
 
-`/submit` requires a Hack Club Auth session. The page embeds Airtable's form and does not collect the submission itself:
+`/submit` saves to `submissions` in Postgres. Software hours are read from the linked Hackatime project at submit time; hardware hours come from the builder's journal.
 
-`https://airtable.com/embed/app5wPp2jEV7ZkTBB/pagbrjBbfwF27K7BE/form`
+```
+builder submits /submit                      → pending
+reviewer at /admin/reviews/[id]
+  ├── needs changes → changes_requested → builder edits and resubmits → pending
+  ├── reject        → rejected (an admin can move it back to pending)
+  └── approve (sets the hours)
+        → creates a record in Hack Club's YSWS Airtable with
+          "Optional - Override Hours Spent" = approved hours and a justification
+          signed "Reviewed by <reviewer>"
+        → sent; address and birthday are wiped from our copy
+```
+
+Every decision is logged in `submission_reviews`, which the admin stats read. Approved hours show on the builder's dashboard as their shop balance.
+
+Sending needs `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID` and `AIRTABLE_TABLE`. Without them, approvals wait under "approved, not sent" with a send button. The Airtable field names are in `src/lib/server/airtable.ts`; if Airtable answers `UNKNOWN_FIELD_NAME`, fix the name there.
+
+## Staff
+
+`johnny@hackclub.com` is always an admin. `ADMIN_EMAILS` and `ADMIN_SLACK_IDS` add more admins. Everyone else is added at `/admin/team` as a reviewer or admin, by the email they sign in with (they can be added before their first sign-in). Non-staff get a 404 on every `/admin` page.
 
 `GET /api/rsvps/count` still returns `{ "count": N }` for the old RSVP table. The public site does not show that count. It is cached for 30 seconds.
 

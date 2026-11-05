@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { AIRTABLE_SUBMIT_EMBED, AIRTABLE_SUBMIT_HEIGHT } from '../submit.ts';
 import {
 	authorizeUrl,
 	exchangeCode,
@@ -151,15 +150,15 @@ describe('Hackatime API payloads', () => {
 
 		const projects = projectsFromPayload({
 			projects: [
-				{ name: 'smaller', total_seconds: 10, languages: ['Go'] },
+				{ name: 'smaller', total_seconds: 10, languages: ['Go'], most_recent_heartbeat: '2026-11-05T15:30:00Z' },
 				{ name: 'bigger', total_seconds: 50, languages: ['TypeScript', 1] },
 				{ name: '   ', total_seconds: 99 },
 				{ total_seconds: 5 }
 			]
 		});
 		assert.deepEqual(projects, [
-			{ name: 'bigger', totalSeconds: 50, languages: ['TypeScript'] },
-			{ name: 'smaller', totalSeconds: 10, languages: ['Go'] }
+			{ name: 'bigger', totalSeconds: 50, languages: ['TypeScript'], lastHeartbeat: null },
+			{ name: 'smaller', totalSeconds: 10, languages: ['Go'], lastHeartbeat: new Date('2026-11-05T15:30:00Z') }
 		]);
 		assert.equal(formatHours(0), '0m');
 		assert.equal(formatHours(3660), '1h 1m');
@@ -179,12 +178,5 @@ describe('Hackatime API payloads', () => {
 		assert.equal((await fetchHackatimeProjects('token', fetchImpl))?.[0]?.name, 'booth');
 		const down: typeof fetch = async () => new Response('no', { status: 503 });
 		assert.equal(await fetchHackatimeProjects('token', down), null);
-	});
-});
-
-describe('submission embed', () => {
-	it('is the Hackcast Airtable form at the snippet height', () => {
-		assert.equal(AIRTABLE_SUBMIT_EMBED, 'https://airtable.com/embed/app5wPp2jEV7ZkTBB/pagbrjBbfwF27K7BE/form');
-		assert.equal(AIRTABLE_SUBMIT_HEIGHT, 533);
 	});
 });

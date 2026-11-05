@@ -33,6 +33,14 @@
 					<a href="/dashboard" aria-current={page.url.pathname === '/dashboard' ? 'page' : undefined}>dashboard</a>
 				</li>
 			{/if}
+			{#if page.data.staff}
+				<li>
+					<a
+						href={page.data.staff === 'admin' ? '/admin' : '/admin/reviews'}
+						aria-current={page.url.pathname.startsWith('/admin') ? 'page' : undefined}>admin</a
+					>
+				</li>
+			{/if}
 			<li class="join">
 				{#if page.data.firstName}
 					<span class="redbtn">hello, {page.data.firstName}</span>

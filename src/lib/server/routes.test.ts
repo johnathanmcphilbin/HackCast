@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
 import { after, describe, it } from 'node:test';
-import { AIRTABLE_SUBMIT_EMBED } from '../submit.ts';
 import { signSession } from './session.ts';
 
 const port = 4191;
@@ -62,7 +61,7 @@ describe('booth routes', () => {
 		}
 	});
 
-	it('embeds the Airtable form for a signed-in submit page', async () => {
+	it('serves the Hackcast submit page instead of an Airtable embed', async () => {
 		await ready();
 		const response = await fetch(`${base}/submit`, {
 			headers: { cookie: `hackcast_session=${session}` },
@@ -70,11 +69,22 @@ describe('booth routes', () => {
 		});
 		assert.equal(response.status, 200);
 		const html = await response.text();
-		assert.ok(html.includes(AIRTABLE_SUBMIT_EMBED));
-		assert.match(html, /height="533"/);
-		assert.match(html, /background:\s*transparent/);
-		assert.match(html, /border:\s*1px solid #ccc/);
-		assert.doesNotMatch(html, /<form[\s>]/i);
+		assert.match(html, /send it in/);
+		assert.doesNotMatch(html, /airtable\.com/);
+	});
+
+	it('hides the admin area from people who are not staff', async () => {
+		await ready();
+		for (const path of ['/admin', '/admin/reviews', '/admin/team']) {
+			const signedOut = await fetch(`${base}${path}`, { redirect: 'manual' });
+			assert.equal(signedOut.status, 303, path);
+			assert.equal(new URL(signedOut.headers.get('location') ?? '', base).pathname, '/auth/login', path);
+			const builder = await fetch(`${base}${path}`, {
+				headers: { cookie: `hackcast_session=${session}` },
+				redirect: 'manual'
+			});
+			assert.equal(builder.status, 404, path);
+		}
 	});
 
 	it('shows the booth and keeps the Hackatime callback off the Hack Club Auth path', async () => {

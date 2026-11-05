@@ -1,10 +1,10 @@
-import { assertAdmin } from '#lib/server/admin.ts';
+import { requireStaff } from '#lib/server/staff.ts';
 import { csvRow } from '#lib/server/csv.ts';
 import { listRsvps } from '#lib/server/rsvps.ts';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async (event) => {
-	assertAdmin(event);
+	await requireStaff(event, 'admin', '/admin/rsvps');
 	const rows = await listRsvps();
 	const lines = [
 		csvRow(['sub', 'name', 'email', 'slack_id', 'verification_status', 'ysws_eligible', 'question', 'created_at']),
