@@ -44,7 +44,8 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			hackclubId: claims.sub,
 			displayName: claims.name,
 			email: claims.email,
-			slackId: claims.slackId
+			slackId: claims.slackId,
+			address: claims.address
 		});
 		await upsertRsvp({
 			sub: claims.sub,

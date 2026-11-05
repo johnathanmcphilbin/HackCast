@@ -209,6 +209,7 @@
 		redemptions={data.shop.redemptions}
 		leading={data.first}
 		unavailable={data.unavailable || data.shop.unavailable}
+		hasAddress={data.shop.hasAddress}
 		redeemed={data.redeemed}
 		form={'area' in (form ?? {}) && form?.area === 'shop' ? form : null}
 	/>

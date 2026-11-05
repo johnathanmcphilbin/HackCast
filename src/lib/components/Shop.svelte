@@ -29,6 +29,8 @@
 		leading,
 		unavailable,
 		redeemed,
+		hasAddress,
+		standalone = false,
 		form
 	}: {
 		approvedSeconds: number;
@@ -37,6 +39,8 @@
 		leading: boolean;
 		unavailable: boolean;
 		redeemed: boolean;
+		hasAddress: boolean;
+		standalone?: boolean;
 		form: { sku?: string; message?: string } | null;
 	} = $props();
 
@@ -71,13 +75,15 @@
 	const statusText = (status: string) => memberStatusLabel[status as keyof typeof memberStatusLabel] ?? status;
 </script>
 
-<section class="shop" id="shop" aria-labelledby="shop-title">
+<section class="shop" class:standalone id="shop" aria-labelledby="shop-title">
 	<p class="kicker">{shopCopy.kicker}</p>
 	<h2 id="shop-title">{shopCopy.title}</h2>
 	<p class="intro">{shopCopy.intro}</p>
 
 	{#if unavailable}
 		<p class="note">{shopCopy.down}</p>
+	{:else if !hasAddress}
+		<p class="note">{shopCopy.missingAddress}</p>
 	{/if}
 	{#if redeemed}
 		<p class="note" role="status">{shopCopy.redeemed}</p>
@@ -164,28 +170,21 @@
 								<button class="redbtn" type="submit" disabled={short(item)}>
 									{short(item) ? shopCopy.short : shopCopy.redeem}
 								</button>
-							{:else}
+							{:else if item.kind === 'question'}
 								<details open={form?.sku === item.sku}>
 									<summary>{shopCopy.redeem}</summary>
-									{#if item.kind === 'gear'}
-										<p class="fine">{shopCopy.ship}</p>
-										<label>Name <input name="shipName" maxlength="80" autocomplete="name" required /></label>
-										<label>Address <input name="addressLine1" maxlength="120" autocomplete="address-line1" required /></label>
-										<label>Apartment <input name="addressLine2" maxlength="120" autocomplete="address-line2" /></label>
-										<label>City <input name="city" maxlength="80" autocomplete="address-level2" required /></label>
-										<label>State <input name="state" maxlength="80" autocomplete="address-level1" /></label>
-										<label>Postal code <input name="postalCode" maxlength="20" autocomplete="postal-code" required /></label>
-										<label>Country <input name="country" maxlength="80" autocomplete="country-name" required /></label>
-									{:else}
-										<label>
-											{shopCopy.ask}
-											<textarea name="question" maxlength="500" required></textarea>
-										</label>
-									{/if}
+									<label>
+										{shopCopy.ask}
+										<textarea name="question" maxlength="500" required></textarea>
+									</label>
 									<button class="redbtn" type="submit" disabled={short(item)}>
 										{short(item) ? shopCopy.short : shopCopy.confirm}
 									</button>
 								</details>
+							{:else}
+								<button class="redbtn" type="submit" disabled={short(item) || !hasAddress}>
+									{short(item) ? shopCopy.short : shopCopy.redeem}
+								</button>
 							{/if}
 						</form>
 					</div>
@@ -218,6 +217,11 @@
 		padding-top: 1.2rem;
 		border-top: 3px solid var(--shadow);
 		color: var(--text);
+	}
+	.shop.standalone {
+		margin-top: 0;
+		padding-top: 0;
+		border-top: 0;
 	}
 	.kicker {
 		display: inline-block;

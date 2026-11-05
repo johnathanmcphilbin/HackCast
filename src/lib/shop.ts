@@ -56,7 +56,8 @@ export const shopCopy = {
 	empty: 'You have not redeemed anything yet.',
 	yours: 'Your redemptions',
 	creditNote: 'You can buy more than one hour. Each hour is its own credit.',
-	ship: 'Where should we send it?',
+	missingAddress:
+		'We do not have a shipping address from your Hack Club profile. Update it there, or contact support, then try again.',
 	ask: 'What should we ask on the next episode?'
 } as const;
 
@@ -68,11 +69,7 @@ export const hourRacePrize = {
 	trailing: 'You are not first right now.'
 } as const;
 
-let photo = 0;
-const img = (_file: string, alt: string) => {
-	photo += 1;
-	return { image: `https://picsum.photos/seed/hackcast-${photo}/640/480`, imageAlt: alt };
-};
+const img = (file: string, alt: string) => ({ image: file, imageAlt: alt });
 
 export const shopCatalog: ShopItem[] = [
 	{
@@ -85,7 +82,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 5,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Imprimante_3D.jpg/640px-Imprimante_3D.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Imprimante_3D.jpg/960px-Imprimante_3D.jpg',
 			'A desktop 3D printer'
 		)
 	},
@@ -141,7 +138,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 40,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/USB_webcam_for_PC.jpg/640px-USB_webcam_for_PC.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/USB_webcam_for_PC.jpg/960px-USB_webcam_for_PC.jpg',
 			'A USB webcam'
 		)
 	},
@@ -155,7 +152,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 20,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/2023_Hub_USB_2.0.jpg/640px-2023_Hub_USB_2.0.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/2023_Hub_USB_2.0.jpg/960px-2023_Hub_USB_2.0.jpg',
 			'A USB hub'
 		)
 	},
@@ -169,7 +166,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 60,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/SanDisk_Extreme_Portable_SSD_-_1TB%2C_USB-C_%2841036158305%29.jpg/640px-SanDisk_Extreme_Portable_SSD_-_1TB%2C_USB-C_%2841036158305%29.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/SanDisk_Extreme_Portable_SSD_-_1TB%2C_USB-C_%2841036158305%29.jpg/960px-SanDisk_Extreme_Portable_SSD_-_1TB%2C_USB-C_%2841036158305%29.jpg',
 			'A portable external SSD'
 		)
 	},
@@ -183,7 +180,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 20,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/SanDisk_128MB_SD_card.jpg/640px-SanDisk_128MB_SD_card.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/SanDisk_128MB_SD_card.jpg/960px-SanDisk_128MB_SD_card.jpg',
 			'An SD card'
 		)
 	},
@@ -197,7 +194,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 28,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Laptop_cooler.JPG/640px-Laptop_cooler.JPG',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Laptop_cooler.JPG/960px-Laptop_cooler.JPG',
 			'A laptop stand'
 		)
 	},
@@ -211,7 +208,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 36,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Battery_powered_LED_desk_lamp-7420.jpg/640px-Battery_powered_LED_desk_lamp-7420.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Battery_powered_LED_desk_lamp-7420.jpg/960px-Battery_powered_LED_desk_lamp-7420.jpg',
 			'A desk lamp'
 		)
 	},
@@ -239,7 +236,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 40,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/AKG_Perception_120_USB_condenser_microphone_with_SH_100_shock_mount.jpg/640px-AKG_Perception_120_USB_condenser_microphone_with_SH_100_shock_mount.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/AKG_Perception_120_USB_condenser_microphone_with_SH_100_shock_mount.jpg/960px-AKG_Perception_120_USB_condenser_microphone_with_SH_100_shock_mount.jpg',
 			'A USB condenser microphone'
 		)
 	},
@@ -267,7 +264,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 12,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Condenser_Microphone_with_Pop_Filter_and_Reflection_Filter.jpg/640px-Condenser_Microphone_with_Pop_Filter_and_Reflection_Filter.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Condenser_Microphone_with_Pop_Filter_and_Reflection_Filter.jpg/960px-Condenser_Microphone_with_Pop_Filter_and_Reflection_Filter.jpg',
 			'A microphone with a pop filter'
 		)
 	},
@@ -281,7 +278,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 60,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Focusrite_Scarlett_2i2%2C_2i4%2C_6i6_USB2.0_Audio_Interfaces_with_Focusrite_Mic_Preamps_-_2014_NAMM_Show_%28by_Matt_Vanacoro%29.jpg/640px-Focusrite_Scarlett_2i2%2C_2i4%2C_6i6_USB2.0_Audio_Interfaces_with_Focusrite_Mic_Preamps_-_2014_NAMM_Show_%28by_Matt_Vanacoro%29.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Focusrite_Scarlett_2i2%2C_2i4%2C_6i6_USB2.0_Audio_Interfaces_with_Focusrite_Mic_Preamps_-_2014_NAMM_Show_%28by_Matt_Vanacoro%29.jpg/960px-Focusrite_Scarlett_2i2%2C_2i4%2C_6i6_USB2.0_Audio_Interfaces_with_Focusrite_Mic_Preamps_-_2014_NAMM_Show_%28by_Matt_Vanacoro%29.jpg',
 			'USB audio interfaces'
 		)
 	},
@@ -309,7 +306,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 24,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Xlr-connectors.jpg/640px-Xlr-connectors.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Xlr-connectors.jpg/960px-Xlr-connectors.jpg',
 			'XLR connectors'
 		)
 	},
@@ -323,7 +320,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 80,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Kazantip%2C_Popovka%2C_Crimea%2C_Technics_turntable%2C_Vinyl_turntable.jpg/640px-Kazantip%2C_Popovka%2C_Crimea%2C_Technics_turntable%2C_Vinyl_turntable.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Kazantip%2C_Popovka%2C_Crimea%2C_Technics_turntable%2C_Vinyl_turntable.jpg/960px-Kazantip%2C_Popovka%2C_Crimea%2C_Technics_turntable%2C_Vinyl_turntable.jpg',
 			'A turntable'
 		)
 	},
@@ -337,7 +334,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 32,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Soldering_iron_%28UK_Plug%29.jpg/640px-Soldering_iron_%28UK_Plug%29.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Soldering_iron_%28UK_Plug%29.jpg/960px-Soldering_iron_%28UK_Plug%29.jpg',
 			'A soldering iron'
 		)
 	},
@@ -365,7 +362,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 16,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/400_points_breadboard.jpg/640px-400_points_breadboard.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/400_points_breadboard.jpg/960px-400_points_breadboard.jpg',
 			'A breadboard'
 		)
 	},
@@ -393,7 +390,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 40,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Raspberry_Pi_Zero_2_W_--_2024_--_0008.jpg/640px-Raspberry_Pi_Zero_2_W_--_2024_--_0008.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Raspberry_Pi_Zero_2_W_--_2024_--_0008.jpg/960px-Raspberry_Pi_Zero_2_W_--_2024_--_0008.jpg',
 			'A Raspberry Pi Zero'
 		)
 	},
@@ -418,7 +415,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 40,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Wacom_One_graphics_tablet_with_pen_and_disc%2C_front.jpg/640px-Wacom_One_graphics_tablet_with_pen_and_disc%2C_front.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Wacom_One_graphics_tablet_with_pen_and_disc%2C_front.jpg/960px-Wacom_One_graphics_tablet_with_pen_and_disc%2C_front.jpg',
 			'A drawing tablet and pen'
 		)
 	},
@@ -432,7 +429,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 28,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Ring_Light_25280737679.jpg/640px-Ring_Light_25280737679.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Ring_Light_25280737679.jpg/960px-Ring_Light_25280737679.jpg',
 			'A ring light'
 		)
 	},
@@ -446,7 +443,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: 20,
 		grant: null,
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Mini_tripod_and_phone_holder.jpg/640px-Mini_tripod_and_phone_holder.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Mini_tripod_and_phone_holder.jpg/960px-Mini_tripod_and_phone_holder.jpg',
 			'A small tripod with a phone mount'
 		)
 	},
@@ -460,7 +457,7 @@ export const shopCatalog: ShopItem[] = [
 		dollars: null,
 		grant: 'A question on the next episode',
 		...img(
-			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Ea_f20_microphone.jpg/640px-Ea_f20_microphone.jpg',
+			'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Ea_f20_microphone.jpg/960px-Ea_f20_microphone.jpg',
 			'A studio microphone'
 		)
 	},

@@ -12,7 +12,7 @@ import {
 	visibleRsvpCount
 } from './auth-config.ts';
 import { csvCell } from './csv.ts';
-import { authorizeUrl, createOidcTxn, redeemCode } from './hca.ts';
+import { addressFromClaims, authorizeUrl, createOidcTxn, redeemCode } from './hca.ts';
 import { readSession, signSession } from './session.ts';
 
 const env = {
@@ -63,12 +63,14 @@ describe('auth config', () => {
 		assert.equal(destinationAfterHca('/auth/hackatime'), '/dashboard');
 		assert.equal(destinationAfterHca('/dashboard'), '/dashboard');
 		assert.equal(destinationAfterHca('/submit'), '/submit');
+		assert.equal(destinationAfterHca('/shop'), '/shop');
 		assert.equal(destinationAfterHca('/admin/reviews'), '/admin/reviews');
 		assert.equal(destinationAfterHca('https://evil.example'), '/dashboard');
 	});
 
 	it('gates the booth and leaves the public site open', () => {
 		assert.equal(sessionGate('/dashboard'), '/auth/login?next=%2Fdashboard');
+		assert.equal(sessionGate('/shop'), '/auth/login?next=%2Fshop');
 		assert.equal(sessionGate('/submit'), '/auth/login?next=%2Fsubmit');
 		assert.equal(sessionGate('/onboarding'), '/auth/login?next=%2Fonboarding');
 		assert.equal(sessionGate('/auth/hackatime'), '/auth/login?next=%2Fauth%2Fhackatime');
@@ -78,6 +80,16 @@ describe('auth config', () => {
 	});
 
 	it('matches slack ids on the admin allowlist', () => {
+		assert.equal(addressFromClaims({
+			address: {
+				street_address: '1 Analytical Way',
+				locality: 'London',
+				region: 'London',
+				postal_code: 'N1 1AA',
+				country: 'GB'
+			}
+		})?.line1, '1 Analytical Way');
+		assert.equal(addressFromClaims({ sub: 'ident!ada' }), null);
 		assert.equal(isAdminSlack('U123', 'U999, U123'), true);
 		assert.equal(isAdminSlack('U123', 'U999'), false);
 		assert.equal(isAdminSlack(null, 'U123'), false);
@@ -141,7 +153,8 @@ describe('Hack Club Auth code flow', () => {
 			email: 'ada@hackclub.com',
 			slackId: 'UADA',
 			verificationStatus: 'verified',
-			yswsEligible: false
+			yswsEligible: false,
+			address: null
 		});
 
 		await assert.rejects(

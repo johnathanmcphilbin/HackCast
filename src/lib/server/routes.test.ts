@@ -52,7 +52,7 @@ describe('booth routes', () => {
 
 	it('sends signed-out booth routes through Hack Club Auth', async () => {
 		await ready();
-		for (const path of ['/dashboard', '/submit', '/onboarding', '/auth/hackatime']) {
+		for (const path of ['/dashboard', '/shop', '/submit', '/onboarding', '/auth/hackatime']) {
 			const response = await fetch(`${base}${path}`, { redirect: 'manual' });
 			assert.equal(response.status, 303, path);
 			const location = new URL(response.headers.get('location') ?? '', base);

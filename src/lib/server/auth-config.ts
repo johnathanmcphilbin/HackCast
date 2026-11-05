@@ -13,6 +13,7 @@ export type AuthEnv = {
 export const HCA_ISSUER = 'https://auth.hackclub.com';
 export const HCA_AUTHORIZE = 'https://auth.hackclub.com/oauth/authorize';
 export const HCA_TOKEN = 'https://auth.hackclub.com/oauth/token';
+export const HCA_USERINFO = 'https://auth.hackclub.com/oauth/userinfo';
 export const HCA_JWKS = 'https://auth.hackclub.com/oauth/discovery/keys';
 
 /**
@@ -31,13 +32,14 @@ const NEXT_PATHS = new Set([
 	'/admin/team',
 	'/admin/rsvps',
 	'/dashboard',
+	'/shop',
 	'/submit',
 	'/onboarding',
 	'/auth/hackatime'
 ]);
 
 /** Pages and the Hackatime connect route. Callback is not listed — it has its own checks. */
-const SESSION_GATES = new Set(['/dashboard', '/submit', '/onboarding', '/auth/hackatime']);
+const SESSION_GATES = new Set(['/dashboard', '/shop', '/submit', '/onboarding', '/auth/hackatime']);
 
 export function sessionGate(pathname: string): string | null {
 	if (!SESSION_GATES.has(pathname)) return null;

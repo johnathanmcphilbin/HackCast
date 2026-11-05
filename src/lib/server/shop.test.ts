@@ -61,6 +61,8 @@ describe('shop catalog', () => {
 			if (sku === 'laptop') assert.equal(dollars! / hours, 6);
 		});
 		assert.equal(shopCatalog.some((item) => /guest|sticker|hoodie|tee\b|merch/i.test(item.sku + item.title)), false);
+		assert.equal(shopCatalog.some((item) => item.image.includes('picsum')), false);
+		assert.equal(shopCatalog.every((item) => item.image.startsWith('https://')), true);
 		assert.equal(shopCopy.seeGrant, 'See grant amount');
 	});
 
