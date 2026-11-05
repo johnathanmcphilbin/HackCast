@@ -14,7 +14,7 @@ export const site = {
 } as const;
 
 /** Start Now begins Hack Club Auth, then Hackatime and a HackCast project. */
-export const START_HREF = '/auth/login?next=/onboarding';
+export const START_HREF = '/auth/login?next=/dashboard';
 
 export const navLinks = [
 	{ href: '/#how', label: 'how it works' },

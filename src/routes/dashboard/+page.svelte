@@ -1,207 +1,216 @@
 <script lang="ts">
 	import Seo from '#lib/components/Seo.svelte';
-	import { hackatimeContinueHref, hackatimeStatusCopy } from '#lib/hackatime-recovery.ts';
+	import { hackatimeContinueHref } from '#lib/hackatime-recovery.ts';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
+
 	const connectHref = $derived(hackatimeContinueHref(data.notice, data.ready));
+	const project = $derived(data.project);
+	const guest = $derived(data.guest);
 </script>
 
-<Seo title="Dashboard | Hackcast" description="Your Hackcast booth: Hackatime hours and the submission form." />
+<Seo title="Dashboard | Hackcast" description="Your HackCast project, your questions for the next guest, and the hours race." />
+
+{#if data.popup}
+	<div class="backdrop">
+		<div class="popup" role="dialog" aria-modal="true" aria-labelledby="popup-title">
+			{#if data.popup === 'name'}
+				<h2 id="popup-title">Name your HackCast project</h2>
+				<form method="POST" action="?/create">
+					<label>
+						<span class="visually-hidden">project name</span>
+						<!-- svelte-ignore a11y_autofocus -->
+						<input name="projectName" maxlength="200" autocomplete="off" required autofocus />
+					</label>
+					{#if form?.message}<p class="err" role="alert">{form.message}</p>{/if}
+					<button class="redbtn" type="submit">Create project</button>
+				</form>
+			{:else if data.notice === 'taken'}
+				<h2 id="popup-title">That Hackatime is tied to another Hack Club login.</h2>
+				<div class="row">
+					<a class="redbtn" href="/dashboard">Keep going without linking</a>
+					<a class="plain" href="/auth/logout">Sign out</a>
+				</div>
+			{:else}
+				<h2 id="popup-title">Link your Hackatime project</h2>
+				{#if !data.connected}
+					<p>Connect Hackatime to race for the guaranteed question. You can still ask questions without it.</p>
+					<div class="row">
+						{#if connectHref}
+							<a class="redbtn" href={connectHref}>Connect Hackatime</a>
+						{:else}
+							<p>Hackatime sign-in isn't set up yet.</p>
+						{/if}
+						<a class="plain" href="/dashboard">Skip for now</a>
+					</div>
+				{:else if data.recent.length === 0}
+					<p>No Hackatime projects yet. Code a little with Hackatime running, then link it from here.</p>
+					<div class="row"><a class="redbtn" href="/dashboard">Got it</a></div>
+				{:else}
+					<p>The last {data.recent.length} you worked on. Pick the one that is {project?.name}.</p>
+					<form method="POST" action="?/link">
+						<input type="hidden" name="projectId" value={project?.id} />
+						<fieldset>
+							<legend class="visually-hidden">Hackatime projects</legend>
+							{#each data.recent as item (item.name)}
+								<label class="choice">
+									<input type="radio" name="hackatimeProject" value={item.name} required />
+									<span>{item.name}</span>
+									<span class="hours">{item.hours}</span>
+								</label>
+							{/each}
+						</fieldset>
+						{#if form?.message}<p class="err" role="alert">{form.message}</p>{/if}
+						<div class="row">
+							<button class="redbtn" type="submit">Link project</button>
+							<a class="plain" href="/dashboard">Skip for now</a>
+						</div>
+					</form>
+				{/if}
+			{/if}
+		</div>
+	</div>
+{/if}
 
 <div class="booth">
-	<header class="head">
-		<div>
-			<p class="sign">the booth</p>
-			<h1>hello, {data.firstName}.</h1>
-			<p class="lede">Log the hours on Hackatime, then send the project in.</p>
-		</div>
-		<a class="redbtn ship" href="/submit">submit your project →</a>
-	</header>
+	<section class="next" aria-labelledby="next-title">
+		<p class="kicker">Next up</p>
+		<h1 id="next-title">{guest.name}</h1>
+		<p>{guest.blurb}</p>
+	</section>
 
-	{#if data.notice}
-		<p class="note" role="status">{hackatimeStatusCopy(data.notice, 'dashboard')}</p>
+	{#if data.unavailable}
+		<p class="note">We couldn't load your dashboard. Try again in a minute.</p>
 	{/if}
 	{#if data.submitted}
-		<p class="note" role="status">Sent in. A reviewer will look at it soon.</p>
-	{/if}
-	{#if data.approvedHours}
-		<p class="balance"><span>{data.approvedHours}</span> approved hours to spend in the shop</p>
+		<p class="note" role="status">Sent in for review.</p>
 	{/if}
 
-	<section class="panel" aria-labelledby="ht-title">
-		<h2 id="ht-title">your HackCast project</h2>
-		{#if data.unavailable}
-			<p>We couldn't load your HackCast project.</p>
-		{:else if !data.ready || !data.connected}
-			{#if !data.ready}
-				<p>Hackatime sign-in isn't set up on this server. You can still start a HackCast project.</p>
-			{:else if !data.notice}
-				<p>Hackatime isn't connected yet. Connect it later, or keep going without it.</p>
-			{/if}
-			<p class="action">
-				{#if connectHref}
-					<a class="redbtn" href={connectHref}>connect Hackatime</a>
+	<div class="grid">
+		<section class="panel" aria-labelledby="project-title">
+			<h2 id="project-title">Your project</h2>
+			{#if project}
+				<p class="name">{project.name}</p>
+				{#if project.hackatimeProject}
+					<p class="hours-big">{project.hours ?? '0m'} <span>on Hackatime</span></p>
+					<form method="POST" action="?/refresh"><button class="redbtn" type="submit">Refresh hours</button></form>
+				{:else}
+					<p>Link Hackatime if you want to race for the guaranteed question. You can still ask questions without it.</p>
+					<a class="redbtn" href="/dashboard?step=link">Link Hackatime</a>
 				{/if}
-				<a class="redbtn" href="/onboarding?add=1">
-					{data.linked.length === 0 ? 'start a project without Hackatime' : 'add a HackCast project'}
-				</a>
-				{#if data.notice === 'taken'}
-					<a href="/auth/logout">sign out and use the other account</a>
+				{#if data.review}
+					<p class="review {data.review.status}">
+						{#if data.review.status === 'pending'}
+							Waiting for review.
+						{:else if data.review.status === 'changes_requested'}
+							Needs changes: {data.review.feedback} <a href="/submit?project={project.id}">Edit and resubmit</a>
+						{:else if data.review.status === 'rejected'}
+							Not approved{data.review.feedback ? `: ${data.review.feedback}` : '.'}
+						{:else}
+							Approved, {data.review.approvedHours}.
+						{/if}
+					</p>
+				{/if}
+			{/if}
+			{#if form?.message && !data.popup}<p class="err" role="alert">{form.message}</p>{/if}
+		</section>
+
+		<section class="panel" aria-labelledby="ask-title">
+			<h2 id="ask-title">Ask {guest.firstName} something</h2>
+			{#if data.asked}
+				<p class="got" role="status">Got it. It is in for {guest.firstName}'s episode.</p>
+			{/if}
+			<form method="POST" action="?/ask">
+				<label>
+					What do you want him to answer on the episode?
+					<textarea name="question" maxlength="500" required></textarea>
+				</label>
+				<button class="redbtn" type="submit">Send question</button>
+			</form>
+			<p class="fine">
+				{#if data.first}
+					You are first right now. This can be your guaranteed question if you stay on top when we lock hours.
+				{:else}
+					Questions go into the pool. Most hours wins a guaranteed question.
 				{/if}
 			</p>
-			{#if data.linked.length > 0}
-				<ul class="linked">
-					{#each data.linked as project (project.id)}
-						<li><span class="tag">HackCast</span>{project.name}</li>
+		</section>
+
+		<section class="panel" aria-labelledby="mine-title">
+			<h2 id="mine-title">Your questions</h2>
+			{#if data.questions.length === 0}
+				<p>You have not asked anything yet.</p>
+			{:else}
+				<ul class="questions">
+					{#each data.questions as question (question.id)}
+						<li>{question.body}</li>
 					{/each}
 				</ul>
 			{/if}
-		{:else}
-			{#if data.linked.length === 0}
-				<p>No HackCast project yet. Link the Hackatime project you're building.</p>
-				<p class="action"><a class="redbtn" href="/onboarding?add=1">add a HackCast project</a></p>
+		</section>
+
+		<section class="panel" aria-labelledby="race-title">
+			<h2 id="race-title">Hours race</h2>
+			{#if data.race.length === 0}
+				<p>Link Hackatime on your project to show up here.</p>
 			{:else}
-				{#if form?.message}
-					<p class="note" role="alert">{form.message}</p>
-				{/if}
-				<ul class="linked">
-					{#each data.linked as project (project.id)}
-						<li>
-							<span class="tag">HackCast</span>{project.name}
-							{#if data.reviews[project.id]}
-								{@const review = data.reviews[project.id]}
-								<span class="review {review.status}">
-									{#if review.status === 'pending'}
-										waiting for review
-									{:else if review.status === 'changes_requested'}
-										needs changes: {review.feedback}
-										<a href="/submit?project={project.id}">edit and resubmit</a>
-									{:else if review.status === 'rejected'}
-										not approved{review.feedback ? `: ${review.feedback}` : ''}
-									{:else}
-										approved, {review.approvedHours}
-									{/if}
-								</span>
-							{/if}
-							{#if project.hackatimeProject && project.hackatimeProject !== project.name}
-								<span class="tracks">tracks {project.hackatimeProject} on Hackatime</span>
-							{:else if !project.hackatimeProject}
-								{#if data.projects && data.projects.length > 0}
-									<form method="POST" action="?/link" class="attach">
-										<input type="hidden" name="projectId" value={project.id} />
-										<label>
-											<span class="visually-hidden">Hackatime project for {project.name}</span>
-											<select name="hackatimeProject" required>
-												<option value="">link a Hackatime project…</option>
-												{#each data.projects as option (option.name)}
-													<option value={option.name}>{option.name} ({option.hours})</option>
-												{/each}
-											</select>
-										</label>
-										<button type="submit">link</button>
-									</form>
-								{:else}
-									<span class="tracks">no Hackatime project yet. Log some hours, then link it here.</span>
-								{/if}
-							{/if}
+				<ol class="race">
+					{#each data.race as entry, i (i)}
+						<li class:you={entry.you}>
+							<span class="num">{i + 1}</span>
+							<span>{entry.you ? 'You' : entry.name}</span>
+							<span class="num">{entry.hours}</span>
 						</li>
 					{/each}
-				</ul>
-				<p class="again"><a href="/onboarding?add=1">add another HackCast project</a></p>
+				</ol>
+				{#if data.you && data.you.rank > data.race.length}
+					<p class="race-you">… You <b>{data.you.rank}</b> <span class="num">{data.you.hours}</span></p>
+				{:else if !data.you}
+					<p class="fine">Link Hackatime on your project to show up here.</p>
+				{/if}
 			{/if}
-			<dl class="profile">
-				{#if data.email}
-					<dt>email</dt>
-					<dd>{data.email}</dd>
-				{/if}
-				{#if data.githubUsername}
-					<dt>github</dt>
-					<dd>{data.githubUsername}</dd>
-				{/if}
-				{#if data.hackatimeUserId}
-					<dt>hackatime</dt>
-					<dd>{data.hackatimeUserId}</dd>
-				{/if}
-			</dl>
-			{#if data.projects === null}
-				<p>Hours aren't reachable right now.</p>
-			{:else if data.projects.length === 0}
-				<p>No project hours yet.</p>
-			{:else}
-				{#if data.totalHours}<p class="total">{data.totalHours} tracked</p>{/if}
-				<table>
-					<caption class="visually-hidden">Project hours from Hackatime</caption>
-					<thead>
-						<tr>
-							<th>project</th>
-							<th class="num">hours</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each data.projects as project (project.name)}
-							<tr>
-								<td>
-									{project.name}
-									{#if project.languages}<span class="langs">{project.languages}</span>{/if}
-								</td>
-								<td class="num hours">{project.hours}</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			{/if}
-			<p class="again"><a href="/auth/hackatime?next=/dashboard">reconnect Hackatime</a></p>
-		{/if}
-	</section>
+		</section>
+	</div>
+
+	<footer class="ship">
+		<p>Ready to ship a project for review</p>
+		<a class="redbtn" href="/submit">Submit for review</a>
+	</footer>
 </div>
 
 <style>
 	.booth {
-		width: min(880px, calc(100% - 2rem));
+		width: min(980px, calc(100% - 2rem));
 		margin: 1.4rem auto 3rem;
 		color: var(--text);
 	}
-	.head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: 1rem 1.5rem;
-		margin-bottom: 1.15rem;
+	.next {
+		margin-bottom: 1.2rem;
 	}
-	.sign {
+	.kicker {
 		display: inline-block;
 		margin: 0;
-		padding: 0.35rem 0.7rem;
-		background: #6b3f24;
-		color: #f6e6cf;
+		padding: 0.25rem 0.6rem;
+		background: var(--red);
+		color: var(--on-red);
 		border: 3px solid var(--shadow);
-		font-family: Bungee, sans-serif;
-		font-size: 0.78rem;
+		font-family: 'Space Mono', monospace;
+		font-weight: 700;
+		font-size: 0.85rem;
 	}
 	h1 {
-		margin: 0.55rem 0 0.35rem;
+		margin: 0.45rem 0 0.35rem;
 		font-family: 'Permanent Marker', sans-serif;
-		font-size: clamp(2.2rem, 5vw, 3.4rem);
+		font-size: clamp(2.4rem, 6vw, 3.8rem);
 		font-weight: 400;
 		line-height: 1;
-		color: var(--text);
 	}
-	.lede,
-	.panel p {
-		margin: 0 0 0.75rem;
-		max-width: 36rem;
-		font-weight: 700;
-		line-height: 1.45;
-	}
-	.lede {
+	.next p:last-child {
+		max-width: 40rem;
 		margin: 0;
-		color: var(--text);
-	}
-	.ship {
-		font-size: 1.25rem;
-		padding: 0.8rem 1.1rem;
+		font-size: 1.1rem;
+		font-weight: 700;
 	}
 	.note {
 		margin: 0 0 1rem;
@@ -209,9 +218,13 @@
 		background: var(--paper);
 		color: var(--ink);
 		border: 3px solid var(--shadow);
-		border-left-width: 10px;
-		border-left-color: var(--red-text);
+		border-left: 10px solid var(--red-text);
 		font-weight: 800;
+	}
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
 	}
 	.panel {
 		padding: 1rem 1.1rem 1.15rem;
@@ -219,139 +232,176 @@
 		color: var(--ink);
 		border: 3px solid var(--shadow);
 	}
-	.panel h2 {
+	h2 {
 		margin: 0 0 0.55rem;
 		font-family: 'Permanent Marker', sans-serif;
-		font-size: 1.8rem;
+		font-size: 1.6rem;
 		font-weight: 400;
+		line-height: 1.1;
 		color: var(--ink);
 	}
-	.action {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.6rem;
-		align-items: center;
-		margin: 0.2rem 0 0;
-	}
-	.linked {
-		list-style: none;
-		margin: 0 0 0.6rem;
-		padding: 0;
-	}
-	.linked li {
-		margin: 0 0 0.45rem;
-		font-weight: 800;
-	}
-	.balance {
-		margin: 0 0 1rem;
-		font-weight: 800;
-	}
-	.balance span {
-		font-family: 'Permanent Marker', sans-serif;
-		font-size: 1.6rem;
-		margin-right: 0.3rem;
-	}
-	.review {
-		display: block;
-		margin-top: 0.2rem;
-		font-size: 0.9rem;
+	.panel p {
+		margin: 0 0 0.75rem;
 		font-weight: 700;
+	}
+	.name {
+		font-size: 1.3rem;
+		font-weight: 800;
+	}
+	.hours-big {
+		font-family: 'Permanent Marker', sans-serif;
+		font-size: 2rem;
+	}
+	.hours-big span {
+		font-family: Figtree, sans-serif;
+		font-size: 1rem;
+		font-weight: 700;
+	}
+	.panel .review {
+		margin-top: 0.8rem;
+		font-size: 0.92rem;
 	}
 	.review.changes_requested,
-	.review.rejected {
+	.review.rejected,
+	.err {
 		color: var(--red-text);
 	}
-	.tracks {
-		display: block;
-		margin-top: 0.2rem;
-		font-family: 'Space Mono', monospace;
-		font-size: 0.8rem;
-		font-weight: 700;
+	.review a {
+		color: var(--ink);
 	}
-	.attach {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-		margin-top: 0.35rem;
+	form {
+		display: grid;
+		gap: 0.6rem;
 	}
-	.attach select,
-	.attach button {
-		padding: 0.35rem 0.5rem;
+	label {
+		display: grid;
+		gap: 0.3rem;
+		font-weight: 800;
+	}
+	textarea,
+	input:not([type='radio']) {
+		padding: 0.55rem 0.7rem;
 		border: 3px solid var(--shadow);
 		background: #fff;
 		color: var(--ink);
 		font: inherit;
-		font-weight: 700;
+		font-weight: 600;
 	}
-	.attach button {
+	textarea {
+		min-height: 6rem;
+		resize: vertical;
+	}
+	button {
+		justify-self: start;
 		cursor: pointer;
 	}
-	.tag {
-		display: inline-block;
-		margin-right: 0.4rem;
-		padding: 0.1rem 0.35rem;
+	.panel .got {
+		padding: 0.5rem 0.7rem;
 		background: var(--red);
 		color: var(--on-red);
-		font-family: 'Space Mono', monospace;
-		font-size: 0.72rem;
 	}
-	.profile {
-		display: grid;
-		grid-template-columns: 7.5rem 1fr;
-		gap: 0.35rem 0.75rem;
-		margin: 0 0 1rem;
+	.panel .fine {
+		margin: 0.7rem 0 0;
+		font-size: 0.88rem;
 	}
-	.profile dt {
-		font-family: 'Space Mono', monospace;
-		font-weight: 700;
-		color: var(--red-text);
-	}
-	.profile dd {
+	.questions {
 		margin: 0;
-		font-weight: 800;
-		overflow-wrap: anywhere;
-	}
-	.total,
-	.hours,
-	.langs,
-	th {
-		font-family: 'Space Mono', monospace;
+		padding-left: 1.1rem;
 		font-weight: 700;
 	}
-	.total {
-		color: var(--red-text);
+	.questions li {
+		margin-bottom: 0.4rem;
 	}
-	table {
-		width: 100%;
-		border-collapse: collapse;
+	.race {
+		margin: 0;
+		padding: 0;
+		list-style: none;
 	}
-	th,
-	td {
-		padding: 0.5rem 0.15rem;
-		text-align: left;
-		vertical-align: baseline;
-		border-bottom: 2px solid var(--shadow);
-		font-weight: 800;
+	.race li,
+	.panel .race-you {
+		display: grid;
+		grid-template-columns: 2rem 1fr auto;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0.3rem 0.3rem;
+		border-bottom: 1px solid #d9e3ec;
+		font-weight: 700;
 	}
-	th {
-		font-size: 0.78rem;
+	.race li.you {
+		background: var(--red);
+		color: var(--on-red);
+	}
+	.panel .race-you {
+		grid-template-columns: auto auto 1fr;
+		border-bottom: 0;
+	}
+	.race-you .num {
+		text-align: right;
 	}
 	.num {
-		text-align: right;
-		white-space: nowrap;
+		font-family: 'Space Mono', monospace;
+	}
+	.ship {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8rem 1.2rem;
+		align-items: center;
+		justify-content: space-between;
+		margin-top: 1.2rem;
+		padding-top: 1rem;
+		border-top: 3px solid var(--shadow);
+	}
+	.ship p {
+		margin: 0;
+		font-weight: 800;
+	}
+	.backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: grid;
+		place-items: center;
+		padding: 16px;
+		background: rgb(12 20 34 / 0.6);
+	}
+	.popup {
+		width: min(480px, 100%);
+		padding: 1.4rem 1.5rem 1.5rem;
+		background: var(--paper);
+		color: var(--ink);
+		border: 3px solid var(--shadow);
+	}
+	.popup h2 {
+		font-size: 1.7rem;
+	}
+	.popup p {
+		margin: 0 0 0.8rem;
+		font-weight: 700;
+	}
+	fieldset {
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+	.choice {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: 0.5rem;
+		align-items: center;
+		padding: 0.45rem 0;
+		border-bottom: 1px solid #d9e3ec;
 	}
 	.hours {
-		color: var(--red-text);
+		font-family: 'Space Mono', monospace;
+		font-size: 0.85rem;
 	}
-	.langs {
-		display: block;
-		margin-top: 0.15rem;
-		font-size: 0.78rem;
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem 1rem;
+		align-items: center;
 	}
-	.again {
-		margin: 0.9rem 0 0;
-	}
-	.again a {
+	.plain {
 		color: var(--ink);
 		font-weight: 800;
 	}
@@ -359,19 +409,13 @@
 		position: absolute;
 		width: 1px;
 		height: 1px;
-		padding: 0;
-		margin: -1px;
 		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
+		clip: rect(0 0 0 0);
 		white-space: nowrap;
-		border: 0;
 	}
-	@media (max-width: 800px) {
-		.head .ship {
-			display: flex;
-			justify-content: center;
-			width: 100%;
-			box-sizing: border-box;
+	@media (max-width: 720px) {
+		.grid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

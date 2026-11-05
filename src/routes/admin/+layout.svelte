@@ -7,6 +7,7 @@
 	const links = $derived([
 		...(data.role === 'admin' ? [{ href: '/admin', label: 'overview' }] : []),
 		{ href: '/admin/reviews', label: data.pending == null ? 'review queue' : `review queue (${data.pending})` },
+		{ href: '/admin/questions', label: 'questions' },
 		...(data.role === 'admin'
 			? [
 					{ href: '/admin/team', label: 'team' },

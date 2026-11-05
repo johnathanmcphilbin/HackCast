@@ -56,34 +56,14 @@ describe('auth config', () => {
 		assert.equal(safeNext('//evil.example'), '/');
 	});
 
-	it('continues sign-in into Hackatime, then a HackCast project', () => {
-		const hackatime = '/auth/hackatime?next=%2Fonboarding';
-		assert.equal(destinationAfterHca({ next: '/', hackatimeConnected: false, hasHackcastProject: false }), hackatime);
-		assert.equal(
-			destinationAfterHca({ next: '/dashboard', hackatimeConnected: false, hasHackcastProject: false }),
-			hackatime
-		);
-		assert.equal(
-			destinationAfterHca({ next: '/submit', hackatimeConnected: false, hasHackcastProject: false }),
-			hackatime
-		);
-		assert.equal(
-			destinationAfterHca({ next: '/admin/rsvps', hackatimeConnected: false, hasHackcastProject: false }),
-			'/admin/rsvps'
-		);
-		assert.equal(
-			destinationAfterHca({ next: '/dashboard', hackatimeConnected: true, hasHackcastProject: false }),
-			'/onboarding'
-		);
-		assert.equal(destinationAfterHca({ next: '/', hackatimeConnected: true, hasHackcastProject: true }), '/dashboard');
-		assert.equal(
-			destinationAfterHca({ next: '/submit', hackatimeConnected: true, hasHackcastProject: true }),
-			'/submit'
-		);
-		assert.equal(
-			destinationAfterHca({ next: '/onboarding', hackatimeConnected: true, hasHackcastProject: true }),
-			'/dashboard'
-		);
+	it('sends sign-in straight to the dashboard, never through Hackatime', () => {
+		assert.equal(destinationAfterHca('/'), '/dashboard');
+		assert.equal(destinationAfterHca('/onboarding'), '/dashboard');
+		assert.equal(destinationAfterHca('/auth/hackatime'), '/dashboard');
+		assert.equal(destinationAfterHca('/dashboard'), '/dashboard');
+		assert.equal(destinationAfterHca('/submit'), '/submit');
+		assert.equal(destinationAfterHca('/admin/reviews'), '/admin/reviews');
+		assert.equal(destinationAfterHca('https://evil.example'), '/dashboard');
 	});
 
 	it('gates the booth and leaves the public site open', () => {

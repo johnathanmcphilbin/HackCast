@@ -15,8 +15,8 @@ export const GET: RequestHandler = async ({ url, cookies, locals }) => {
 	const txn = secret ? readHt(cookies.get(HT_COOKIE), secret) : null;
 	cookies.delete(HT_COOKIE, { path: '/' });
 
-	const back = txn ? safeNext(txn.next) : '/onboarding';
-	const dest = back === '/' ? '/onboarding' : back;
+	const back = txn ? safeNext(txn.next) : '/dashboard';
+	const dest = back === '/' || back === '/onboarding' ? '/dashboard' : back;
 
 	if (url.searchParams.get('error')) redirect(303, `${dest}?hackatime=denied`);
 

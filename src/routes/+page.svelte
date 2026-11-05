@@ -35,7 +35,7 @@
 			<h2 id="notice-title">{notice === 'done' && data.firstName ? `hello, ${data.firstName}!` : notices[notice].title}</h2>
 			<p>{notices[notice].body}</p>
 			{#if notice === 'error' || notice === 'done'}
-				<p><a class="redbtn" href={notice === 'done' ? '/onboarding' : START_HREF}>Start Now</a></p>
+				<p><a class="redbtn" href={notice === 'done' ? '/dashboard' : START_HREF}>Start Now</a></p>
 			{/if}
 			<button class="redbtn" type="button" onclick={() => (notice = null)}>got it</button>
 		</div>
@@ -49,7 +49,7 @@
 			<p class="tagline">{home.tagline}</p>
 			<p class="cta-row">
 				{#if data.firstName}
-					<a class="redbtn cta" href="/onboarding">Start Now</a>
+					<a class="redbtn cta" href="/dashboard">Start Now</a>
 				{:else}
 					<a class="redbtn cta" href={START_HREF}>Start Now</a>
 				{/if}
@@ -116,7 +116,7 @@
 		<p>{home.finale}</p>
 		<p class="cta-row">
 			{#if data.firstName}
-				<a class="redbtn cta" href="/onboarding">Start Now</a>
+				<a class="redbtn cta" href="/dashboard">Start Now</a>
 			{:else}
 				<a class="redbtn cta" href={START_HREF}>Start Now</a>
 			{/if}

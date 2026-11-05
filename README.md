@@ -22,14 +22,15 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | `/auth/login` | Starts Hack Club Auth. After it succeeds, Hackatime OAuth starts immediately if it is not already linked. |
 | `/auth/callback` | Hack Club Auth only. Not the Hackatime callback. |
 | `/auth/hackatime` | Starts Hackatime OAuth. Authorize `redirect_uri` is `/auth/hackatime/callback`. |
-| `/onboarding` | Pick one of your top 5 Hackatime projects, or start a new HackCast project and link Hackatime later from the dashboard. |
+| `/onboarding` | Old link. Redirects to the dashboard. |
 | `/join` | Old link. Redirects into the same Start Now sign-in. |
 | `/faq`  | Dedicated FAQ page |
-| `/dashboard` | Signed-in booth: HackCast-linked projects, hours, submit. |
+| `/dashboard` | Signed-in. A popup names the HackCast project, then links one of the last 5 Hackatime projects they worked on. Then: the next guest, their project's hours, questions for the guest, the hours race, and submit. |
 | `/submit` | Signed-in. Sends a HackCast project into the review queue. |
 | `/admin` | Admins only. Live Hackatime activity, sign-up funnel, review speed, hours, countries and charts. |
 | `/admin/reviews` | Reviewers and admins. The queue, approved-but-unsent submissions, and recent decisions. |
 | `/admin/reviews/[id]` | One submission: approve with hours, ask for changes, or reject. Admins can move a rejection back. |
+| `/admin/questions` | Reviewers and admins. Questions for the next guest, askers with the most hours first. |
 | `/admin/team` | Admins only. Add or remove reviewers and admins by Hack Club email. |
 | `/admin/rsvps` | Admins only. Older RSVP list plus a CSV download. |
 
@@ -39,7 +40,7 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 
 **Start Now** goes to `/auth/login` (Hack Club Auth, authorization code + PKCE). The Hack Club Auth callback is `/auth/callback`. It still writes the `users` row and the existing `rsvps` row. It does not send people back to a waitlist popup.
 
-If Hackatime is not linked, that same callback redirects straight to `/auth/hackatime?next=/onboarding`, which starts Hackatime OAuth before the dashboard. After Hackatime connects, `/onboarding` asks them to pick a Hackatime project or type a new name and stores it in `hackcast_projects` as the HackCast-linked project. Someone who already has Hackatime and a linked project lands on `/dashboard`.
+Sign-in lands on `/dashboard`, never a Hackatime detour. A popup there asks them to name their HackCast project, then offers the last 5 Hackatime projects they worked on to link (connecting Hackatime first if needed). Linking is optional: without it they can still ask questions, but they don't show up in the hours race.
 
 Until `HCA_CLIENT_ID`, `HCA_CLIENT_SECRET`, `SESSION_SECRET`, `DATABASE_URL`, and `PUBLIC_BASE_URL` (or `HCA_REDIRECT_URI`) are set, `/auth/login` sends people to `/?rsvp=soon`. A failed sign-in lands on `/?rsvp=error`.
 

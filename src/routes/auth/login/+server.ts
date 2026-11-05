@@ -8,7 +8,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = ({ url, cookies, locals }) => {
 	const next = safeNext(url.searchParams.get('next'));
 	if (!isAuthReady()) redirect(303, '/?rsvp=soon');
-	if (locals.session) redirect(303, next === '/admin/rsvps' ? next : '/onboarding');
+	if (locals.session) redirect(303, next.startsWith('/admin') ? next : '/dashboard');
 
 	const secret = sessionSecret();
 	const client = hcaClient();

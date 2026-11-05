@@ -39,8 +39,8 @@
 	{#if data.unavailable}
 		<p>The submission form isn't reachable right now. Try again in a minute.</p>
 	{:else if data.projects.length === 0}
-		<p>Add a HackCast project first.</p>
-		<p><a class="redbtn" href="/onboarding?add=1">add a HackCast project</a></p>
+		<p>Name your HackCast project on the dashboard first.</p>
+		<p><a class="redbtn" href="/dashboard">name your HackCast project</a></p>
 	{:else if open.length === 0}
 		<p>Every one of your projects is already in. Check how they're doing on your dashboard.</p>
 	{:else}

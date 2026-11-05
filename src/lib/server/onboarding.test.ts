@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { hackatimeConnectBlocked, hackatimeContinueHref, hackatimeStatusCopy } from '../hackatime-recovery.ts';
 import { destinationAfterHca } from './auth-config.ts';
 import { HACKATIME_CALLBACK_PATH, hackatimeRedirectUri } from './hackatime.ts';
 import { redirectUri } from './auth-config.ts';
-import { cleanProjectName, topProjects } from './projects.ts';
+import { cleanProjectName, raceName, recentProjects } from './projects.ts';
 
 describe('HackCast onboarding path', () => {
 	it('keeps the Hackatime redirect distinct from Hack Club Auth', () => {
@@ -16,10 +15,7 @@ describe('HackCast onboarding path', () => {
 		assert.equal(hackatime, 'https://hackcast.hackclub.com/auth/hackatime/callback');
 		assert.equal(HACKATIME_CALLBACK_PATH, '/auth/hackatime/callback');
 		assert.notEqual(hca, hackatime);
-		assert.equal(
-			destinationAfterHca({ next: '/', hackatimeConnected: false, hasHackcastProject: false }),
-			'/auth/hackatime?next=%2Fonboarding'
-		);
+		assert.equal(destinationAfterHca('/'), '/dashboard');
 	});
 
 	it('accepts a Hackatime project name to link to HackCast', () => {
@@ -37,32 +33,26 @@ describe('HackCast onboarding path', () => {
 		assert.equal(hackatimeContinueHref('taken'), null);
 		assert.equal(hackatimeContinueHref('soon'), null);
 		assert.equal(hackatimeContinueHref('taken', true), null);
-		assert.notEqual(hackatimeContinueHref('taken'), '/auth/hackatime?next=/onboarding');
-		assert.equal(hackatimeContinueHref('failed'), '/auth/hackatime?next=/onboarding');
-		assert.equal(hackatimeContinueHref('denied'), '/auth/hackatime?next=/onboarding');
+		assert.equal(hackatimeContinueHref('failed'), '/auth/hackatime?next=/dashboard');
+		assert.equal(hackatimeContinueHref('denied'), '/auth/hackatime?next=/dashboard');
 		assert.equal(hackatimeContinueHref(null, false), null);
 		assert.match(hackatimeStatusCopy('taken'), /another Hackcast login/);
 		assert.match(hackatimeStatusCopy('taken'), /without linking/);
-
-		const onboarding = readFileSync(new URL('../../routes/onboarding/+page.svelte', import.meta.url), 'utf8');
-		const onboardingServer = readFileSync(new URL('../../routes/onboarding/+page.server.ts', import.meta.url), 'utf8');
-		const dashboard = readFileSync(new URL('../../routes/dashboard/+page.svelte', import.meta.url), 'utf8');
-		const dashboardServer = readFileSync(new URL('../../routes/dashboard/+page.server.ts', import.meta.url), 'utf8');
-		assert.match(onboarding, /hackatimeContinueHref/);
-		assert.match(onboarding, /start a new project without Hackatime/);
-		assert.match(onboarding, /action="\?\/create"/);
-		assert.doesNotMatch(onboarding, /href="\/auth\/hackatime\?next=\/onboarding"/);
-		assert.doesNotMatch(dashboard, /href="\/auth\/hackatime\?next=\/onboarding"/);
-		assert.doesNotMatch(onboardingServer, /\/auth\/hackatime\?next=\/onboarding/);
-		assert.doesNotMatch(dashboardServer, /\/auth\/hackatime\?next=\/onboarding/);
 	});
 
-	it('offers only the five Hackatime projects with the most hours', () => {
-		const projects = [1, 9, 3, 7, 5, 8, 2].map((hours) => ({ name: `p${hours}`, totalSeconds: hours * 3600 }));
+	it('offers the five Hackatime projects worked on most recently', () => {
+		const at = (day: number | null) => (day == null ? null : new Date(Date.UTC(2026, 10, day)));
+		const projects = [3, null, 9, 1, 7, 5, 8].map((day, i) => ({ name: `p${i}`, lastHeartbeat: at(day) }));
 		assert.deepEqual(
-			topProjects(projects).map((project) => project.name),
-			['p9', 'p8', 'p7', 'p5', 'p3']
+			recentProjects(projects).map((project) => project.name),
+			['p2', 'p6', 'p4', 'p5', 'p0']
 		);
-		assert.equal(projects[0].name, 'p1');
+	});
+
+	it('shows first names and a last initial in the hours race', () => {
+		assert.equal(raceName('Ada Lovelace'), 'Ada L.');
+		assert.equal(raceName('  Grace  Brewster Hopper '), 'Grace H.');
+		assert.equal(raceName('Cher'), 'Cher');
+		assert.equal(raceName(''), 'someone');
 	});
 });

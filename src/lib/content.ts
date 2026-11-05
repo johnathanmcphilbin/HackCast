@@ -160,3 +160,12 @@ export const faqs: Faq[] = [
 		a: 'Hopefully every 2 weeks, if the first one goes well :0'
 	}
 ];
+
+/** The guest builders are asking questions for and racing hours toward. */
+export const nextGuest = {
+	slug: 'zach-latta',
+	name: 'Zach Latta',
+	firstName: 'Zach',
+	blurb:
+		"Hack Club's founder. Ship hours on your HackCast project. Whoever has the most when we lock it gets a question asked on the show for sure."
+};

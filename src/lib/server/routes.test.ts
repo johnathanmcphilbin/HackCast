@@ -104,9 +104,8 @@ describe('booth routes', () => {
 			headers: { cookie: `hackcast_session=${session}` },
 			redirect: 'manual'
 		});
-		assert.equal(onboarding.status, 200);
-		const onboardingHtml = await onboarding.text();
-		assert.match(onboardingHtml, /HackCast project/i);
+		assert.equal(onboarding.status, 303);
+		assert.equal(new URL(onboarding.headers.get('location') ?? '', base).pathname, '/dashboard');
 	});
 
 	it('starts Hackatime OAuth for a signed-in user', async () => {
@@ -135,7 +134,7 @@ describe('booth routes', () => {
 		assert.equal(response.status, 200);
 		const html = await response.text();
 		assert.match(html, /Start Now/);
-		assert.match(html, /href="\/auth\/login\?next=(%2F|\/)onboarding"/);
+		assert.match(html, /href="\/auth\/login\?next=(%2F|\/)dashboard"/);
 		assert.doesNotMatch(html, /rsvp for hackcast/i);
 		assert.doesNotMatch(html, /waitlist/i);
 		assert.doesNotMatch(html, /you're on the list/i);

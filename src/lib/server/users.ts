@@ -107,6 +107,9 @@ async function ensure(sql: postgres.Sql): Promise<void> {
 			`;
 			// When the Hackatime project was linked, for the "projects connected" chart.
 			await sql`alter table hackcast_projects add column if not exists linked_at timestamptz`;
+			// Last hours read from Hackatime, for the dashboard and the hours race.
+			await sql`alter table hackcast_projects add column if not exists hackatime_seconds integer`;
+			await sql`alter table hackcast_projects add column if not exists hours_checked_at timestamptz`;
 			await sql`
 				update hackcast_projects set linked_at = created_at
 				where hackatime_project is not null and linked_at is null
@@ -196,19 +199,36 @@ export type HackcastProject = {
 	name: string;
 	/** The Hackatime project this tracks, or null until one is linked. */
 	hackatimeProject: string | null;
+	/** Hours last read from Hackatime, in seconds, and when. Null until first read. */
+	hackatimeSeconds: number | null;
+	hoursCheckedAt: Date | null;
 };
 
 export async function listHackcastProjects(hackclubId: string): Promise<HackcastProject[]> {
 	const sql = client();
 	await ensure(sql);
-	const rows = await sql<{ id: string; name: string; hackatime_project: string | null }[]>`
-		select p.id::text as id, p.name, p.hackatime_project
+	const rows = await sql<
+		{
+			id: string;
+			name: string;
+			hackatime_project: string | null;
+			hackatime_seconds: number | null;
+			hours_checked_at: Date | null;
+		}[]
+	>`
+		select p.id::text as id, p.name, p.hackatime_project, p.hackatime_seconds, p.hours_checked_at
 		from hackcast_projects p
 		join users u on u.id = p.user_id
 		where u.hackclub_id = ${hackclubId}
 		order by p.created_at asc
 	`;
-	return rows.map((row) => ({ id: row.id, name: row.name, hackatimeProject: row.hackatime_project }));
+	return rows.map((row) => ({
+		id: row.id,
+		name: row.name,
+		hackatimeProject: row.hackatime_project,
+		hackatimeSeconds: row.hackatime_seconds,
+		hoursCheckedAt: row.hours_checked_at
+	}));
 }
 
 export async function userId(sql: postgres.Sql, hackclubId: string): Promise<string> {
@@ -334,4 +354,32 @@ export async function setStaffRole(email: string, role: StaffRole | null): Promi
 	} else {
 		await sql`delete from staff_roles where email = ${key}`;
 	}
+}
+
+/** Store the hours Hackatime reported for a project. */
+export async function saveProjectSeconds(projectId: string, seconds: number): Promise<void> {
+	const sql = client();
+	await ensure(sql);
+	await sql`
+		update hackcast_projects
+		set hackatime_seconds = ${Math.round(seconds)}, hours_checked_at = now()
+		where id = ${projectId}::uuid
+	`;
+}
+
+export type RaceEntry = { hackclubId: string; name: string; seconds: number };
+
+/** Everyone with Hackatime hours on a linked HackCast project, most hours first. */
+export async function hoursRace(): Promise<RaceEntry[]> {
+	const sql = client();
+	await ensure(sql);
+	const rows = await sql<{ hackclub_id: string; display_name: string; seconds: string }[]>`
+		select u.hackclub_id, u.display_name, sum(p.hackatime_seconds)::text as seconds
+		from hackcast_projects p
+		join users u on u.id = p.user_id
+		where p.hackatime_project is not null and p.hackatime_seconds > 0
+		group by u.hackclub_id, u.display_name
+		order by sum(p.hackatime_seconds) desc, u.display_name
+	`;
+	return rows.map((row) => ({ hackclubId: row.hackclub_id, name: row.display_name, seconds: Number(row.seconds) }));
 }

@@ -25,6 +25,7 @@ const NEXT_PATHS = new Set([
 	'/',
 	'/admin',
 	'/admin/reviews',
+	'/admin/questions',
 	'/admin/team',
 	'/admin/rsvps',
 	'/dashboard',
@@ -86,21 +87,12 @@ export function safeNext(value: string | null | undefined): string {
 }
 
 /**
- * Where Hack Club Auth sends someone next.
- * No Hackatime connection yet: start that OAuth immediately (not a dashboard button).
- * Connected, but no HackCast project: the onboarding picker.
- * Otherwise the page they asked for. Home lands on the dashboard.
- * Admin pages stay reachable without Hackatime, so staff can review without connecting it.
+ * Where Hack Club Auth sends someone next: the page they asked for, with home and
+ * the old onboarding page landing on the dashboard. Naming a project and linking
+ * Hackatime happen in a popup there, so sign-in never detours through Hackatime.
  */
-export function destinationAfterHca(input: {
-	next: string | null | undefined;
-	hackatimeConnected: boolean;
-	hasHackcastProject: boolean;
-}): string {
-	const next = safeNext(input.next);
-	if (next === '/admin' || next.startsWith('/admin/')) return next;
-	if (!input.hackatimeConnected) return '/auth/hackatime?next=%2Fonboarding';
-	if (!input.hasHackcastProject) return '/onboarding';
+export function destinationAfterHca(requested: string | null | undefined): string {
+	const next = safeNext(requested);
 	if (next === '/' || next === '/onboarding' || next === '/auth/hackatime') return '/dashboard';
 	return next;
 }

@@ -11,7 +11,7 @@ export function hackatimeConnectBlocked(notice: string | null | undefined): bool
  */
 export function hackatimeContinueHref(notice: string | null | undefined, ready = true): string | null {
 	if (!ready || hackatimeConnectBlocked(notice)) return null;
-	return '/auth/hackatime?next=/onboarding';
+	return '/auth/hackatime?next=/dashboard';
 }
 
 export function hackatimeStatusCopy(notice: string, where: 'onboarding' | 'dashboard' = 'onboarding'): string {

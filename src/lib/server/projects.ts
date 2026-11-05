@@ -7,10 +7,18 @@ export function cleanProjectName(value: unknown): string | null {
 	return name;
 }
 
-/** How many Hackatime projects onboarding offers to pick from. */
-export const TOP_PROJECTS = 5;
+/** How many Hackatime projects the link popup offers. */
+export const RECENT_PROJECTS = 5;
 
-/** The projects with the most hours, most first. */
-export function topProjects<T extends { totalSeconds: number }>(projects: T[], count = TOP_PROJECTS): T[] {
-	return [...projects].sort((a, b) => b.totalSeconds - a.totalSeconds).slice(0, count);
+/** The projects worked on most recently, newest first. Never-touched ones go last. */
+export function recentProjects<T extends { lastHeartbeat: Date | null }>(projects: T[], count = RECENT_PROJECTS): T[] {
+	const time = (project: T) => project.lastHeartbeat?.getTime() ?? -Infinity;
+	return [...projects].sort((a, b) => time(b) - time(a)).slice(0, count);
+}
+
+/** "Ada Lovelace" → "Ada L." for the public hours race. */
+export function raceName(name: string): string {
+	const [first, ...rest] = name.trim().split(/\s+/);
+	const last = rest.at(-1);
+	return last ? `${first} ${last[0].toUpperCase()}.` : first || 'someone';
 }

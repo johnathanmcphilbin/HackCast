@@ -12,10 +12,10 @@ export const GET: RequestHandler = ({ url, cookies, locals }) => {
 	const secret = sessionSecret();
 	const client = hackatimeClient();
 	const redirectUri = hackatimeCallback(url.origin);
-	if (!secret || !client || !redirectUri) redirect(303, '/onboarding?hackatime=soon');
+	if (!secret || !client || !redirectUri) redirect(303, '/dashboard?hackatime=soon');
 
 	const requested = url.searchParams.get('next');
-	const next = requested ? safeNext(requested) : '/onboarding';
+	const next = requested ? safeNext(requested) : '/dashboard';
 	const state = createHackatimeState();
 	cookies.set(HT_COOKIE, signHt({ state, next }, secret), {
 		path: '/',

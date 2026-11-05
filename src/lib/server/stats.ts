@@ -1,6 +1,7 @@
 import { fetchHackatimeProjects } from './hackatime.ts';
 import { lastDays, median } from './days.ts';
 import { recordActivity, submissionsDatabase } from './submissions.ts';
+import { saveProjectSeconds } from './users.ts';
 
 /** One bar or point per UTC day, oldest first. */
 export type DayCount = { day: string; value: number; extra?: number };
@@ -230,6 +231,7 @@ async function measure(): Promise<LiveActivity> {
 	const nowMs = Date.now();
 	const seen: LiveProject[] = [];
 	const activity: { projectId: string; day: string }[] = [];
+	const hours: { projectId: string; seconds: number }[] = [];
 	let unreachable = 0;
 	let trackedSeconds = 0;
 
@@ -244,6 +246,7 @@ async function measure(): Promise<LiveActivity> {
 			const project = byName.get(row.hackatime_project);
 			if (!project) continue;
 			trackedSeconds += project.totalSeconds;
+			hours.push({ projectId: row.project_id, seconds: project.totalSeconds });
 			if (!project.lastHeartbeat) continue;
 			seen.push({
 				projectName: row.name,
@@ -259,6 +262,10 @@ async function measure(): Promise<LiveActivity> {
 	});
 
 	await recordActivity(activity).catch(() => console.error('record activity failed'));
+	// Keeps the dashboard's hours race current for builders who haven't opened it lately.
+	await Promise.all(hours.map((item) => saveProjectSeconds(item.projectId, item.seconds))).catch(() =>
+		console.error('save project hours failed')
+	);
 	const within = (ms: number) => seen.filter((project) => nowMs - project.lastHeartbeat.getTime() <= ms);
 	return {
 		checkedAt: new Date(nowMs),
