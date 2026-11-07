@@ -135,8 +135,8 @@
 				{#if data.first}
 					You are first right now. This can be your guaranteed question if you stay on top when we lock hours.
 				{:else}
-					Questions go into the hat. Most hours wins a guaranteed question. Every approved hour is another entry:
-					you have {data.entries} {data.entries === 1 ? 'entry' : 'entries'}.
+					Questions go into the hat. Everyone gets 5 entries free, and every approved hour adds one more: you have
+					{data.entries} entries. Most hours wins a guaranteed question.
 				{/if}
 			</p>
 		</section>

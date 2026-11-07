@@ -79,7 +79,7 @@ export const load: PageServerLoad = async (event) => {
 		race: [] as { name: string; hours: string; you: boolean }[],
 		you: null as { rank: number; hours: string } | null,
 		first: false,
-		entries: 1,
+		entries: hatEntries(0),
 		redeemed: event.url.searchParams.get('redeemed') === '1',
 		shop: {
 			approvedSeconds: 0,

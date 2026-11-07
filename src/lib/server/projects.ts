@@ -133,9 +133,14 @@ export function groupGuestVotes(votes: GuestVote[]): GuestGroup[] {
 		.sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
 }
 
-/** Entries in the question hat: one per whole approved hour, and everyone who asked gets at least one. */
+/** Everyone who asks gets this many entries in the question hat for free. */
+export const FREE_ENTRIES = 5;
+/** Questions asked in each hour-long episode. Every one comes from the community. */
+export const QUESTIONS_PER_EPISODE = 50;
+
+/** Entries in the question hat: five free, plus one per whole approved hour. */
 export function hatEntries(approvedSeconds: number): number {
-	return Math.max(1, Math.floor(approvedSeconds / 3600));
+	return FREE_ENTRIES + Math.max(0, Math.floor(approvedSeconds / 3600));
 }
 
 /** Pick one item, each as likely as its weight. `roll` is in [0, 1). */

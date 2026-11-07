@@ -102,11 +102,11 @@ describe('HackCast onboarding path', () => {
 		assert.equal(groups.filter((group) => group.category === 'outside').length, 1);
 	});
 
-	it('puts a question in the hat once per approved hour, at least once', () => {
-		assert.equal(hatEntries(0), 1);
-		assert.equal(hatEntries(3599), 1);
-		assert.equal(hatEntries(3 * 3600), 3);
-		assert.equal(hatEntries(3.9 * 3600), 3);
+	it('gives five free entries in the hat, plus one per approved hour', () => {
+		assert.equal(hatEntries(0), 5);
+		assert.equal(hatEntries(3599), 5);
+		assert.equal(hatEntries(3 * 3600), 8);
+		assert.equal(hatEntries(3.9 * 3600), 8);
 		const hat = [
 			{ item: 'one', weight: 1 },
 			{ item: 'three', weight: 3 }

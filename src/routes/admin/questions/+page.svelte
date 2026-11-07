@@ -12,9 +12,10 @@
 <div class="admin">
 	<h1>questions · episode {data.episode} · {data.guest}</h1>
 	<p>
-		The hours race leader gets a guaranteed question. Everyone else is in the hat with one entry per approved hour
-		(at least one), so 3 approved hours is 3 times the chance. A person comes out of the hat once one of their
-		questions is picked.
+		Each hour-long episode asks the guest {data.perEpisode} questions, all from the community. The hours race leader
+		gets a guaranteed question. Everyone else is in the hat with 5 free entries plus one per approved hour, so 3
+		approved hours is 8 entries. Someone who asked more than one question stays in the hat until all of theirs are
+		picked.
 	</p>
 	{#if form?.message}<p class="note" role="status">{form.message}</p>{/if}
 
@@ -26,8 +27,14 @@
 			<p>
 				Guaranteed: {data.leader ? `${data.leader.name}, leading the hours race with ${data.leader.hours}` : 'nobody yet. Nobody has hours on a linked project.'}
 			</p>
+			<p class="count">
+				{data.picked} of {data.perEpisode} picked.{data.picked >= data.perEpisode ? ' All picked.' : ''}
+			</p>
 			<div class="row">
-				<form method="POST" action="?/draw"><button class="redbtn" type="submit">Draw a question</button></form>
+				{#if data.picked < data.perEpisode}
+					<form method="POST" action="?/draw"><button class="redbtn" type="submit">Draw a question</button></form>
+					<form method="POST" action="?/fill"><button class="plain" type="submit">Draw the rest</button></form>
+				{/if}
 				{#if picked.length}
 					<form method="POST" action="?/reset"><button class="plain" type="submit">Clear picks</button></form>
 				{/if}
@@ -62,7 +69,7 @@
 											<li>
 												{q.body}
 												{#if q.pickedHow}<span class="tag">{q.pickedHow}</span>{/if}
-												{#if person.guaranteed && !q.pickedHow}
+												{#if person.guaranteed && !q.pickedHow && data.picked < data.perEpisode}
 													<form method="POST" action="?/guarantee" class="inline">
 														<input type="hidden" name="questionId" value={q.id} />
 														<button type="submit">use this one</button>
@@ -125,6 +132,9 @@
 	}
 	.block p {
 		font-weight: 700;
+	}
+	.block .count {
+		font-family: 'Space Mono', monospace;
 	}
 	.row {
 		display: flex;
