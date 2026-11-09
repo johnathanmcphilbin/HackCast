@@ -9,6 +9,7 @@ import {
 	cleanGuestRequest,
 	cleanQuestion,
 	guestVotesFrom,
+	questionErrorMessage,
 	questionsFrom,
 	voteGuest,
 } from '#lib/server/questions.ts';
@@ -247,7 +248,9 @@ export const actions: Actions = {
 		if (!body) return fail(400, { message: 'Write a question, up to 500 characters.' });
 		try {
 			await askQuestion(session.sub, nextGuest.slug, body);
-		} catch {
+		} catch (err) {
+			const limited = questionErrorMessage(err);
+			if (limited) return fail(400, { message: limited });
 			console.error('ask question failed');
 			return fail(500, { message: "Couldn't send that question. Try again." });
 		}

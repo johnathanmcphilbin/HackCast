@@ -128,6 +128,56 @@ describe('booth routes', () => {
 		assert.match(response.headers.get('set-cookie') ?? '', /hackcast_ht=/);
 	});
 
+	it('does not sign out on GET and refuses a foreign logout post', async () => {
+		await ready();
+		const get = await fetch(`${base}/auth/logout`, { redirect: 'manual' });
+		assert.equal(get.status, 200);
+		const getCookies = get.headers.getSetCookie?.() ?? [];
+		assert.equal(
+			getCookies.some((cookie) => cookie.startsWith('hackcast_session=')),
+			false
+		);
+		assert.match(await get.text(), /method="post"/);
+
+		const foreign = await fetch(`${base}/auth/logout`, {
+			method: 'POST',
+			headers: { origin: 'https://evil.example' },
+			redirect: 'manual'
+		});
+		assert.equal(foreign.status, 403);
+		const foreignCookies = foreign.headers.getSetCookie?.() ?? [];
+		assert.equal(
+			foreignCookies.some((cookie) => cookie.startsWith('hackcast_session=')),
+			false
+		);
+
+		const login = await fetch(`${base}/auth/login`, { redirect: 'manual' });
+		const loginCookie = (login.headers.getSetCookie?.() ?? []).find((cookie) => cookie.startsWith('hackcast_hca='));
+		assert.ok(loginCookie);
+		// adapter-node reports https when ORIGIN is unset, including on this http test server.
+		const sameSite = await fetch(`${base}/auth/logout`, {
+			method: 'POST',
+			headers: { origin: `https://127.0.0.1:${port}` },
+			redirect: 'manual'
+		});
+		assert.equal(sameSite.status, 303);
+		assert.equal(new URL(sameSite.headers.get('location') ?? '', base).pathname, '/');
+		const cleared = (sameSite.headers.getSetCookie?.() ?? []).filter((cookie) =>
+			cookie.startsWith('hackcast_session=')
+		);
+		assert.equal(cleared.length, 1);
+		assert.match(cleared[0], /Max-Age=0/i);
+		assert.equal(/;\s*Secure/i.test(cleared[0]), /;\s*Secure/i.test(loginCookie));
+	});
+
+	it('refuses to be framed', async () => {
+		await ready();
+		const response = await fetch(`${base}/`);
+		assert.equal(response.status, 200);
+		assert.equal(response.headers.get('x-frame-options'), 'DENY');
+		assert.match(response.headers.get('content-security-policy') ?? '', /frame-ancestors 'none'/);
+	});
+
 	it('leaves the public landing page open on Start Now', async () => {
 		await ready();
 		const response = await fetch(`${base}/`);
