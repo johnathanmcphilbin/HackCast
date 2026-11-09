@@ -31,7 +31,9 @@
 				<h2 id="popup-title">That Hackatime is tied to another Hack Club login.</h2>
 				<div class="row">
 					<a class="redbtn" href="/dashboard">Keep going without linking</a>
-					<a class="plain" href="/auth/logout">Sign out</a>
+					<form method="POST" action="/auth/logout">
+						<button class="plain" type="submit">Sign out</button>
+					</form>
 				</div>
 			{:else}
 				<h2 id="popup-title">Link your Hackatime project</h2>
@@ -456,6 +458,14 @@
 	.plain {
 		color: var(--ink);
 		font-weight: 800;
+	}
+	button.plain {
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		cursor: pointer;
+		text-decoration: underline;
 	}
 	.visually-hidden {
 		position: absolute;

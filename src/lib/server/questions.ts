@@ -1,5 +1,6 @@
 import type postgres from 'postgres';
 import type { GuestCategory, GuestVote } from './projects.ts';
+import { canAskAnother } from './security.ts';
 import { submissionsDatabase } from './submissions.ts';
 import { database, userId } from './users.ts';
 
@@ -43,10 +44,33 @@ export function cleanQuestion(value: unknown): string | null {
 	return body && body.length <= 500 ? body : null;
 }
 
+export class QuestionError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'QuestionError';
+	}
+}
+
+export function questionErrorMessage(err: unknown, depth = 0): string | null {
+	if (!err || typeof err !== 'object' || depth > 3) return null;
+	if (err instanceof QuestionError) return err.message;
+	if ('cause' in err) return questionErrorMessage((err as { cause?: unknown }).cause, depth + 1);
+	return null;
+}
+
 export async function askQuestion(hackclubId: string, guest: string, body: string): Promise<void> {
 	const sql = await ready();
 	const id = await userId(sql, hackclubId);
-	await sql`insert into questions (user_id, guest, body) values (${id}::uuid, ${guest}, ${body})`;
+	await sql.begin(async (tx) => {
+		await tx`select id from users where id = ${id}::uuid for update`;
+		const rows = await tx<{ n: number }[]>`
+			select count(*)::int as n from questions where user_id = ${id}::uuid and guest = ${guest}
+		`;
+		if (!canAskAnother(rows[0]?.n ?? 0)) {
+			throw new QuestionError('You already sent plenty of questions for this guest.');
+		}
+		await tx`insert into questions (user_id, guest, body) values (${id}::uuid, ${guest}, ${body})`;
+	});
 }
 
 export async function questionsFrom(hackclubId: string, guest: string): Promise<{ id: string; body: string; createdAt: Date }[]> {
