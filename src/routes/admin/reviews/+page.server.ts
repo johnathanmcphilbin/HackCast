@@ -11,6 +11,7 @@ function row(item: Submission) {
 		id: item.id,
 		projectName: item.projectName,
 		builder: item.builderName,
+		email: item.email,
 		kind: item.kind,
 		status: item.status,
 		tracked: formatHours(item.trackedSeconds),

@@ -1,4 +1,4 @@
-import { sendToAirtable } from './airtable.ts';
+import { sendToAirtable, updateAirtableReview } from './airtable.ts';
 import { airtableTarget } from './config.ts';
 import { getSubmission, markSent } from './submissions.ts';
 
@@ -17,6 +17,21 @@ export async function sendApproved(submissionId: string): Promise<string | null>
 		return null;
 	} catch (err) {
 		console.error('send to Airtable failed');
+		return `Airtable said ${err instanceof Error ? err.message : 'no'}.`;
+	}
+}
+
+/** Push rewritten hours and justification onto a record already in Airtable. */
+export async function resendReview(submissionId: string): Promise<string | null> {
+	const target = airtableTarget();
+	if (!target) return 'Airtable isn’t set up on this server (AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_TABLE).';
+	const submission = await getSubmission(submissionId);
+	if (!submission?.airtableRecordId) return 'That submission isn’t in Airtable yet.';
+	try {
+		await updateAirtableReview(target, submission.airtableRecordId, submission, submission.reviewerName ?? 'Hackcast');
+		return null;
+	} catch (err) {
+		console.error('update Airtable failed');
 		return `Airtable said ${err instanceof Error ? err.message : 'no'}.`;
 	}
 }

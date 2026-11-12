@@ -34,12 +34,13 @@
 				<p>Nothing waiting. Nice.</p>
 			{:else}
 				<table>
-					<thead><tr><th>project</th><th>builder</th><th>kind</th><th>hours</th><th>waited</th><th></th></tr></thead>
+					<thead><tr><th>project</th><th>builder</th><th>email</th><th>kind</th><th>hours</th><th>waited</th><th></th></tr></thead>
 					<tbody>
 						{#each data.pending as item (item.id)}
 							<tr>
 								<td>{item.projectName}</td>
 								<td>{item.builder}</td>
+								<td><a href="mailto:{item.email}">{item.email}</a></td>
 								<td>{item.kind}</td>
 								<td class="num">{item.tracked}</td>
 								<td class="num">{waited(item.submittedAt)}</td>
@@ -55,12 +56,13 @@
 			<section class="block">
 				<h2>approved, not sent to Airtable ({data.unsent.length})</h2>
 				<table>
-					<thead><tr><th>project</th><th>builder</th><th>approved</th><th></th></tr></thead>
+					<thead><tr><th>project</th><th>builder</th><th>email</th><th>approved</th><th></th></tr></thead>
 					<tbody>
 						{#each data.unsent as item (item.id)}
 							<tr>
 								<td><a href="/admin/reviews/{item.id}">{item.projectName}</a></td>
 								<td>{item.builder}</td>
+								<td><a href="mailto:{item.email}">{item.email}</a></td>
 								<td class="num">{item.approved}</td>
 								<td>
 									<form method="POST" action="?/send">
@@ -78,12 +80,13 @@
 		<section class="block">
 			<h2>recently decided</h2>
 			<table>
-				<thead><tr><th>project</th><th>builder</th><th>decision</th><th>hours</th><th>by</th><th>when</th></tr></thead>
+				<thead><tr><th>project</th><th>builder</th><th>email</th><th>decision</th><th>hours</th><th>by</th><th>when</th></tr></thead>
 				<tbody>
 					{#each data.decided as item (item.id)}
 						<tr>
 							<td><a href="/admin/reviews/{item.id}">{item.projectName}</a></td>
 							<td>{item.builder}</td>
+							<td><a href="mailto:{item.email}">{item.email}</a></td>
 							<td>{LABEL[item.status]}</td>
 							<td class="num">{item.approved ?? '—'}</td>
 							<td>{item.reviewer ?? ''}</td>

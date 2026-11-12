@@ -29,7 +29,7 @@ npm start          # node build — PORT defaults to 3000, HOST to 0.0.0.0
 | `/submit` | Signed-in. Sends a HackCast project into the review queue. |
 | `/admin` | Admins only. Live Hackatime activity, sign-up funnel, review speed, hours, countries and charts. |
 | `/admin/reviews` | Reviewers and admins. The queue, approved-but-unsent submissions, and recent decisions. |
-| `/admin/reviews/[id]` | One submission: approve with hours, ask for changes, or reject. Admins can move a rejection back. |
+| `/admin/reviews/[id]` | One submission, with the builder's email: approve with hours and a written justification, ask for changes, or reject. Admins can move a rejection back. |
 | `/admin/questions` | Reviewers and admins. Questions for the next guest, askers with the most hours first. |
 | `/admin/guests` | Admins only. Guest votes for the next open episode (`guestVoteEpisode` in `src/lib/content.ts`): one HQ and one outside vote per person, spellings of the same name matched into one tally. Shortlist or dismiss each name, plus the raw votes as typed. |
 | `/admin/team` | Admins only. Add or remove reviewers and admins by Hack Club email. |
@@ -74,11 +74,12 @@ builder submits /submit                      → pending
 reviewer at /admin/reviews/[id]
   ├── needs changes → changes_requested → builder edits and resubmits → pending
   ├── reject        → rejected (an admin can move it back to pending)
-  └── approve (sets the hours)
+  └── approve (sets the hours; the reviewer writes what they checked and why these hours)
         → creates a record in Hack Club's YSWS Airtable with
-          "Optional - Override Hours Spent" = approved hours and a justification
+          "Optional - Override Hours Spent" = approved hours and that justification
           signed "Reviewed by <reviewer>"
         → sent; address and birthday are wiped from our copy
+        → the hours and justification can be rewritten later; saving PATCHes the Airtable record
 ```
 
 Every decision is logged in `submission_reviews`, which the admin stats read. Approved hours show on the builder's dashboard as their shop balance.

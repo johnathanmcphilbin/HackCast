@@ -1,9 +1,10 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { fetchHackatimeProjects, formatHours } from '#lib/server/hackatime.ts';
-import { sendApproved } from '#lib/server/send.ts';
+import { hoursSource } from '#lib/server/airtable.ts';
+import { resendReview, sendApproved } from '#lib/server/send.ts';
 import { requireStaff } from '#lib/server/staff.ts';
-import { parseDecision, UUID } from '#lib/server/submission-form.ts';
-import { decide, getSubmission, moveBackToQueue, reviewLog } from '#lib/server/submissions.ts';
+import { parseDecision, parseHours, parseJustification, UUID } from '#lib/server/submission-form.ts';
+import { decide, getSubmission, moveBackToQueue, reviewLog, rewriteApproval } from '#lib/server/submissions.ts';
 import { hackatimeAccessToken } from '#lib/server/users.ts';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -38,7 +39,9 @@ export const load: PageServerLoad = async (event) => {
 			decidedAt: submission.decidedAt?.toISOString() ?? null,
 			tracked: formatHours(submission.trackedSeconds),
 			trackedHours: Math.round((submission.trackedSeconds / 3600) * 10) / 10,
-			approved: submission.approvedSeconds == null ? null : formatHours(submission.approvedSeconds)
+			approved: submission.approvedSeconds == null ? null : formatHours(submission.approvedSeconds),
+			approvedHours: submission.approvedSeconds == null ? null : Math.round((submission.approvedSeconds / 3600) * 10) / 10,
+			hoursSource: hoursSource(submission)
 		},
 		live: liveSeconds == null ? null : formatHours(liveSeconds),
 		languages,
@@ -73,6 +76,23 @@ export const actions: Actions = {
 		await requireStaff(event, 'reviewer', '/admin/reviews');
 		const problem = await sendApproved(idFrom(event.params));
 		return problem ? fail(502, { message: problem }) : { message: 'Sent to Airtable.' };
+	},
+	// Rewrite the hours and justification after approval. Already sent: Airtable gets the new words too.
+	justify: async (event) => {
+		await requireStaff(event, 'reviewer', '/admin/reviews');
+		const id = idFrom(event.params);
+		const form = await event.request.formData();
+		const approvedSeconds = parseHours(form);
+		if (approvedSeconds == null) return fail(400, { message: 'Set the hours to approve.' });
+		const justification = parseJustification(form);
+		if (!justification) return fail(400, { message: 'Write the justification: what you checked, and why these hours.' });
+		if (!(await rewriteApproval(id, approvedSeconds, justification))) {
+			return fail(409, { message: 'Only approved submissions have a justification.' });
+		}
+		const submission = await getSubmission(id);
+		if (submission?.status !== 'sent') return { message: 'Justification saved. It goes to Airtable when you send it.' };
+		const problem = await resendReview(id);
+		return problem ? fail(502, { message: `Saved here. Airtable not updated: ${problem}` }) : { message: 'Saved and updated in Airtable.' };
 	},
 	requeue: async (event) => {
 		await requireStaff(event, 'admin', '/admin/reviews');

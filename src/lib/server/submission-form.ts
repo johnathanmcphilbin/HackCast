@@ -127,20 +127,46 @@ export function parseSubmission(
 
 export type Decision = 'approved' | 'changes_requested' | 'rejected';
 
-/** A reviewer's call. Approving needs the hours to credit; the others need feedback for the builder. */
+const JUSTIFICATION_MIN = 30;
+
+/**
+ * The reviewer's justification for Airtable, from the boxes on the review page:
+ * what they checked, and why the hours are what they are. Null when too thin.
+ */
+export function parseJustification(form: FormData): string | null {
+	const parts = [
+		['Checked', text(form, 'checked', 2000)],
+		['Hours', text(form, 'hoursReason', 2000)]
+	].filter(([, value]) => value);
+	const single = text(form, 'justification', 4000);
+	const combined = single || parts.map(([label, value]) => `${label}: ${value}`).join('\n\n');
+	const written = single || parts.map(([, value]) => value).join(' ');
+	return written.length >= JUSTIFICATION_MIN && (single || parts.length === 2) ? combined : null;
+}
+
+export function parseHours(form: FormData): number | null {
+	const hours = Number(form.get('approvedHours'));
+	return Number.isFinite(hours) && hours >= 0 && hours <= 500 ? Math.round(hours * 3600) : null;
+}
+
+/** A reviewer's call. Approving needs the hours and a justification; the others need feedback for the builder. */
 export function parseDecision(
 	form: FormData
-): { ok: true; value: { decision: Decision; approvedSeconds: number | null; feedback: string } } | { ok: false; message: string } {
+):
+	| { ok: true; value: { decision: Decision; approvedSeconds: number | null; feedback: string; justification: string | null } }
+	| { ok: false; message: string } {
 	const decision = form.get('decision');
-	const feedback = typeof form.get('feedback') === 'string' ? String(form.get('feedback')).trim().slice(0, 2000) : '';
+	const feedback = text(form, 'feedback', 2000);
 	if (decision === 'approved') {
-		const hours = Number(form.get('approvedHours'));
-		if (!Number.isFinite(hours) || hours < 0 || hours > 500) return { ok: false, message: 'Set the hours to approve.' };
-		return { ok: true, value: { decision, approvedSeconds: Math.round(hours * 3600), feedback } };
+		const approvedSeconds = parseHours(form);
+		if (approvedSeconds == null) return { ok: false, message: 'Set the hours to approve.' };
+		const justification = parseJustification(form);
+		if (!justification) return { ok: false, message: 'Fill in both justification boxes: what you checked, and why these hours.' };
+		return { ok: true, value: { decision, approvedSeconds, feedback, justification } };
 	}
 	if (decision === 'changes_requested' || decision === 'rejected') {
 		if (!feedback) return { ok: false, message: 'Tell them why, so they know what to do next.' };
-		return { ok: true, value: { decision, approvedSeconds: null, feedback } };
+		return { ok: true, value: { decision, approvedSeconds: null, feedback, justification: null } };
 	}
 	return { ok: false, message: 'Pick approve, needs changes or reject.' };
 }

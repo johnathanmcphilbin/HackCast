@@ -40,6 +40,8 @@ export type Submission = {
 	status: SubmissionStatus;
 	approvedSeconds: number | null;
 	feedback: string | null;
+	/** The reviewer's justification for the hours, sent to Airtable. Not shown to the builder. */
+	justification: string | null;
 	reviewerName: string | null;
 	airtableRecordId: string | null;
 	submittedAt: Date;
@@ -91,6 +93,7 @@ async function ready(): Promise<postgres.Sql> {
 					updated_at timestamptz not null default now()
 				)
 			`;
+			await sql`alter table submissions add column if not exists justification text`;
 			await sql`create index if not exists submissions_status_idx on submissions (status, submitted_at)`;
 			await sql`
 				create table if not exists submission_reviews (
@@ -125,8 +128,8 @@ async function ready(): Promise<postgres.Sql> {
 const COLUMNS = (sql: postgres.Sql) => sql`
 	s.id::text as id, s.project_id::text as project_id, s.project_name, s.hackatime_project, s.kind,
 	s.description, s.code_url, s.demo_url, s.screenshot_url, s.github_username, s.first_name, s.last_name,
-	s.email, to_char(s.birthday, 'YYYY-MM-DD') as birthday, s.address_line1, s.address_line2, s.city, s.state,
-	s.postal_code, s.country, s.tracked_seconds, s.status, s.approved_seconds, s.feedback, s.reviewer_name,
+	coalesce(nullif(s.email, ''), u.email) as email, to_char(s.birthday, 'YYYY-MM-DD') as birthday, s.address_line1, s.address_line2, s.city, s.state,
+	s.postal_code, s.country, s.tracked_seconds, s.status, s.approved_seconds, s.feedback, s.justification, s.reviewer_name,
 	s.airtable_record_id, s.submitted_at, s.decided_at,
 	u.display_name as builder_name, u.hackclub_id as builder_hackclub_id, u.slack_id as builder_slack_id
 `;
@@ -156,6 +159,7 @@ type Row = {
 	status: SubmissionStatus;
 	approved_seconds: number | null;
 	feedback: string | null;
+	justification: string | null;
 	reviewer_name: string | null;
 	airtable_record_id: string | null;
 	submitted_at: Date;
@@ -191,6 +195,7 @@ function toSubmission(row: Row): Submission {
 		status: row.status,
 		approvedSeconds: row.approved_seconds,
 		feedback: row.feedback,
+		justification: row.justification,
 		reviewerName: row.reviewer_name,
 		airtableRecordId: row.airtable_record_id,
 		submittedAt: row.submitted_at,
@@ -351,6 +356,7 @@ export async function decide(input: {
 	decision: Decision;
 	approvedSeconds: number | null;
 	feedback: string;
+	justification: string | null;
 }): Promise<boolean> {
 	const sql = await ready();
 	const reviewer = await userId(sql, input.reviewerHackclubId);
@@ -360,6 +366,7 @@ export async function decide(input: {
 				status = ${input.decision},
 				approved_seconds = ${input.approvedSeconds},
 				feedback = ${input.feedback || null},
+				justification = ${input.justification},
 				reviewer_name = ${input.reviewerName},
 				decided_at = now(),
 				updated_at = now()
@@ -379,6 +386,17 @@ export async function decide(input: {
 		`;
 		return true;
 	});
+}
+
+/** Change the approved hours and justification after approval. False unless it is approved or sent. */
+export async function rewriteApproval(submissionId: string, approvedSeconds: number, justification: string): Promise<boolean> {
+	const sql = await ready();
+	const rows = await sql`
+		update submissions set approved_seconds = ${approvedSeconds}, justification = ${justification}, updated_at = now()
+		where id = ${submissionId}::uuid and status in ('approved', 'sent')
+		returning id
+	`;
+	return rows.length > 0;
 }
 
 /** Approved and now in Hack Club's Airtable: keep the record id, drop the address and birthday. */

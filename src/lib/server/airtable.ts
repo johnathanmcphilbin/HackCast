@@ -24,16 +24,20 @@ export const AIRTABLE_FIELDS = {
 	justification: 'Optional - Override Hours Spent Justification'
 } as const;
 
-/** Why the hours are what they are, signed by the reviewer. */
-export function justification(submission: Submission, reviewerName: string): string {
+/** Where the tracked hours came from. The start of a justification, for the reviewer to build on. */
+export function hoursSource(submission: Submission): string {
 	const tracked = (submission.trackedSeconds / 3600).toFixed(1);
+	return submission.kind === 'software'
+		? `Hackatime project "${submission.hackatimeProject ?? submission.projectName}" tracked ${tracked}h.`
+		: `Hardware project. ${tracked}h from the build journal.`;
+}
+
+/** Why the hours are what they are: the reviewer's own words when written, signed by the reviewer. */
+export function justification(submission: Submission, reviewerName: string): string {
 	const approved = ((submission.approvedSeconds ?? 0) / 3600).toFixed(1);
-	const source =
-		submission.kind === 'software'
-			? `Hackatime project "${submission.hackatimeProject ?? submission.projectName}" tracked ${tracked}h.`
-			: `Hardware project. ${tracked}h from the build journal.`;
-	const lines = [`HackCast project "${submission.projectName}". ${source} Approved ${approved}h.`];
-	if (submission.feedback) lines.push(submission.feedback);
+	const lines = [`HackCast project "${submission.projectName}". ${hoursSource(submission)} Approved ${approved}h.`];
+	if (submission.justification) lines.push(submission.justification);
+	else if (submission.feedback) lines.push(submission.feedback);
 	lines.push(`Reviewed by ${reviewerName}`);
 	return lines.join('\n\n');
 }
@@ -62,22 +66,18 @@ export function airtableFields(submission: Submission, reviewerName: string): Re
 	return fields;
 }
 
-/** Create the record. Returns its id, or throws with Airtable's error type. */
-export async function sendToAirtable(
-	target: { apiKey: string; baseId: string; table: string },
-	submission: Submission,
-	reviewerName: string,
-	fetchImpl: typeof fetch = fetch
-): Promise<string> {
-	const response = await fetchImpl(
-		`https://api.airtable.com/v0/${encodeURIComponent(target.baseId)}/${encodeURIComponent(target.table)}`,
-		{
-			method: 'POST',
-			headers: { authorization: `Bearer ${target.apiKey}`, 'content-type': 'application/json' },
-			body: JSON.stringify({ fields: airtableFields(submission, reviewerName), typecast: true }),
-			signal: AbortSignal.timeout(15000)
-		}
-	);
+function airtableUrl(target: { baseId: string; table: string }, recordId = ''): string {
+	const base = `https://api.airtable.com/v0/${encodeURIComponent(target.baseId)}/${encodeURIComponent(target.table)}`;
+	return recordId ? `${base}/${encodeURIComponent(recordId)}` : base;
+}
+
+async function airtableRequest(url: string, method: 'POST' | 'PATCH', apiKey: string, fields: Record<string, unknown>, fetchImpl: typeof fetch): Promise<string> {
+	const response = await fetchImpl(url, {
+		method,
+		headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+		body: JSON.stringify({ fields, typecast: true }),
+		signal: AbortSignal.timeout(15000)
+	});
 	const json = (await response.json().catch(() => null)) as { id?: unknown; error?: { type?: unknown; message?: unknown } } | null;
 	if (!response.ok || typeof json?.id !== 'string') {
 		const type = typeof json?.error?.type === 'string' ? json.error.type : `HTTP ${response.status}`;
@@ -85,4 +85,29 @@ export async function sendToAirtable(
 		throw new Error(`${type}${message}`);
 	}
 	return json.id;
+}
+
+/** Rewrite the hours and justification on a record already sent. */
+export async function updateAirtableReview(
+	target: { apiKey: string; baseId: string; table: string },
+	recordId: string,
+	submission: Submission,
+	reviewerName: string,
+	fetchImpl: typeof fetch = fetch
+): Promise<void> {
+	const f = AIRTABLE_FIELDS;
+	await airtableRequest(airtableUrl(target, recordId), 'PATCH', target.apiKey, {
+		[f.hours]: Math.round(((submission.approvedSeconds ?? 0) / 3600) * 100) / 100,
+		[f.justification]: justification(submission, reviewerName)
+	}, fetchImpl);
+}
+
+/** Create the record. Returns its id, or throws with Airtable's error type. */
+export async function sendToAirtable(
+	target: { apiKey: string; baseId: string; table: string },
+	submission: Submission,
+	reviewerName: string,
+	fetchImpl: typeof fetch = fetch
+): Promise<string> {
+	return airtableRequest(airtableUrl(target), 'POST', target.apiKey, airtableFields(submission, reviewerName), fetchImpl);
 }

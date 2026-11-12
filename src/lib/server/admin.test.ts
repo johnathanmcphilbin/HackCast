@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { airtableFields, AIRTABLE_FIELDS, justification } from './airtable.ts';
+import { airtableFields, AIRTABLE_FIELDS, justification, updateAirtableReview } from './airtable.ts';
 import { cleanEmail, roleFor } from './roles.ts';
 import { lastDays, median } from './days.ts';
 import { parseDecision, parseSubmission } from './submission-form.ts';
@@ -61,10 +61,15 @@ describe('submission form', () => {
 		assert.equal(hardware.value.claimedHours, 12.3);
 	});
 
-	it('needs hours to approve and feedback to send back', () => {
-		const approve = parseDecision(form({ decision: 'approved', approvedHours: '2.5' }));
+	it('needs hours and both justification boxes to approve, and feedback to send back', () => {
+		assert.ok(!parseDecision(form({ decision: 'approved', approvedHours: '2.5' })).ok);
+		assert.ok(!parseDecision(form({ decision: 'approved', approvedHours: '2.5', checked: 'Demo works and the repo is complete.' })).ok);
+		const approve = parseDecision(
+			form({ decision: 'approved', approvedHours: '2.5', checked: 'Demo works.', hoursReason: 'Cut 30 minutes of idle time.' })
+		);
 		assert.ok(approve.ok);
 		assert.equal(approve.value.approvedSeconds, 9000);
+		assert.equal(approve.value.justification, 'Checked: Demo works.\n\nHours: Cut 30 minutes of idle time.');
 		assert.ok(!parseDecision(form({ decision: 'rejected' })).ok);
 		assert.ok(parseDecision(form({ decision: 'changes_requested', feedback: 'Add a demo video.' })).ok);
 		assert.ok(!parseDecision(form({ decision: 'maybe' })).ok);
@@ -93,7 +98,8 @@ describe('sending to Airtable', () => {
 		country: good.country,
 		trackedSeconds: 36_000,
 		approvedSeconds: 27_000,
-		feedback: 'Solid. Cut the idle time.'
+		feedback: 'Nice work!',
+		justification: 'Checked: demo runs.\n\nHours: Cut the idle time.'
 	} as Submission;
 
 	it('overrides the hours with what was approved and signs the justification', () => {
@@ -105,7 +111,23 @@ describe('sending to Airtable', () => {
 		assert.match(text, /tracked 10\.0h/);
 		assert.match(text, /Approved 7\.5h/);
 		assert.match(text, /Cut the idle time/);
+		assert.doesNotMatch(text, /Nice work/);
 		assert.match(text, /Reviewed by Johnny$/);
+	});
+
+	it('patches the hours and justification onto a record already sent', async () => {
+		const calls: { url: string; method?: string; fields: Record<string, unknown> }[] = [];
+		const fake = (async (url: string, init: RequestInit) => {
+			calls.push({ url, method: init.method, fields: JSON.parse(String(init.body)).fields });
+			return new Response(JSON.stringify({ id: 'rec1' }), { status: 200 });
+		}) as typeof fetch;
+		await updateAirtableReview({ apiKey: 'k', baseId: 'app1', table: 'YSWS' }, 'rec1', submission, 'Johnny', fake);
+		assert.equal(calls.length, 1);
+		assert.equal(calls[0].method, 'PATCH');
+		assert.equal(calls[0].url, 'https://api.airtable.com/v0/app1/YSWS/rec1');
+		assert.equal(calls[0].fields[AIRTABLE_FIELDS.hours], 7.5);
+		assert.match(String(calls[0].fields[AIRTABLE_FIELDS.justification]), /Cut the idle time/);
+		assert.equal(calls[0].fields[AIRTABLE_FIELDS.email], undefined);
 	});
 });
 

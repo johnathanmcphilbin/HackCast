@@ -31,6 +31,10 @@
 			<dl>
 				<dt>builder</dt>
 				<dd>{s.builderName}{s.builderSlackId ? ` · ${s.builderSlackId}` : ''}</dd>
+				<dt>email</dt>
+				<dd>{#if s.email}<a href="mailto:{s.email}">{s.email}</a>{:else}not given{/if}</dd>
+				<dt>name</dt>
+				<dd>{s.firstName} {s.lastName}</dd>
 				<dt>kind</dt>
 				<dd>{s.kind}</dd>
 				<dt>hours</dt>
@@ -63,23 +67,64 @@
 			{#if s.status === 'pending'}
 				<h2>decide</h2>
 				<form method="POST" action="?/decide">
-					<label class="choice"><input type="radio" name="decision" value="approved" required /> approve</label>
-					<label>
-						hours to approve
-						<input name="approvedHours" type="number" min="0" max="500" step="0.1" value={s.trackedHours} />
-					</label>
-					<label class="choice"><input type="radio" name="decision" value="changes_requested" /> needs changes</label>
-					<label class="choice"><input type="radio" name="decision" value="rejected" /> reject</label>
-					<label>
-						feedback for the builder
-						<textarea name="feedback" maxlength="2000" placeholder="Needed for changes or a rejection. Goes to Airtable on approval."></textarea>
-					</label>
+					<fieldset>
+						<legend>1 · decision</legend>
+						<label class="choice"><input type="radio" name="decision" value="approved" required /> approve</label>
+						<label class="choice"><input type="radio" name="decision" value="changes_requested" /> needs changes</label>
+						<label class="choice"><input type="radio" name="decision" value="rejected" /> reject</label>
+					</fieldset>
+					<fieldset>
+						<legend>2 · justification for Airtable</legend>
+						<p class="hint">Needed to approve. Hack Club reads this, not the builder. Signed with your name.</p>
+						<label>
+							hours to approve
+							<input name="approvedHours" type="number" min="0" max="500" step="0.1" value={s.trackedHours} />
+						</label>
+						<label>
+							what did you check?
+							<textarea
+								name="checked"
+								maxlength="2000"
+								placeholder="Opened the demo and it works. The repo has a README, and the commits line up with the tracked time."
+							></textarea>
+						</label>
+						<label>
+							why these hours?
+							<textarea name="hoursReason" maxlength="2000" placeholder="Anything you cut and why, or why the full time counts.">{s.hoursSource} </textarea>
+						</label>
+					</fieldset>
+					<fieldset>
+						<legend>3 · feedback for the builder</legend>
+						<label>
+							<span class="hint">Needed for changes or a rejection. Optional on approval.</span>
+							<textarea name="feedback" maxlength="2000"></textarea>
+						</label>
+					</fieldset>
 					<button class="redbtn" type="submit">save decision</button>
 				</form>
 			{:else}
 				<h2>decision</h2>
 				<p>{LABEL[s.status]}{s.approved ? `, ${s.approved}` : ''}{s.reviewerName ? ` by ${s.reviewerName}` : ''}</p>
-				{#if s.feedback}<p class="desc">{s.feedback}</p>{/if}
+				{#if s.feedback}<p class="desc"><b>to the builder:</b> {s.feedback}</p>{/if}
+				{#if s.status === 'approved' || s.status === 'sent'}
+					<form method="POST" action="?/justify" class="justify">
+						<fieldset>
+							<legend>justification for Airtable</legend>
+							<p class="hint">
+								{s.status === 'sent' ? 'Saving updates the record already in Airtable.' : 'Goes to Airtable when you send it.'}
+							</p>
+							<label>
+								hours to approve
+								<input name="approvedHours" type="number" min="0" max="500" step="0.1" value={s.approvedHours} />
+							</label>
+							<label>
+								justification
+								<textarea name="justification" maxlength="4000" required>{s.justification ?? ''}</textarea>
+							</label>
+						</fieldset>
+						<button class="plain" type="submit">{s.status === 'sent' ? 'save and update Airtable' : 'save justification'}</button>
+					</form>
+				{/if}
 				{#if s.status === 'approved'}
 					<form method="POST" action="?/send"><button class="redbtn" type="submit">send to Airtable</button></form>
 				{/if}
@@ -203,6 +248,35 @@
 	}
 	textarea {
 		min-height: 7rem;
+	}
+	fieldset {
+		display: grid;
+		gap: 0.5rem;
+		margin: 0 0 0.6rem;
+		padding: 0.7rem 0.8rem 0.8rem;
+		border: 2px solid var(--shadow);
+	}
+	legend {
+		padding: 0 0.3rem;
+		font-family: 'Space Mono', monospace;
+		font-weight: 700;
+		color: var(--red-text);
+	}
+	.hint {
+		margin: 0;
+		font-size: 0.85rem;
+		font-weight: 600;
+	}
+	.justify {
+		margin: 0.8rem 0;
+	}
+	.plain {
+		padding: 0.4rem 0.7rem;
+		border: 3px solid var(--shadow);
+		background: #fff;
+		color: var(--ink);
+		font: inherit;
+		font-weight: 800;
 	}
 	button {
 		justify-self: start;
